@@ -1,0 +1,296 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Auditoria {
+  idAuditoria Int       @id(map: "PK_Auditoria") @default(autoincrement())
+  pagina      String?   @db.VarChar(100)
+  descripcion String?   @db.NVarChar(500)
+  mensaje     String?   @db.NVarChar(500)
+  idUsuario   Int?
+  fecha       DateTime? @db.DateTime
+  Usuario     Usuario?  @relation(fields: [idUsuario], references: [idUser], onDelete: NoAction, onUpdate: NoAction, map: "FK_Auditoria_Usuario")
+}
+
+model Ausentismo {
+  idAusentismo      Int    @id(map: "PK_Ausentismo") @default(autoincrement())
+  menbresia         Int?
+  idMes             Int?
+  anio              Int?
+  cuotaPresente     Float?
+  cuotaAusente      Float?
+  cuotaDiferencia   Float?
+  cuotaPatrimonialP Float?
+  cuotaPatrimonialA Float?
+  idLiquidacion     Int?
+  Mes               Mes?   @relation(fields: [idMes], references: [idMes], onDelete: NoAction, onUpdate: NoAction, map: "FK_Ausentismo_Mes")
+}
+
+model ConfigCuota {
+  idConfiguracion      Int         @id(map: "PK_ConfigCuota") @default(autoincrement())
+  detalleConfiguracion String?     @db.NVarChar(250)
+  estadoGoldMine       String?     @db.NVarChar(250)
+  idcuota              Int?
+  categoriaGoldMine    String?     @db.NVarChar(250)
+  ValorCuota           ValorCuota? @relation(fields: [idcuota], references: [idCuota], onDelete: NoAction, onUpdate: NoAction, map: "FK_ConfigCuota_ValorCuota")
+}
+
+model contactscm_fac_elec_arast {
+  ACCOUNTNO             String   @id @db.VarChar(20) // Define ACCOUNTNO como la clave primaria
+  Categoria             String?  @db.VarChar(20)
+  CI                    String   @db.VarChar(20)
+  Socio                 String?  @db.VarChar(40)
+  Titular               String?  @db.VarChar(40)
+  Membresia             String?  @db.VarChar(20)
+  DirDom                String   @db.VarChar(90)
+  UDIRENV               String   @db.VarChar(90)
+  TelDom2               Float
+  TelDom                String   @db.VarChar(25)
+  Celular               Float
+  email                 String   @db.VarChar(90)
+  RECID_EMAIL           String   @db.VarChar(15)
+  Aux1                  String   @db.VarChar(4)
+  Aux2                  String   @db.VarChar(4)
+  Aux3                  String   @db.VarChar(35)
+  Estatus               String?  @db.VarChar(20)
+  Alerta_Garitas        String   @db.VarChar(80)
+  Alerta_Tarjeta        String   @db.VarChar(20)
+  FechaNac              DateTime
+  Edad                  Int
+  Marca_Ausentes        DateTime @map("Marca Ausentes")
+  Marca_Club_Canje      DateTime
+  Marca_Intercambio_Est DateTime
+  Marca_Invitado        DateTime
+  Relacion              String   @db.VarChar(35)
+  tarjeta               String   @db.VarChar(14)
+  prepago               Float
+  ciclo                 Int      @db.SmallInt
+  USEXO                 String   @db.VarChar(10)
+  PASAPORTE             String   @db.VarChar(9)
+  notifica_email        String   @db.VarChar(12)
+  comment1              String   @db.VarChar(20)
+  ADDRESS2              String   @db.VarChar(90)
+  PHONE2                String   @db.VarChar(15)
+  PHONE3                String   @db.VarChar(15)
+  classid               String?  @db.VarChar(15)
+  city                  String   @db.VarChar(30)
+  state                 String   @db.VarChar(20)
+  COUNTRY               String   @db.VarChar(20)
+  zip                   String   @db.VarChar(10)
+  contacto              String?  @db.VarChar(40)
+  Marca_Suspension      DateTime @map("Marca Suspension")
+  fechaRetSep           DateTime
+  fecha_ingreso         DateTime
+  ingreso_activo_EPPD   DateTime
+  NumeroCuenta          String?  @db.VarChar(50)
+  TipoCuenta            String?  @db.VarChar(50)
+  Banco                 String?  @db.VarChar(100)
+  CodigoBanco           String?  @db.VarChar(50)
+
+}
+
+
+model Cuota {
+  idCuotas                 Int     @id(map: "PK_Cuota") @default(autoincrement())
+  categoria                String? @db.NVarChar(150)
+  valorCuotaPresente       Float?
+  valorCuotaAusente        Float?
+  valorPatrimonialPresente Float?
+  valorPatrimonialAusente  Float?
+  valorPredial             Float?
+  anio                     Int?
+}
+
+model facturasReactivacion {
+  idfacturas        Int              @id(map: "PK_facturasReactivacion") @default(autoincrement())
+  idRegReactivacion Int?
+  codigoFacturas    String?          @db.VarChar(70)
+  fechaEmision      String?          @db.VarChar(50)
+  membresia         Int?
+  valor             Float?
+  RegReactivacion   RegReactivacion? @relation(fields: [idRegReactivacion], references: [idRegReactivacion], onDelete: NoAction, onUpdate: NoAction, map: "FK_facturasReactivacion_RegReactivacion")
+}
+
+model MantenimientoCuotas {
+  idMantenimiento      Int     @id(map: "PK_MantenimientoCuotas") @default(autoincrement())
+  descripcionCuota     String? @db.NVarChar(2000)
+  detalleConfiguracion String? @db.NVarChar(250)
+  categoriaGoldMine    String? @db.NVarChar(200)
+  estadoGoldMine       String? @db.NVarChar(200)
+  valorCuota           Float?
+  anio                 Int?
+  tipo                 String? @db.NVarChar(100)
+}
+
+model Mes {
+  idMes      Int          @id(map: "PK_Mes") @default(autoincrement())
+  mesName    String?      @db.VarChar(50)
+  Ausentismo Ausentismo[]
+  ValorCuota ValorCuota[]
+}
+
+model RegistroMovMigracion {
+  idMovMigratorio   Int       @id(map: "PK_RegistroMovMigracion") @default(autoincrement())
+  socio             String?   @db.NVarChar(100)
+  fechaAusentismo   DateTime? @db.DateTime
+  membresia         Int?
+  fechaSalida       DateTime? @db.DateTime
+  fechaEntreda      DateTime? @db.DateTime
+  FechaReactivacion DateTime? @db.DateTime
+  FechaLiquidaDesde DateTime? @db.DateTime
+  exterior          Int?
+  pais              Int?
+  estadoMigratorio  String?   @db.VarChar(250)
+  idLiquidacion     Int?
+  categoriaSocio    String?   @db.NVarChar(100)
+  estadoSocio       String?   @db.NVarChar(100)
+  factura           String?   @db.NVarChar(100)
+  comentario        String?   @db.NVarChar(Max)
+  idUsuario         Int?
+  valorAdicional    Float?
+  descripcionValor  String?   @db.NVarChar(500)
+  Usuario           Usuario?  @relation(fields: [idUsuario], references: [idUser], onDelete: NoAction, onUpdate: NoAction, map: "FK_RegistroMovMigracion_Usuario")
+}
+
+model RegReactivacion {
+  idRegReactivacion    Int                    @id(map: "PK_RegReactivacion") @default(autoincrement())
+  socio                String?                @db.VarChar(100)
+  membresia            Int?
+  categoria            String?                @db.VarChar(70)
+  estado               String?                @db.VarChar(70)
+  fechaNacimiento      DateTime?              @db.DateTime
+  fechaliquidacion     DateTime?              @db.DateTime
+  newLiquida           DateTime?              @db.DateTime
+  ValorReajuste        Float?
+  comentario           String?                @db.VarChar(300)
+  factura              String?                @db.VarChar(250)
+  facturasReactivacion facturasReactivacion[]
+}
+
+model RegSuspencion {
+  idRegistroSuspencion Int               @id(map: "PK_RegSuspencion") @default(autoincrement())
+  nameSocio            String?           @db.VarChar(70)
+  membresia            Int?
+  categoria            String?           @db.VarChar(70)
+  estado               String?           @db.VarChar(70)
+  estatusSocio         String?           @db.VarChar(70)
+  fnacimiento          DateTime?         @db.DateTime
+  fechaSuspencion      DateTime?         @db.DateTime
+  fechaFinSuspencion   DateTime?         @db.DateTime
+  edad                 Int?
+  ValorPredial         Float?
+  ValorPatrimonial     Float?
+  ValorAdicional       Float?
+  ComentarioAdicional  String?           @db.VarChar(150)
+  fechaLiquidacion     DateTime?         @db.DateTime
+  factura              String?           @db.VarChar(150)
+  storeSuspencion      storeSuspencion[]
+}
+
+model Rol {
+  idRol   Int       @id(map: "PK_Rol") @default(autoincrement())
+  rolName String?   @db.VarChar(50)
+  Usuario Usuario[]
+}
+
+model storeCuotas {
+  idCuota         Int      @id(map: "PK_storeCuotas") @default(autoincrement())
+  anio            Int?
+  mesesCobrados   Int?
+  cuotaAusente    Float?
+  cuotaPresente   Float?
+  cuotaDiferencia Float?
+  idLiquidacion   Int?
+  categoria       String?  @db.VarChar(100)
+  aprobado        Boolean?
+}
+
+model storePatrimonial {
+  idPatrimonial   Int      @id(map: "PK_storePatrimonial") @default(autoincrement())
+  anio            Int?
+  cuotaAusente    Float?
+  cuotaPresente   Float?
+  cuotadiferencia Float?
+  idLiquidacion   Int?
+  categoria       String?  @db.VarChar(100)
+  aprobado        Boolean?
+}
+
+model storeReactivacion {
+  idStoreReactivacion Int      @id(map: "PK_storeReactivacion") @default(autoincrement())
+  idRegReactivacion   Int?
+  mesesCobrar         String?  @db.VarChar(70)
+  cantMeses           Int?
+  categoria           String?  @db.VarChar(70)
+  valorXmes           Float?
+  valorXperiodo       Float?
+  aprobado            Boolean?
+}
+
+model storeSuspencion {
+  idStoreSuspencion Int            @id(map: "PK_storeSuspencion") @default(autoincrement())
+  idRegSuspencion   Int?
+  mes               String?        @db.VarChar(50)
+  anio              Int?
+  cuotaMensual      Float?
+  tipo              String?        @db.VarChar(70)
+  categoria         String?        @db.VarChar(70)
+  RegSuspencion     RegSuspencion? @relation(fields: [idRegSuspencion], references: [idRegistroSuspencion], onDelete: NoAction, onUpdate: NoAction, map: "FK_storeSuspencion_RegSuspencion")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B6138CD3B9C") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model Usuario {
+  idUser               Int                    @id(map: "PK_Usuario") @default(autoincrement())
+  usuario              String?                @db.VarChar(50)
+  password             String?                @db.NVarChar(100)
+  nombre               String?                @db.VarChar(50)
+  apellido             String?                @db.VarChar(50)
+  idRol                Int?
+  activo               Boolean?
+  Auditoria            Auditoria[]
+  RegistroMovMigracion RegistroMovMigracion[]
+  Rol                  Rol?                   @relation(fields: [idRol], references: [idRol], onDelete: NoAction, onUpdate: NoAction, map: "FK_Usuario_Rol")
+}
+
+model ValorCuota {
+  idCuota          Int           @id(map: "PK_ValorCuota") @default(autoincrement())
+  cuotaDescripcion String?
+  idMes            Int?
+  cuotaValor       Float?
+  ConfigCuota      ConfigCuota[]
+  Mes              Mes?          @relation(fields: [idMes], references: [idMes], onDelete: NoAction, onUpdate: NoAction, map: "FK_ValorCuota_Mes")
+}
+
+model vw_estado_anterior_susp_temporal {
+  USERID           String    @db.VarChar(8)
+  ONDATE           DateTime  @db.Date 
+  ONTIME           String    @db.VarChar(5) 
+  CREATEBY         String?   @db.VarChar(8)
+  CREATEON         DateTime?
+  CREATEAT         String?   @db.VarChar(5)
+  membresia        String?   @db.VarChar(20)
+  titular          String?   @db.VarChar(40)
+  socio            String?   @db.VarChar(40)
+  categoria_actual String?   @db.VarChar(20)
+  Estatus_actual   String?   @db.VarChar(8000)
+  estadoAnterior   String?   @db.VarChar(8000)
+  NOTA1            String?   @db.VarChar(80)
+  NOTA2            String    @db.VarChar(80)
+  LASTUSER         String?   @db.VarChar(8)
+
+  @@id([ONDATE, ONTIME]) 
+}

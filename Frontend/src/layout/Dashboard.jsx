@@ -3,6 +3,7 @@ import { Link, Navigate, Outlet, useLocation} from 'react-router-dom'
 
 const Dashboard = () => {
   const [showSubItems, setShowSubItems] = useState(false);
+  const autenticado=localStorage.getItem('token')
 
   const toggleSubItems = () => {
     setShowSubItems(!showSubItems);
@@ -85,13 +86,7 @@ const Dashboard = () => {
         {/* Main Content */}
         <main className="flex-grow bg-gray-100 p-8">
           <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h1 className="text-3xl font-bold mb-4">Quickstart</h1>
-            <p>This guide will get you all set up and ready to use the Protocol API...</p>
-            
-            <div className="mt-4">
-              <h2 className="text-xl font-semibold">Choose your client</h2>
-              <p>Before making your first API request, you need to pick which API client you will use...</p>
-            </div>
+               {autenticado ? <Outlet /> : <Navigate to = "/"/>}
           </div>
         </main>
       </div>

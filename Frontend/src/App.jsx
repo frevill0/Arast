@@ -13,9 +13,9 @@ function App(){
           <Route index element={<Login/>}/>
           <Route path='dashboard/*' element={
             <Routes>
-              <Route index element={<Dashboard/>}></Route>
-              <Route path='/usuarios/listar' element={<ListarUsuarios/>}></Route>
-              <Route path='/usuarios/registrar' element={<RegistrarUsuarios/>}></Route>
+              <Route index element={<Dashboard/>}/>
+              <Route path='usuarios/listar' element={<ListarUsuarios/>}/>
+              <Route path='usuarios/registrar' element={<RegistrarUsuarios/>}/>
             </Routes>
           }/>       
         </Routes>

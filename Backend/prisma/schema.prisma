@@ -40,8 +40,9 @@ model ConfigCuota {
   ValorCuota           ValorCuota? @relation(fields: [idcuota], references: [idCuota], onDelete: NoAction, onUpdate: NoAction, map: "FK_ConfigCuota_ValorCuota")
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model contactscm_fac_elec_arast {
-  ACCOUNTNO             String   @id @db.VarChar(20) // Define ACCOUNTNO como la clave primaria
+  ACCOUNTNO             String   @db.VarChar(20)
   Categoria             String?  @db.VarChar(20)
   CI                    String   @db.VarChar(20)
   Socio                 String?  @db.VarChar(40)
@@ -92,8 +93,8 @@ model contactscm_fac_elec_arast {
   Banco                 String?  @db.VarChar(100)
   CodigoBanco           String?  @db.VarChar(50)
 
+  @@ignore
 }
-
 
 model Cuota {
   idCuotas                 Int     @id(map: "PK_Cuota") @default(autoincrement())
@@ -266,6 +267,19 @@ model Usuario {
   Rol                  Rol?                   @relation(fields: [idRol], references: [idRol], onDelete: NoAction, onUpdate: NoAction, map: "FK_Usuario_Rol")
 }
 
+model Usuarios_Arast_Frevill {
+  username          String    @id(map: "PK__Usuarios__F3DBC5737B9467E0") @db.NVarChar(100)
+  nombre            String    @db.NVarChar(100)
+  apellido          String    @db.NVarChar(100)
+  contrasena        String    @db.NVarChar(255)
+  activo            Boolean   @default(true, map: "DF__Usuarios___activ__3552E9B6")
+  rol               String    @db.NVarChar(50)
+  fechaCreacion     DateTime? @default(now(), map: "DF__Usuarios___fecha__373B3228") @db.DateTime
+  fechaModificacion DateTime? @default(now(), map: "DF__Usuarios___fecha__382F5661") @db.DateTime
+
+  @@unique([nombre, apellido], map: "UQ_NombreApellido")
+}
+
 model ValorCuota {
   idCuota          Int           @id(map: "PK_ValorCuota") @default(autoincrement())
   cuotaDescripcion String?
@@ -275,10 +289,11 @@ model ValorCuota {
   Mes              Mes?          @relation(fields: [idMes], references: [idMes], onDelete: NoAction, onUpdate: NoAction, map: "FK_ValorCuota_Mes")
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vw_estado_anterior_susp_temporal {
   USERID           String    @db.VarChar(8)
-  ONDATE           DateTime  @db.Date 
-  ONTIME           String    @db.VarChar(5) 
+  ONDATE           DateTime?
+  ONTIME           String?   @db.VarChar(5)
   CREATEBY         String?   @db.VarChar(8)
   CREATEON         DateTime?
   CREATEAT         String?   @db.VarChar(5)
@@ -286,11 +301,11 @@ model vw_estado_anterior_susp_temporal {
   titular          String?   @db.VarChar(40)
   socio            String?   @db.VarChar(40)
   categoria_actual String?   @db.VarChar(20)
-  Estatus_actual   String?   @db.VarChar(8000)
+  Estatus_actual   String?   @db.VarChar(20)
   estadoAnterior   String?   @db.VarChar(8000)
   NOTA1            String?   @db.VarChar(80)
   NOTA2            String    @db.VarChar(80)
   LASTUSER         String?   @db.VarChar(8)
 
-  @@id([ONDATE, ONTIME]) 
+  @@ignore
 }

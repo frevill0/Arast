@@ -22,11 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-#Node modules
-
-node_modules
-
-#Variables de entorno
-
-.env

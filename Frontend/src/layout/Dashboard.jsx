@@ -84,11 +84,9 @@ const Dashboard = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-grow bg-gray-100 p-8">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-               {autenticado ? <Outlet /> : <Navigate to = "/"/>}
-          </div>
-        </main>
+        <div className='overflow-y-scroll p-8'>
+          {autenticado ? <Outlet /> : <Navigate to = "/"/>}
+        </div>
       </div>
     </div>
   );

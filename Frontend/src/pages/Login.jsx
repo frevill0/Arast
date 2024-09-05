@@ -98,9 +98,9 @@ export const Login = () => {
                         />
                         {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                     </div>
-                    <Link to='dashboard' type="submit" className="w-full  bg-gray-900 text-white p-2 rounded-md hover:bg-blue-700">
+                    <button type="submit" className="w-full  bg-gray-900 text-white p-2 rounded-md hover:bg-blue-700">
                         Iniciar sesión
-                    </Link>
+                    </button>
                 </form>
             </div>
         </div>

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useContext,useEffect, useState } from "react";
 import { MdDeleteForever,MdNoteAdd,MdInfo } from "react-icons/md";
-import Mensaje from "./Alerts/Mensaje"
+import Message from "./Alerts/Message"
 import {useNavigate} from 'react-router-dom'
 import AuthContext from "../context/AuthProvider"
 
@@ -12,10 +12,10 @@ const TablaUsuarios = () => {
 
     const [usuarios,setUsuarios]= useState([])
 
-    const listarUusarios = async () => { 
+    const listarUsuarios = async () => { 
         try {
             const token = localStorage.getItem('token')
-            const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/listar`
+            const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/todos`
             const options={
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,19 +25,19 @@ const TablaUsuarios = () => {
             const respuesta = await axios.get(url,options)
             
             
-            setusuarios(respuesta.data,...usuarios)
+            setUsuarios(respuesta.data,...usuarios)
 
         } catch (error) {
             console.log(error);
             
         }
      }
-     const handleDelete=async (id)=>{
+     const handleDelete=async (username)=>{
         try {
             const confirmar = confirm("¿Estas seguro de registrar la salida del usuario?")
             if(confirmar){
                 const token = localStorage.getItem('token')
-                const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/${id}`
+                const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/${username}`
                 const headers = {
                     'Content-Type':'application/json',
                     Authorization:`Bearer ${token}`
@@ -46,7 +46,7 @@ const TablaUsuarios = () => {
                     salida:new Date().toString()
                 }
                 await axios.delete(url,{headers, data});
-                listarusuarios()
+                listarUsuarios()
             }
         } catch (error) {
             console.log(error);
@@ -54,7 +54,7 @@ const TablaUsuarios = () => {
      }
 
      useEffect(() => {
-        listarusuarios()
+        listarUsuarios()
     }, [])
     
     // Estado para la página actual
@@ -79,7 +79,7 @@ const TablaUsuarios = () => {
   return (
     <>
       {usuarios.length === 0 ? (
-        <Mensaje tipo={'active'}>{'No existen registros'}</Mensaje>
+        <Message tipo={'active'}>{'No existen registros'}</Message>
       ) : (
         <>
           <table className='w-full mt-5 table-auto shadow-lg bg-white'>

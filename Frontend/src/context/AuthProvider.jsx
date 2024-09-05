@@ -8,7 +8,7 @@ const AuthProvider = ({ children }) => {
 
     const perfil = async(token) => {
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/to`
+            const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/todos`
             const options={
                 headers: {
                     'Content-Type': 'application/json',

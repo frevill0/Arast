@@ -11,7 +11,7 @@ export const Login = () => {
 
     const [form, setform] = useState({
         username: "",
-        password: ""
+        contrasena: ""
     })
 
     const handleChange = (e) => {
@@ -24,14 +24,13 @@ export const Login = () => {
     const validateForm = () => {
         const newErrors = {};
 
-        // Validación de username
         if (!form.username) {
             newErrors.username = 'El nombre del usuario es obligatorio';
+            console.log(form.username)
         }
 
-        // Validación de la contraseña
-        if (!form.password) {
-            newErrors.password = 'La contraseña es obligatoria';
+        if (!form.contrasena) {
+            newErrors.contrasena = 'La contraseña es obligatoria';
         }
 
         return newErrors;
@@ -45,7 +44,6 @@ export const Login = () => {
             setErrors(validationErrors);
         } else {
             setErrors({});
-            console.log('Formulario enviado', form);
         }
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/login`
@@ -79,9 +77,10 @@ export const Login = () => {
                             htmlFor='username'
                             className="block text-sm font-semibold mb-2">Nombre de Usuario:</label>
                         <input
-                            type="username"
+                            type="text"
                             name="username"
                             placeholder="ingresa tu nombre de usuario"
+                            value={form.username || ""} onChange={handleChange}
                             className={`block w-full p-2 rounded-md border ${errors.username ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 focus:ring-blue-500`}
                         >
                         </input>
@@ -91,12 +90,12 @@ export const Login = () => {
                         <label className="block text-sm font-semibold mb-2">Contraseña:</label>
                         <input
                             type="password"
-                            name="password"
+                            name="contrasena"
                             placeholder="********************"
-                            value={form.password || ""} onChange={handleChange}
-                            className={`block w-full p-2 rounded-md border ${errors.password ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 focus:ring-blue-500`}
+                            value={form.contrasena || ""} onChange={handleChange}
+                            className={`block w-full p-2 rounded-md border ${errors.contrasena ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500 focus:ring-blue-500`}
                         />
-                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                        {errors.contrasena && <p className="text-red-500 text-xs mt-1">{errors.contrasena}</p>}
                     </div>
                     <button type="submit" className="w-full  bg-gray-900 text-white p-2 rounded-md hover:bg-blue-700">
                         Iniciar sesión

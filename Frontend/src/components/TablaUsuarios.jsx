@@ -3,11 +3,10 @@ import { useContext,useEffect, useState } from "react";
 import { MdDeleteForever,MdNoteAdd,MdInfo } from "react-icons/md";
 import Message from "./Alerts/Message"
 import {useNavigate} from 'react-router-dom'
-import AuthContext from "../context/AuthProvider"
+
 
 const TablaUsuarios = () => {
 
-    const { auth } = useContext(AuthContext)
     const navigate =useNavigate()
 
     const [usuarios,setUsuarios]= useState([])
@@ -57,15 +56,13 @@ const TablaUsuarios = () => {
         listarUsuarios()
     }, [])
     
-    // Estado para la página actual
   const [paginaActual, setPaginaActual] = useState(1);
   const registrosPorPagina = 15;
 
-  // Calcular el índice del primer y último registro en la página actual
   const indiceUltimoRegistro = paginaActual * registrosPorPagina;
   const indicePrimerRegistro = indiceUltimoRegistro - registrosPorPagina;
 
-  // Obtener los registros actuales para la página
+
   const registrosActuales = usuarios.slice(indicePrimerRegistro, indiceUltimoRegistro);
 
   // Calcular el número total de páginas

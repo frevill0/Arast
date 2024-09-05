@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate, Outlet, useLocation} from 'react-router-dom'
 
-
 const Dashboard = () => {
   const [showSubItems, setShowSubItems] = useState(false);
 
@@ -53,10 +52,10 @@ const Dashboard = () => {
               {showSubItems && (
                 <ul className="ml-4">
                   <li className="px-4 py-2 hover:bg-gray-700">
-                    <Link to='/usuarios/listar'>Listar</Link>
+                    <Link to='usuarios/listar'>Listar</Link>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-700">
-                    <Link to='/usuarios/registrar'>Registrar</Link>
+                    <Link to='usuarios/registrar'>Registrar</Link>
                   </li>
                 </ul>
               )}

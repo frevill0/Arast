@@ -17,8 +17,7 @@ function App(){
               <Route path='/usuarios/listar' element={<ListarUsuarios/>}></Route>
               <Route path='/usuarios/registrar' element={<RegistrarUsuarios/>}></Route>
             </Routes>
-          }/>
-          
+          }/>       
         </Routes>
       </BrowserRouter>
     

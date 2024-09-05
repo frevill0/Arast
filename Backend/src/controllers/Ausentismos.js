@@ -59,6 +59,11 @@ const ConsultaAusentismo = async (req, res) => {
 };
 
 
+export const RegistroMigratorio = () => {
+
+  
+}
+
 
 
 

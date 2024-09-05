@@ -40,14 +40,13 @@ model ConfigCuota {
   ValorCuota           ValorCuota? @relation(fields: [idcuota], references: [idCuota], onDelete: NoAction, onUpdate: NoAction, map: "FK_ConfigCuota_ValorCuota")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model contactscm_fac_elec_arast {
   ACCOUNTNO             String   @db.VarChar(20)
   Categoria             String?  @db.VarChar(20)
   CI                    String   @db.VarChar(20)
   Socio                 String?  @db.VarChar(40)
   Titular               String?  @db.VarChar(40)
-  Membresia             String?  @db.VarChar(20)
+  Membresia             String   @id(map: "PK_contactscm_fac_elec_arast_Membresia") @db.VarChar(255)
   DirDom                String   @db.VarChar(90)
   UDIRENV               String   @db.VarChar(90)
   TelDom2               Float
@@ -92,9 +91,8 @@ model contactscm_fac_elec_arast {
   TipoCuenta            String?  @db.VarChar(50)
   Banco                 String?  @db.VarChar(100)
   CodigoBanco           String?  @db.VarChar(50)
-
-  @@ignore
 }
+
 
 model Cuota {
   idCuotas                 Int     @id(map: "PK_Cuota") @default(autoincrement())

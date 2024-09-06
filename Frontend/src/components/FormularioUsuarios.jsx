@@ -11,6 +11,7 @@ export const FormularioUsuarios = ({usuario}) => {
         nombre: usuario?.nombre ??"",
         apellido: usuario?.apellido ??"",
         contrasena: usuario?.contrasena ??"",
+        confirmarContrasena: usuario?.confirmarContrasena ??"",
         rol: usuario?.rol ??"",
     })
 
@@ -137,6 +138,22 @@ export const FormularioUsuarios = ({usuario}) => {
                 placeholder='****************'
                 name='contrasena'
                 value={form.contrasena}
+                onChange={handleChange}
+            />
+        </div>
+        <div className="w-1/2 px-2">
+            <label
+                htmlFor='contrasena'
+                className='text-gray-700 uppercase font-bold text-xs'>
+                Confirmar contraseña:
+            </label>
+            <input
+                id='confirmar_contrasena'
+                type='password'
+                className='border-2 w-full p-1 mt-1 placeholder-gray-400 rounded-md mb-3'
+                placeholder='****************'
+                name='confirmar_contrasena'
+                value={form.confirmarContrasena}
                 onChange={handleChange}
             />
         </div>

@@ -56,7 +56,7 @@ const Dashboard = () => {
                     <Link to='/dashboard/usuarios/listar'>Listar</Link>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-700">
-                    <Link to='/dashboa/usuarios/registrar'>Registrar</Link>
+                    <Link to='/dashboard/usuarios/registrar'>Registrar</Link>
                   </li>
                 </ul>
               )}

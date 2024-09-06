@@ -1,6 +1,5 @@
 import React from 'react'
 import TablaUsuarios from '../components/TablaUsuarios'
-import Dashboard from '../layout/Dashboard'
 
 const ListarUsuarios = () => {
     return (

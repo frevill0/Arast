@@ -4,6 +4,8 @@ import { Link, Navigate, Outlet } from 'react-router-dom';
 const Dashboard = () => {
   const [showSubItemsAusentismo, setShowSubItemsAusentismo] = useState(false);
   const [showSubItemsUsuarios, setShowSubItemsUsuarios] = useState(false);
+  const [showSubItemsSuspension, setShowSubItemsSuspension] = useState(false);
+  const [showSubItemsReportes, setShowSubItemsReportes] = useState(false);
   const autenticado = localStorage.getItem('token');
 
   const toggleSubItemsAusentismo = () => {
@@ -12,6 +14,14 @@ const Dashboard = () => {
 
   const toggleSubItemsUsuarios = () => {
     setShowSubItemsUsuarios(!showSubItemsUsuarios);
+  };
+
+  const toggleSubItemsSuspension = () => {
+    setShowSubItemsSuspension(!showSubItemsSuspension);
+  };
+
+  const toggleSubItemsReportes = () => {
+    setShowSubItemsReportes(!showSubItemsReportes);
   };
 
   return (
@@ -29,7 +39,7 @@ const Dashboard = () => {
               {showSubItemsAusentismo && (
                 <ul className="ml-4">
                   <li className="px-4 py-2 hover:bg-gray-700">
-                    <a href="#overview">Registrar</a>
+                  <Link to='/dashboard/usuarios/registroMigratorio'>Registrar Migración</Link>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-700">
                     <a href="#getting-started">Revisar</a>
@@ -40,14 +50,44 @@ const Dashboard = () => {
                 </ul>
               )}
             </li>
-            <li className="px-4 py-2 hover:bg-gray-700">
-              <a href="#quickstart">SUSPENSIÓN</a>
+            <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsSuspension}>
+              <span>SUSPENSION</span>
+              {/* Sub-items for AUSENTISMO */}
+              {showSubItemsSuspension && (
+                <ul className="ml-4">
+                  <li className="px-4 py-2 hover:bg-gray-700">
+                    <a href="#getting-started">Suspensión</a>
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-700">
+                    <a href="#requirements">Liquidación</a>
+                  </li>
+                </ul>
+              )}
             </li>
-            <li className="px-4 py-2 hover:bg-gray-700">
-              <a href="#authentication">REINGRESO</a>
-            </li>
-            <li className="px-4 py-2 hover:bg-gray-700">
-              <a href="#errors">REPORTES</a>
+            <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsReportes}>
+              <span>REPORTES</span>
+              {showSubItemsReportes && (
+                <ul className="ml-4">
+                  <li className="px-4 py-2 hover:bg-gray-700">
+                    <a href="#overview">Ausentismo</a>
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-700">
+                    <a href="#getting-started">Reingreso</a>
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-700">
+                    <a href="#requirements">Suspención Temporal</a>
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-700">
+                    <a href="#requirements">Reporte 27 años</a>
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-700">
+                    <a href="#requirements">Alerta Suspensión</a>
+                  </li>
+                  <li className="px-4 py-2 hover:bg-gray-700">
+                    <a href="#requirements">Vitalicio</a>
+                  </li>
+                </ul>
+              )}
             </li>
             <li className="px-4 py-2 hover:bg-gray-700">
               <a href="#webhooks">CUOTAS</a>
@@ -72,10 +112,11 @@ const Dashboard = () => {
 
       {/* Main Content with Header */}
       <div className="flex flex-col flex-grow">
+      
         {/* Header */}
         <header className="bg-gray-900 shadow p-4 flex justify-between items-center">
           <div className="flex items-center justify-end w-full">
-            <h1 className="text-white text-xl font-semibold mr-4">Bienvenido - Nombre Usuario</h1>
+            <h1 className="text-white text-xl font-semibold mr-4">Bienvenido - frevill</h1>
             <Link
               to="/"
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

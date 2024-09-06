@@ -62,7 +62,7 @@ export const Login = () => {
 
     return (
         <div className="flex h-screen justify-center items-center bg-cover bg-center" style={{ backgroundImage: `url(${fondoLogin})` }}>
-            <div className="absolute top-10 text-black text-7xl font-bold text-center">
+            <div className="absolute top-10 text-black text-6xl font-bold text-center">
                 ARAST
             </div>
             

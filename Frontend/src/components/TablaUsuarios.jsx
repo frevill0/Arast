@@ -92,7 +92,7 @@ const TablaUsuarios = () => {
             </thead>
             <tbody>
               {registrosActuales.map((usuario, index) => (
-                <tr className="border-b hover:bg-gray-300 text-center" key={usuario._id}>
+                <tr className="border-b hover:bg-gray-300 text-center" key={usuario.username}>
                   <td>{indicePrimerRegistro + index + 1}</td> {/* Mostrar el número correcto en cada página */}
                   <td>{usuario.username}</td>
                   <td>{usuario.nombre}</td>
@@ -101,15 +101,15 @@ const TablaUsuarios = () => {
                   <td className='py-2 text-center'>
                     <MdNoteAdd
                       className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2"
-                      onClick={() => { navigate(`/usuariossdashboard/visualizar/${usuario._id}`) }}
+                      onClick={() => { navigate(`/usuariossdashboard/visualizar/${usuario.username}`) }}
                     />
                     <MdInfo
                       className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2"
-                      onClick={() => navigate(`/usuariossdashboard/actualizar/${usuario._id}`)}
+                      onClick={() => navigate(`/usuariossdashboard/actualizar/${usuario.username}`)}
                     />
                     <MdDeleteForever
                       className="h-7 w-7 text-red-900 cursor-pointer inline-block"
-                      onClick={() => { handleDelete(usuario._id) }}
+                      onClick={() => { handleDelete(usuario.username) }}
                     />
                   </td>
                 </tr>

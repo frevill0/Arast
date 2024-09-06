@@ -11,6 +11,7 @@ export const FormularioUsuarios = ({usuario}) => {
         nombre: usuario?.nombre ??"",
         apellido: usuario?.apellido ??"",
         contrasena: usuario?.contrasena ??"",
+        confirmarContrasena: usuario?.confirmarContrasena ??"",
         rol: usuario?.rol ??"",
     })
 
@@ -44,19 +45,20 @@ export const FormularioUsuarios = ({usuario}) => {
         }else{
             try {
                 const token = localStorage.getItem('token')
-                const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/registro`
+                const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/crear`
                 const options={
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`
                     }
                 }
+                console.log(form)
                 const respuesta = await axios.post(url,form,options)
                 console.log(respuesta);
                 setMensaje({respuesta:"usuario registrado con éxito",tipo:true})
     
                 setTimeout(()=>{
-                    navigate('/usuarios/listar')
+                    navigate('dashboard/usuarios/listar')
                 }, 3000);
             } catch (error) {
                     console.log(error);
@@ -142,6 +144,22 @@ export const FormularioUsuarios = ({usuario}) => {
         </div>
         <div className="w-1/2 px-2">
             <label
+                htmlFor='confirmarContrasena'
+                className='text-gray-700 uppercase font-bold text-xs'>
+                Confirmar contraseña:
+            </label>
+            <input
+                id='confirmarContrasena'
+                type='password'
+                className='border-2 w-full p-1 mt-1 placeholder-gray-400 rounded-md mb-3'
+                placeholder='****************'
+                name='confirmarContrasena'
+                value={form.confirmarContrasena}
+                onChange={handleChange}
+            />
+        </div>
+        <div className="w-1/2 px-2">
+            <label
                 htmlFor='rol'
                 className='text-gray-700 uppercase font-bold text-xs'>
                 Rol:
@@ -156,9 +174,9 @@ export const FormularioUsuarios = ({usuario}) => {
                 <option value='' disabled>
                     Seleccione el rol
                 </option>
-                <option value='masculino'>Administrador</option>
-                <option value='femenino'>Usuario</option>
-                <option value='femenino'>Consultor</option>
+                <option value='administrador'>administrador</option>
+                <option value='usuario'>usuario</option>
+                <option value='consultor'>consultor</option>
             </select>
         </div>
         

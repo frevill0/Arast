@@ -3,6 +3,7 @@ import { Login } from './pages/Login'
 import  Dashboard  from './layout/Dashboard'
 import RegistrarUsuarios from './pages/RegistrarUsuarios'
 import ListarUsuarios from './pages/ListarUsuarios'
+import AusentismoConsulta from './pages/AusentismoConsulta'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />}>
             <Route path="usuarios/listar" element={<ListarUsuarios />} />
             <Route path="usuarios/registrar" element={<RegistrarUsuarios />} />
+            <Route path = "usuarios/registroMigratorio" element = {<AusentismoConsulta/>}/>
           </Route>
           
         </Routes>

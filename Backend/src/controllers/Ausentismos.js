@@ -63,15 +63,13 @@ export const RegistroMigratorio = async (req, res) => {
       membresia,
       fechaSalida,
       fechaEntrada,
-      idLiquidacion,
-      idUsuario,
     } = req.body;
 
     if (!fechaSalida || !fechaEntrada || !membresia) {
       return res.status(400).json({ msg: "Las fechas de salida, entrada y la membresía son requeridas" });
     }
 
-    const socioData = await prisma.socios.findUnique({
+    const socioData = await prisma.contactscm_fac_elec_arast.findUnique({
       where: { membresia }, 
     });
 
@@ -80,7 +78,7 @@ export const RegistroMigratorio = async (req, res) => {
     }
 
     const ultimoRegistro = await prisma.registroMovMigracion.findFirst({
-      where: { socio: socioData.socio },
+      where: { socio: socioData.Socio },
       orderBy: { fechaEntreda: 'desc' }  
     });
 
@@ -99,16 +97,16 @@ export const RegistroMigratorio = async (req, res) => {
 
     const nuevoRegistro = await prisma.registroMovMigracion.create({
       data: {
-        socio: socioData.socio, 
-        membresia: socioData.membresia,
+        socio: socioData.Socio, 
+        membresia: socioData.Membresia,
         fechaSalida: salida,
         fechaEntreda: entrada,
         exterior: diasExterior,  
         pais: diasEnPais >= 0 ? diasEnPais : 0,  
         estadoMigratorio: "Abierto",  
         idLiquidacion,
-        categoriaSocio: socioData.categoriaSocio,  
-        estadoSocio: socioData.estadoSocio,  
+        categoriaSocio: socioData.Categoria,  
+        estadoSocio: socioData.Estatus,  
         comentario: "N/A",  
         valorAdicional: 0,  
         descripcionValor: "N/A",  

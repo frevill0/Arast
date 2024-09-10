@@ -1,10 +1,11 @@
 import {Router} from 'express'
-import { ConsultaAusentismo } from '../controllers/Ausentismos.js'
+import { ConsultaAusentismo, RegistroMigratorio } from '../controllers/Ausentismos.js'
 
 
 const router = Router()
 
 router.get('/ausentismo/:Membresia',ConsultaAusentismo)
+router.post('/ausentismo/registroMigratorio', RegistroMigratorio)
 
 export default router
 

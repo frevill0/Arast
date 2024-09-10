@@ -24,6 +24,20 @@ export const crearCuotas = async (req, res) => {
           error: `La categoría '${cuota.categoria}' no es válida. Categorías permitidas: ${categoriasPermitidas.join(', ')}`,
         });
       }
+      
+      // Verifica si ya existe un registro con la misma categoría y año
+      const registroExistente = await prisma.cuota.findFirst({
+        where: {
+          categoria: cuota.categoria,
+          anio: cuota.anio // Asegúrate de que el campo 'anio' esté en la base de datos
+        }
+      });
+
+      if (registroExistente) {
+        return res.status(400).json({
+          error: `Ya existe una cuota para la categoría '${cuota.categoria}' y el año ${cuota.anio}.`,
+        });
+      }
     }
 
     const nuevasCuotas = await prisma.cuota.createMany({
@@ -38,6 +52,7 @@ export const crearCuotas = async (req, res) => {
     res.status(500).json({ error: 'No se pudieron crear las cuotas' });
   }
 };
+
 
 export const obtenerCuotasPorAnio = async (req, res) => {
     try {
@@ -142,4 +157,5 @@ export const eliminarCuotasPorAnio = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar las cuotas.' });
   }
 };
+
 

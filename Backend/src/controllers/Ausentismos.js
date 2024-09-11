@@ -28,13 +28,12 @@ export const ConsultaAusentismo = async (req, res) => {
         Membresia: membresia,
       },
     });
-    console.log("fecha suspension:", encontrarSocio.fechaRetSep);
-
+    console.log(membresia)
     if (!encontrarSocio) {
       return res.status(404).send({ msg: "No se encontró un socio con esa membresía" });
     }
 
-    const estadosAusentes = ['Ausente', 'Ausente > 26', 'Ausente > 27', 'Retirado'];
+    const estadosAusentes = ['Ausente', 'Ausente > 26', 'Ausente > 27'];
     if (!estadosAusentes.includes(encontrarSocio.Estatus)) {
       console.log("Estatus:", encontrarSocio.Estatus);
       return res.status(404).send({ msg: "El socio no se encuentra ausente" });
@@ -47,7 +46,7 @@ export const ConsultaAusentismo = async (req, res) => {
       Titular: encontrarSocio.Titular,
       FechaNacimiento: formatoFecha(encontrarSocio.FechaNac),
       Edad: encontrarSocio.Edad,
-      FechaAusentismo: formatoFecha(encontrarSocio.fechaRetSep)
+      FechaAusentismo: formatoFecha(encontrarSocio.Marca_Ausentes)
     }
 
     res.status(200).json({ res: 'Detalles del socio: ', data: resultado });
@@ -69,6 +68,16 @@ export const RegistroMigratorio = async (req, res) => {
       return res.status(400).json({ msg: "Las fechas de salida, entrada y la membresía son requeridas" });
     }
 
+    // Convertir las fechas de salida y entrada a objetos Date
+    const salida = new Date(fechaSalida);
+    const entrada = new Date(fechaEntrada);
+
+    // Validar que ambas fechas sean válidas
+    if (isNaN(salida.getTime()) || isNaN(entrada.getTime())) {
+      return res.status(400).json({ msg: "Las fechas proporcionadas no son válidas" });
+    }
+
+    // Buscar los datos del socio
     const socioData = await prisma.contactscm_fac_elec_arast.findUnique({
       where: { membresia }, 
     });
@@ -77,40 +86,51 @@ export const RegistroMigratorio = async (req, res) => {
       return res.status(404).json({ msg: "No se encontró un socio con esa membresía" });
     }
 
+    // Obtener la fecha de ausentismo (Marca_Ausentes) si existe
+    const fechaAusentismo = socioData.Marca_Ausentes ? new Date(socioData.Marca_Ausentes) : null;
+
+    // Validar que la fecha de ausentismo, si existe, sea válida
+    if (fechaAusentismo && isNaN(fechaAusentismo.getTime())) {
+      return res.status(400).json({ msg: "La fecha de ausentismo no es válida" });
+    }
+
     const ultimoRegistro = await prisma.registroMovMigracion.findFirst({
       where: { socio: socioData.Socio },
       orderBy: { fechaEntreda: 'desc' }  
     });
 
     let diasEnPais = 0;
-    
-    if (ultimoRegistro) {
-      const ultimaFechaEntrada = new Date(ultimoRegistro.fechaEntreda);
-      const nuevaFechaSalida = new Date(fechaSalida);
 
-      diasEnPais = Math.floor((nuevaFechaSalida - ultimaFechaEntrada) / (1000 * 60 * 60 * 24));
+    if (ultimoRegistro) {
+      // Si hay un último registro, calcular los días en el país a partir de la fecha de salida
+      const ultimaFechaEntrada = new Date(ultimoRegistro.fechaEntreda);
+      diasEnPais = Math.floor((salida - ultimaFechaEntrada) / (1000 * 60 * 60 * 24));
+    } else {
+      // Si no hay un último registro, usar la fecha de ausentismo o la fecha de entrada, la que sea anterior
+      const ausentismoOEntrada = fechaAusentismo ? fechaAusentismo : entrada;
+      const fechaComparar = ausentismoOEntrada < entrada ? ausentismoOEntrada : entrada;
+
+      diasEnPais = Math.floor((salida - fechaComparar) / (1000 * 60 * 60 * 24));
     }
 
-    const salida = new Date(fechaSalida);
-    const entrada = new Date(fechaEntrada);
+    // Calcular los días en el exterior
     const diasExterior = Math.floor((entrada - salida) / (1000 * 60 * 60 * 24)); 
 
+    // Crear el nuevo registro
     const nuevoRegistro = await prisma.registroMovMigracion.create({
       data: {
         socio: socioData.Socio, 
         membresia: socioData.Membresia,
         fechaSalida: salida,
-        fechaEntreda: entrada,
+        fechaEntreda: entrada,  // Asegurarse de que es una fecha válida
         exterior: diasExterior,  
-        pais: diasEnPais >= 0 ? diasEnPais : 0,  
+        pais: diasEnPais >= 0 ? diasEnPais : 0,  // Asegurar que sea >= 0
         estadoMigratorio: "Abierto",  
-        idLiquidacion,
         categoriaSocio: socioData.Categoria,  
         estadoSocio: socioData.Estatus,  
         comentario: "N/A",  
         valorAdicional: 0,  
-        descripcionValor: "N/A",  
-        idUsuario
+        descripcionValor: "N/A"
       }
     });
 
@@ -120,4 +140,6 @@ export const RegistroMigratorio = async (req, res) => {
     res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
+
+
 

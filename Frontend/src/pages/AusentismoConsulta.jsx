@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useState } from "react";
 import { MdDeleteForever} from "react-icons/md";
 
 const AusentismoConsulta = () => {
-    const [migrationData, setMigrationData] = useState([
+    const [migrationData] = useState([
         { fechaSalida: '01/07/2024', fechaEntrada: '31/07/2024' },
         { fechaSalida: '01/09/2024', fechaEntrada: '30/09/2024' },
       ]);
@@ -121,6 +121,7 @@ const AusentismoConsulta = () => {
         </div>
     </>
     )
+
 }
 
 export default AusentismoConsulta

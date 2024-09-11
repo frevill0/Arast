@@ -1,12 +1,53 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import { MdDeleteForever} from "react-icons/md";
+import Mensaje from '../components/Alerts/Message'
+import axios from 'axios';
 
 const AusentismoConsulta = () => {
+
+    
     const [migrationData] = useState([
         { fechaSalida: '01/07/2024', fechaEntrada: '31/07/2024' },
         { fechaSalida: '01/09/2024', fechaEntrada: '30/09/2024' },
       ]);
       
+      const [ausentismo, setAusentismo]=useState({})
+      const [mensaje, setMensaje] = useState({})
+      const [numeroMembresia, setNumeroMembresia] = useState(''); // Para almacenar el número de membresía ingresado
+      const [busqueda, setBusqueda] = useState(''); // Para manejar el input del campo de búsqueda
+
+      useEffect(()=>{
+        const consultarAusentismo = async () =>{
+            if(numeroMembresia){
+            try {
+                const token = localStorage.getItem('token')
+                const url = `${import.meta.env.VITE_BACKEND_URL}/ausentismo/${numeroMembresia}`
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+                const respuesta = await axios.get(url, options)
+                setAusentismo(respuesta.data)
+
+            } catch (error) {
+                setMensaje({ respuesta: error.response.data.msg, tipo: false })
+            }
+            }
+        }
+        consultarAusentismo()
+      }, [numeroMembresia])
+
+      // Manejar el cambio en el input
+        const handleInputChange = (e) => {
+            setBusqueda(e.target.value);
+        };
+
+        // Manejar la búsqueda cuando se hace clic en el botón
+        const handleBuscar = () => {
+            setNumeroMembresia(busqueda); // Actualiza el estado de membresía
+        };
     return (
         <>
         <div>
@@ -26,46 +67,62 @@ const AusentismoConsulta = () => {
         <input 
             type="text" 
             placeholder="Ingrese el número de socio" 
+            value={busqueda}
+            onChange={handleInputChange}
             className="border border-gray-400 rounded p-3 w-64 mr-4 shadow-sm"
         />
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded shadow">
+        <button className="bg-gray-900 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                onClick={handleBuscar}>
             Buscar
         </button>
         </div>
 
         {/* Información del socio */}
+        {
+        Object.keys(ausentismo).length != 0 ?
+        (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-100 p-6 rounded-lg shadow-md mb-10">
         <div>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Socio:</span> 
+                {ausentismo.Socio}
             </p>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Titular:</span> 
+                {ausentismo.Titular}
             </p>
         </div>
         <div>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Categoría:</span> 
+                {ausentismo.Categoria}
             </p>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Fecha Nacimiento:</span> 
+                {ausentismo.FechaNac}
             </p>
         </div>
         <div>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Estado:</span> 
+                {ausentismo.Estatus}
             </p>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Edad:</span> 
+                {ausentismo.Edad}
             </p>
         </div>
         <div>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Fecha de Ausentismo:</span> 
+                {ausentismo.FechaRetSep}
             </p>
         </div>
         </div>
-
+        ):(
+            Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>
+        )
+        }
         {/* Título Movimiento Migratorio */}
         <div className="text-center mb-6">
         <h2 className="text-3xl font-semibold text-blue-900">Movimiento Migratorio</h2>
@@ -83,7 +140,7 @@ const AusentismoConsulta = () => {
             className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
             placeholder="Fecha de Entrada"
         />
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded shadow">
+        <button className="bg-gray-900 hover:bg-blue-900 text-white px-6 py-2 rounded shadow">
             Agregar
         </button>
         </div>
@@ -91,7 +148,7 @@ const AusentismoConsulta = () => {
         {/* Tabla de Movimientos */}
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <table className="min-w-full border-collapse">
-            <thead className="bg-blue-500 text-white">
+            <thead className="bg-gray-900 text-white">
             <tr>
                 <th className="border border-gray-300 px-4 py-2">Fecha Salida</th>
                 <th className="border border-gray-300 px-4 py-2">Fecha Entrada</th>

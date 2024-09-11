@@ -30,6 +30,7 @@ const AusentismoConsulta = () => {
                 }
                 const respuesta = await axios.get(url, options)
                 setAusentismo(respuesta.data)
+                console.log(respuesta.data)
 
             } catch (error) {
                 setMensaje({ respuesta: error.response.data.msg, tipo: false })
@@ -37,7 +38,7 @@ const AusentismoConsulta = () => {
             }
         }
         consultarAusentismo()
-      }, [numeroMembresia])
+      }, [])
 
       // Manejar el cambio en el input
         const handleInputChange = (e) => {

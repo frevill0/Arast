@@ -81,6 +81,7 @@ const AusentismoConsulta = () => {
         {/* Información del socio */}
         {
         Object.keys(ausentismo).length != 0 ?
+        console.log(ausentismo)
         (
         <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-100 p-6 rounded-lg shadow-md mb-10">

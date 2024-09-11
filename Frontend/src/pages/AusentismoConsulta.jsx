@@ -38,7 +38,7 @@ const AusentismoConsulta = () => {
             }
         }
         consultarAusentismo()
-      }, [])
+      }, [numeroMembresia])
 
       // Manejar el cambio en el input
         const handleInputChange = (e) => {
@@ -82,6 +82,7 @@ const AusentismoConsulta = () => {
         {
         Object.keys(ausentismo).length != 0 ?
         (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-100 p-6 rounded-lg shadow-md mb-10">
         <div>
             <p className="text-md text-gray-00 mt-4">
@@ -100,7 +101,7 @@ const AusentismoConsulta = () => {
             </p>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Fecha Nacimiento:</span> 
-                {ausentismo.FechaNac}
+                {ausentismo.FechaNacimiento}
             </p>
         </div>
         <div>
@@ -116,10 +117,11 @@ const AusentismoConsulta = () => {
         <div>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Fecha de Ausentismo:</span> 
-                {ausentismo.FechaRetSep}
+                {ausentismo.FechaAusentismo}
             </p>
         </div>
         </div>
+        </>
         ):(
             Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>
         )

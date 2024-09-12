@@ -13,11 +13,13 @@ const AusentismoConsulta = () => {
       
       const [ausentismo, setAusentismo]=useState({})
       const [mensaje, setMensaje] = useState({})
-      const [numeroMembresia, setNumeroMembresia] = useState(''); // Para almacenar el número de membresía ingresado
+      //const [numeroMembresia, setNumeroMembresia] = useState(''); // Para almacenar el número de membresía ingresado
       const [busqueda, setBusqueda] = useState(''); // Para manejar el input del campo de búsqueda
+      console.log("Ausentismo: ",ausentismo)
 
-      useEffect(()=>{
-        const consultarAusentismo = async () =>{
+        const consultarAusentismo = async (numeroMembresia) =>{
+            setAusentismo({})
+            setMensaje({})
             if(numeroMembresia){
             try {
                 const token = localStorage.getItem('token')
@@ -30,15 +32,16 @@ const AusentismoConsulta = () => {
                 }
                 const respuesta = await axios.get(url, options)
                 setAusentismo(respuesta.data)
-                console.log(respuesta.data)
+                setMensaje({})
+                console.log("Respuesta",respuesta.data)
 
             } catch (error) {
                 setMensaje({ respuesta: error.response.data.msg, tipo: false })
+                setAusentismo({})
             }
             }
         }
-        consultarAusentismo()
-      }, [numeroMembresia])
+        
 
       // Manejar el cambio en el input
         const handleInputChange = (e) => {
@@ -47,7 +50,8 @@ const AusentismoConsulta = () => {
 
         // Manejar la búsqueda cuando se hace clic en el botón
         const handleBuscar = () => {
-            setNumeroMembresia(busqueda); // Actualiza el estado de membresía
+            //setNumeroMembresia(busqueda);
+            consultarAusentismo(busqueda)
         };
     return (
         <>
@@ -81,44 +85,43 @@ const AusentismoConsulta = () => {
         {/* Información del socio */}
         {
         Object.keys(ausentismo).length != 0 ?
-        console.log(ausentismo)
         (
         <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-100 p-6 rounded-lg shadow-md mb-10">
         <div>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Socio:</span> 
-                {ausentismo.Socio}
+                {ausentismo.data.Socio}
             </p>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Titular:</span> 
-                {ausentismo.Titular}
+                {ausentismo.data.Titular}
             </p>
         </div>
         <div>
             <p className="text-md text-gray-00 mt-4">
-                <span className="text-gray-600 uppercase font-bold">Categoría:</span> 
-                {ausentismo.Categoria}
+                <span className="text-gray-600 uppercase font-bold">Categoría:  </span> 
+                {ausentismo.data.Categoria}
             </p>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Fecha Nacimiento:</span> 
-                {ausentismo.FechaNacimiento}
+                {ausentismo.data.FechaNacimiento}
             </p>
         </div>
         <div>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Estado:</span> 
-                {ausentismo.Estatus}
+                {ausentismo.data.Estatus}
             </p>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Edad:</span> 
-                {ausentismo.Edad}
+                {ausentismo.data.Edad}
             </p>
         </div>
         <div>
             <p className="text-md text-gray-00 mt-4">
                 <span className="text-gray-600 uppercase font-bold">Fecha de Ausentismo:</span> 
-                {ausentismo.FechaAusentismo}
+                {ausentismo.data.FechaAusentismo}
             </p>
         </div>
         </div>

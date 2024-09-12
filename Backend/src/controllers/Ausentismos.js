@@ -58,73 +58,88 @@ export const ConsultaAusentismo = async (req, res) => {
 
 export const RegistroMigratorio = async (req, res) => {
   try {
-    const {
-      membresia,
-      fechaSalida,
-      fechaEntrada,
-    } = req.body;
+    const { membresia, fechaSalida, fechaEntrada } = req.body;
 
     if (!fechaSalida || !fechaEntrada || !membresia) {
       return res.status(400).json({ msg: "Las fechas de salida, entrada y la membresía son requeridas" });
     }
 
-    // Convertir las fechas de salida y entrada a objetos Date
-    const salida = new Date(fechaSalida);
-    const entrada = new Date(fechaEntrada);
+    const parseDate = (fecha) => {
+      const [day, month, year] = fecha.split("-");
+      return new Date(`${year}-${month}-${day}`);
+    };
 
-    // Validar que ambas fechas sean válidas
+    const salida = parseDate(fechaSalida);
+    const entrada = parseDate(fechaEntrada);
+
     if (isNaN(salida.getTime()) || isNaN(entrada.getTime())) {
       return res.status(400).json({ msg: "Las fechas proporcionadas no son válidas" });
     }
 
-    // Buscar los datos del socio
+    if (salida > entrada) {
+      return res.status(400).json({ msg: "La fecha de salida no puede ser mayor que la fecha de entrada" });
+    }
+
     const socioData = await prisma.contactscm_fac_elec_arast.findUnique({
-      where: { membresia }, 
+      where: { Membresia: membresia },  
     });
+
+    const membresiaInt = parseInt(membresia, 10);
 
     if (!socioData) {
       return res.status(404).json({ msg: "No se encontró un socio con esa membresía" });
     }
 
-    // Obtener la fecha de ausentismo (Marca_Ausentes) si existe
     const fechaAusentismo = socioData.Marca_Ausentes ? new Date(socioData.Marca_Ausentes) : null;
 
-    // Validar que la fecha de ausentismo, si existe, sea válida
     if (fechaAusentismo && isNaN(fechaAusentismo.getTime())) {
       return res.status(400).json({ msg: "La fecha de ausentismo no es válida" });
     }
 
-    const ultimoRegistro = await prisma.registroMovMigracion.findFirst({
-      where: { socio: socioData.Socio },
-      orderBy: { fechaEntreda: 'desc' }  
+    const registrosExistentes = await prisma.registroMovMigracion.findMany({
+      where: { membresia: membresiaInt },
+      orderBy: { fechaEntreda: 'asc' }
     });
 
-    let diasEnPais = 0;
+    for (const registro of registrosExistentes) {
+      const registroSalida = new Date(registro.fechaSalida);
+      const registroEntrada = new Date(registro.fechaEntreda);
 
-    if (ultimoRegistro) {
-      // Si hay un último registro, calcular los días en el país a partir de la fecha de salida
-      const ultimaFechaEntrada = new Date(ultimoRegistro.fechaEntreda);
-      diasEnPais = Math.floor((salida - ultimaFechaEntrada) / (1000 * 60 * 60 * 24));
-    } else {
-      // Si no hay un último registro, usar la fecha de ausentismo o la fecha de entrada, la que sea anterior
-      const ausentismoOEntrada = fechaAusentismo ? fechaAusentismo : entrada;
-      const fechaComparar = ausentismoOEntrada < entrada ? ausentismoOEntrada : entrada;
-
-      diasEnPais = Math.floor((salida - fechaComparar) / (1000 * 60 * 60 * 24));
+      if (
+        (salida < registroEntrada && entrada > registroSalida) || 
+        (salida <= registroEntrada && entrada > registroEntrada) || 
+        (salida < registroSalida && entrada >= registroSalida) 
+      ) {
+        return res.status(400).json({ msg: "El rango de fechas se solapa con un registro existente" });
+      }
     }
 
-    // Calcular los días en el exterior
-    const diasExterior = Math.floor((entrada - salida) / (1000 * 60 * 60 * 24)); 
+    let diasEnPais = 0;
+    let diasExterior = 0;
+    
+    if (registrosExistentes.length > 0) {
+      const ultimaFechaEntrada = new Date(registrosExistentes[registrosExistentes.length - 1].fechaEntreda);
+      diasEnPais = Math.floor((salida - ultimaFechaEntrada) / (1000 * 60 * 60 * 24));
+    } else {
+      diasEnPais = 0;
 
-    // Crear el nuevo registro
+      const fechaComparar = fechaAusentismo ? fechaAusentismo : salida;
+      diasExterior = Math.floor((entrada - fechaComparar) / (1000 * 60 * 60 * 24));
+    }
+    
+    if (registrosExistentes.length > 0) {
+      diasExterior = Math.floor((entrada - salida) / (1000 * 60 * 60 * 24));
+    }
+
     const nuevoRegistro = await prisma.registroMovMigracion.create({
       data: {
-        socio: socioData.Socio, 
-        membresia: socioData.Membresia,
+        socio: socioData.Socio,  
+        membresia: membresiaInt,
+        fechaAusentismo: fechaAusentismo,  
         fechaSalida: salida,
-        fechaEntreda: entrada,  // Asegurarse de que es una fecha válida
-        exterior: diasExterior,  
-        pais: diasEnPais >= 0 ? diasEnPais : 0,  // Asegurar que sea >= 0
+        fechaEntreda: entrada,
+        exterior: diasExterior >= 0 ? diasExterior : 0,  
+        pais: diasEnPais >= 0 ? diasEnPais : 0,  
         estadoMigratorio: "Abierto",  
         categoriaSocio: socioData.Categoria,  
         estadoSocio: socioData.Estatus,  
@@ -141,5 +156,52 @@ export const RegistroMigratorio = async (req, res) => {
   }
 };
 
+export const verRegistrosMigratoriosPorMembresia = async (req, res) => {
+  try {
+    const membresia = req.params.membresia;
 
+    if (!membresia) {
+      return res.status(400).json({ msg: "La membresía es requerida" });
+    }
 
+    const membresiaInt = parseInt(membresia, 10);
+
+    if (isNaN(membresiaInt)) {
+      return res.status(400).json({ msg: "La membresía debe ser un número válido" });
+    }
+
+    const registros = await prisma.registroMovMigracion.findMany({
+      where: {
+        membresia: membresiaInt,
+      },
+      orderBy: {
+        fechaEntreda: 'asc',  
+      }
+    });
+
+    if (registros.length === 0) {
+      return res.status(404).json({ msg: "No se encontraron registros migratorios para esta membresía" });
+    }
+
+    const resultado = registros.map((registro) => ({
+      socio: registro.socio,
+      membresia: registro.membresia,
+      fechaAusentismo: formatoFecha(registro.fechaAusentismo),
+      fechaSalida: formatoFecha(registro.fechaSalida),
+      fechaEntreda: formatoFecha(registro.fechaEntreda),
+      exterior: registro.exterior,
+      pais: registro.pais,
+      estadoMigratorio: registro.estadoMigratorio,
+      categoriaSocio: registro.categoriaSocio,
+      estadoSocio: registro.estadoSocio,
+      comentario: registro.comentario,
+      valorAdicional: registro.valorAdicional,
+      descripcionValor: registro.descripcionValor
+    }));
+
+    res.status(200).json({ msg: "Registros migratorios encontrados", data: resultado });
+  } catch (error) {
+    console.error("Error al obtener los registros migratorios:", error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};

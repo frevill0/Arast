@@ -39,7 +39,7 @@ const Dashboard = () => {
               {showSubItemsAusentismo && (
                 <ul className="ml-4">
                   <li className="px-4 py-2 hover:bg-gray-700">
-                  <Link to='/dashboard/usuarios/registroMigratorio'>Registrar Migración</Link>
+                  <Link to='/dashboard'>Registrar Migración</Link>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-700">
                     <a href="#getting-started">Revisar</a>

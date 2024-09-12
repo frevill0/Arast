@@ -19,7 +19,7 @@ export const ConsultaAusentismo = async (req, res) => {
   console.log("Membresía recibida:", membresia);
 
   if (!membresia) {
-    return res.status(400).send({ msg: "Perdón, pero no existe un socio con esa membresía" });
+    return res.status(400).send({ msg: "Esa no es una membresia valida" });
   }
 
   try {
@@ -30,7 +30,7 @@ export const ConsultaAusentismo = async (req, res) => {
     });
     console.log(membresia)
     if (!encontrarSocio) {
-      return res.status(404).send({ msg: "No se encontró un socio con esa membresía" });
+      return res.status(400).send({ msg: "No se encontró un socio con esa membresía" });
     }
 
     const estadosAusentes = ['Ausente', 'Ausente > 26', 'Ausente > 27'];
@@ -65,7 +65,7 @@ export const RegistroMigratorio = async (req, res) => {
     }
 
     const parseDate = (fecha) => {
-      const [day, month, year] = fecha.split("-");
+      const [day, month, year] = fecha.split("/");
       return new Date(`${year}-${month}-${day}`);
     };
 
@@ -155,6 +155,7 @@ export const RegistroMigratorio = async (req, res) => {
     res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
+
 
 export const verRegistrosMigratoriosPorMembresia = async (req, res) => {
   try {

@@ -16,7 +16,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />}>
             <Route path="usuarios/listar" element={<ListarUsuarios />} />
             <Route path="usuarios/registrar" element={<RegistrarUsuarios />} />
-            <Route path = "usuarios/registroMigratorio" element = {<AusentismoConsulta/>}/>
+            <Route index element = {<AusentismoConsulta/>}/>
           </Route>
           
         </Routes>

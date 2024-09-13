@@ -33,6 +33,11 @@ export const ConsultaAusentismo = async (req, res) => {
       return res.status(400).send({ msg: "No se encontró un socio con esa membresía" });
     }
 
+    const Titular = encontrarSocio.Relacion
+    if(Titular !== "Titular"){
+      return res.status(400).send({msg : "El socio que esta buscando no es titular"})
+    }
+
     const estadosAusentes = ['Ausente', 'Ausente > 26', 'Ausente > 27'];
     if (!estadosAusentes.includes(encontrarSocio.Estatus)) {
       console.log("Estatus:", encontrarSocio.Estatus);
@@ -256,7 +261,7 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
 
       let diasFueraPaisTotal = periodo.reduce((sum, reg) => sum + reg.exterior, 0);
 
-      const cuota = await prisma.Cuota.findFirst({
+      const cuota = await prisma.cuota.findFirst({
         where: {
           categoria: socioData.Categoria,
           anio: fechaInicioPeriodo.getFullYear(),

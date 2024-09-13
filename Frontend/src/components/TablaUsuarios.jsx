@@ -80,7 +80,7 @@ const TablaUsuarios = () => {
       ) : (
         <>
           <table className='w-full mt-5 table-auto shadow-lg bg-white'>
-            <thead className='bg-gray-800 text-slate-400'>
+            <thead className='bg-customYellow text-slate-400'>
               <tr>
                 <th className='p-2'>N°</th>
                 <th className='p-2'>Usuario</th>

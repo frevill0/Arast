@@ -4,7 +4,8 @@ import  Dashboard  from './layout/Dashboard'
 import RegistrarUsuarios from './pages/RegistrarUsuarios'
 import ListarUsuarios from './pages/ListarUsuarios'
 import AusentismoConsulta from './pages/AusentismoConsulta'
-
+import CuotasConsulta from './pages/CuotasConsulta'
+import RevisarAusentismo from './pages/RevisarAusentismo'
 function App() {
   return (
     <>
@@ -17,6 +18,8 @@ function App() {
             <Route path="usuarios/listar" element={<ListarUsuarios />} />
             <Route path="usuarios/registrar" element={<RegistrarUsuarios />} />
             <Route index element = {<AusentismoConsulta/>}/>
+            <Route path = "usuarios/revisarausentismo" element= {<RevisarAusentismo/>}/>
+            <Route path="usuarios/cuotas" element={<CuotasConsulta/>} />
           </Route>
           
         </Routes>

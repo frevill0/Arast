@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { MdDeleteForever } from "react-icons/md";
+import { MdInfo } from "react-icons/md";
 import Mensaje from '../components/Alerts/Message';
 import axios from 'axios';
 
-const AusentismoConsulta = () => {
+const RevisarAusentismo = () => {
     const [ausentismo, setAusentismo] = useState({});
     const [registroMigratorio, setRegistroMigratorio] = useState([]);
     const [mensaje, setMensaje] = useState({});
@@ -40,9 +40,8 @@ const AusentismoConsulta = () => {
 
     const handleBuscar = () => {
         consultarAusentismo(busqueda);
-        if(ausentismo && ausentismo.data && ausentismo.data.FechaAusentismo){
-            consultarRegistroMigratorio(busqueda);
-        }      
+        consultarRegistroMigratorio(busqueda);
+             
     };
 
     const handleSubmit = async (membresia) => {
@@ -100,14 +99,11 @@ const AusentismoConsulta = () => {
     return (
         <>
             <div>
-                <h1 className='font-black text-4xl text-gray-500'>Registro Migratorio</h1>
+                <h1 className='font-black text-4xl text-gray-500'>Revisar Ausentismo</h1>
                 <hr className='my-4' />
-                <p className='mb-8'>Este módulo te permite realizar el registro migratorio de los socios mediante su membresia.</p>
+                <p className='mb-8'>Este módulo te permite visualizar ausentismos.</p>
             </div>
             <div className="container mx-auto p-6">
-                <div className="text-center mb-10">
-                    <h1 className="text-4xl font-bold text-customBlue">Reactivación de Ausentismo</h1>
-                </div>
 
                 <div className="flex justify-center mb-8">
                     <input
@@ -176,16 +172,13 @@ const AusentismoConsulta = () => {
 
             {ausentismo.data && ausentismo.data.FechaAusentismo && (
                 <>
-                    <div className="text-center mb-6">
-                        <h2 className="text-3xl font-semibold text-gray-900">Movimiento Migratorio</h2>
-                    </div>
-
+                  
                     <div className="flex items-center justify-center mb-6">
                     <label
                         htmlFor='Salida:'
-                        className='text-gray-700 uppercase font-bold text-sm'>Fecha de salida</label>
+                        className='text-gray-700 uppercase font-bold text-sm'>Liquida desde: </label>
                         <input
-                            type="date"
+                            type="text"
                             className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
                             placeholder="Fecha de Salida"
                             value={fechaSalida}
@@ -194,28 +187,29 @@ const AusentismoConsulta = () => {
                        
                         <label
                         htmlFor='Entrada:'
-                        className='text-gray-700  uppercase font-bold text-sm'>Fecha de entrada</label>
+                        className='text-gray-700  uppercase font-bold text-sm'>Comentario: </label>
                         <input
-                            type="date"
+                            type="text"
                             className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
-                            placeholder="Fecha de Entrada"
+                            placeholder="Ingresa un comentario"
                             value={fechaEntrada}
                             onChange={(e) => setFechaEntrada(e.target.value)}
                         />
-                        <button className="bg-gray-900 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
-                            onClick={() => { handleSubmit(busqueda) }}>
-                            Agregar
-                        </button>
-                    </div>
+                     </div>
 
                     {Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>}
 
                     <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                        <table className="min-w-full border-collapse">
+                         <div className="text-center mb-10">
+                             <h1 className="text-2xl text-left font-bold text-customBlue">Movimientos migratorios</h1>
+                        </div>
+                        <table className="min-w-full mt-4 border-collapse">
                             <thead className="bg-customYellow text-slate-400">
                                 <tr>
                                     <th className="border border-gray-300 px-4 py-2">Fecha Salida</th>
                                     <th className="border border-gray-300 px-4 py-2">Fecha Entrada</th>
+                                    <th className="border border-gray-300 px-4 py-2">Días en Exterior</th>
+                                    <th className="border border-gray-300 px-4 py-2">Días en el País</th>
                                     <th className="border border-gray-300 px-4 py-2">Acciones</th>
                                 </tr>
                             </thead>
@@ -223,14 +217,75 @@ const AusentismoConsulta = () => {
                                 {registroMigratorio.length > 0 ? registroMigratorio.map((row, index) => (
                                     <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
                                         <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaSalida}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaEntreda || `No disponible`}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaEntreda}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.exterior}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.pais}</td>
+                                        
                                         <td className="border border-gray-300 px-4 py-2 text-center">
-                                            <MdDeleteForever className="h-7 w-7 text-red-900 cursor-pointer inline-block" />
+                                            <MdInfo className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2" />
                                         </td>
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="3" className="text-center py-4">No hay registros</td>
+                                        <td colSpan="5" className="text-center py-4">No hay registros</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                        <div className="mt-4 text-center mb-10">
+                             <h1 className="text-2xl text-left font-bold text-customBlue">Cuotas</h1>
+                        </div>
+                        <table className=" mt-4 min-w-full border-collapse">
+                            <thead className="bg-customYellow text-slate-400">
+                                <tr>
+                                    <th className="border border-gray-300 px-4 py-2">Años</th>
+                                    <th className="border border-gray-300 px-4 py-2">Meses Cobrados</th>
+                                    <th className="border border-gray-300 px-4 py-2">Cuota Ausente</th>
+                                    <th className="border border-gray-300 px-4 py-2">Cuota Presente</th>
+                                    <th className="border border-gray-300 px-4 py-2">Cuota Diferencia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {registroMigratorio.length > 0 ? registroMigratorio.map((row, index) => (
+                                    <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan="6" className="text-center py-4">No hay registros</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+
+                        <div className="text-center mt-4 mb-10">
+                             <h1 className="text-2xl text-left font-bold text-customBlue">Patrimonial</h1>
+                        </div>
+
+                        <table className="min-w-full mt-4 border-collapse">
+                            <thead className="bg-customYellow text-slate-400">
+                                <tr>
+                                    <th className="border border-gray-300 px-4 py-2">Año</th>
+                                    <th className="border border-gray-300 px-4 py-2">Cuota Ausente</th>
+                                    <th className="border border-gray-300 px-4 py-2">Cuota Presente</th>
+                                    <th className="border border-gray-300 px-4 py-2">Cuota Diferencia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {registroMigratorio.length > 0 ? registroMigratorio.map((row, index) => (
+                                    <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan="5" className="text-center py-4">No hay registros</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -238,8 +293,8 @@ const AusentismoConsulta = () => {
                     </div>
 
                     <div className="text-center mt-6">
-                        <button className="bg-gray-900 hover:bg-gray-600 text-white px-6 py-3 rounded shadow-lg">
-                            Revisar
+                        <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
+                            Confirmar
                         </button>
                     </div>
                 </>
@@ -248,4 +303,4 @@ const AusentismoConsulta = () => {
     );
 };
 
-export default AusentismoConsulta;
+export default RevisarAusentismo;

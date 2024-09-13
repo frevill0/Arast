@@ -1,3 +1,4 @@
+
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -28,7 +29,7 @@ export const ConsultaAusentismo = async (req, res) => {
         Membresia: membresia,
       },
     });
-    console.log(membresia)
+  
     if (!encontrarSocio) {
       return res.status(400).send({ msg: "No se encontró un socio con esa membresía" });
     }
@@ -329,7 +330,3 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
     res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
-
-
-
-

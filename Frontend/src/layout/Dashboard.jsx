@@ -27,7 +27,7 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white flex flex-col">
+      <aside className="w-64 bg-customBlue text-white flex flex-col">
         <div className="p-4">
           <h1 className="text-2xl font-bold">ARAST</h1>
         </div>
@@ -42,7 +42,7 @@ const Dashboard = () => {
                   <Link to='/dashboard'>Registrar Migración</Link>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-700">
-                    <a href="#getting-started">Revisar</a>
+                    <Link to="usuarios/revisarausentismo">Revisar</Link>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-700">
                     <a href="#requirements">Pagar</a>
@@ -90,7 +90,7 @@ const Dashboard = () => {
               )}
             </li>
             <li className="px-4 py-2 hover:bg-gray-700">
-              <a href="#webhooks">CUOTAS</a>
+              <Link to='usuarios/cuotas' href="#webhooks">CUOTAS</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsUsuarios}>
               <span>USUARIOS</span>
@@ -114,7 +114,7 @@ const Dashboard = () => {
       <div className="flex flex-col flex-grow">
       
         {/* Header */}
-        <header className="bg-gray-900 shadow p-4 flex justify-between items-center">
+        <header className="bg-customBlue shadow p-4 flex justify-between items-center">
           <div className="flex items-center justify-end w-full">
             <h1 className="text-white text-xl font-semibold mr-4">Bienvenido - frevill</h1>
             <Link

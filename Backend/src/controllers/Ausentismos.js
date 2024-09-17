@@ -234,7 +234,7 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
         estadoMigratorio: "Abierto",
       },
       orderBy: {
-        fechaEntreda: 'asc',
+        fechaSalida: 'asc',
       },
     });
 
@@ -251,73 +251,89 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
     }
 
     let periodos = [];
-    let fechaInicioPeriodo = registros[0].fechaAusentismo || registros[0].fechaSalida;
+    let fechaInicioPeriodo = registros[0].fechaSalida;
     let fechaFinPeriodo = new Date(fechaInicioPeriodo);
     fechaFinPeriodo.setFullYear(fechaFinPeriodo.getFullYear() + 1);
 
-    while (fechaInicioPeriodo < registros[registros.length - 1].fechaEntreda) {
-      const periodo = registros.filter(
-        (registro) => registro.fechaSalida >= fechaInicioPeriodo && registro.fechaSalida < fechaFinPeriodo
-      );
-
-      let diasFueraPaisTotal = periodo.reduce((sum, reg) => sum + reg.exterior, 0);
-
-      const cuota = await prisma.cuota.findFirst({
-        where: {
-          categoria: socioData.Categoria,
-          anio: fechaInicioPeriodo.getFullYear(),
-        },
+    while (fechaInicioPeriodo < registros[registros.length - 1].fechaSalida) {
+      const periodoRegistros = registros.filter((registro) => {
+        return (registro.fechaSalida >= fechaInicioPeriodo && registro.fechaSalida < fechaFinPeriodo) ||
+               (registro.fechaSalida < fechaInicioPeriodo && registro.fechaEntreda >= fechaInicioPeriodo && registro.fechaEntreda < fechaFinPeriodo) ||
+               (registro.fechaSalida >= fechaInicioPeriodo && registro.fechaSalida < fechaFinPeriodo && registro.fechaEntreda >= fechaFinPeriodo);
       });
 
-      if (!cuota) {
-        return res.status(404).json({ msg: `No se encontró una cuota para la categoría ${socioData.Categoria} y el año ${fechaInicioPeriodo.getFullYear()}` });
-      }
-
       let mesesAPagar = [];
-      let totalPagar = 0;
+      let diasFueraPaisTotal = 0;
+      let diasDentroPaisTotal = 0;
 
       for (let mes = 0; mes < 12; mes++) {
         const fechaMes = new Date(fechaInicioPeriodo);
         fechaMes.setMonth(fechaMes.getMonth() + mes);
 
-        const diasFueraEnMes = periodo
-          .filter((reg) => reg.fechaSalida <= fechaMes && reg.fechaEntreda >= fechaMes)
-          .reduce((sum, reg) => sum + reg.exterior, 0);
+        const inicioMes = new Date(fechaMes.getFullYear(), fechaMes.getMonth(), 1);
+        const finMes = new Date(fechaMes.getFullYear(), fechaMes.getMonth() + 1, 0);
 
-        if (diasFueraPaisTotal >= 180) {
-          if (diasFueraEnMes > 0) {
-            mesesAPagar.push({
-              mes: fechaMes.toLocaleDateString("es-ES", { month: "long", year: "numeric" }),
-              cuotaAusente: cuota.valorCuotaAusente,
-              cuotaPresente: 0,
-              diferencia: 0,
-            });
-          } else {
-            const diferencia = cuota.valorCuotaPresente - cuota.valorCuotaAusente;
-            mesesAPagar.push({
-              mes: fechaMes.toLocaleDateString("es-ES", { month: "long", year: "numeric" }),
-              cuotaAusente: cuota.valorCuotaAusente,
-              cuotaPresente: cuota.valorCuotaPresente,
-              diferencia: diferencia,
-            });
-            totalPagar += diferencia;
+        let diasFueraMes = 0;
+        let diasDentroMes = 0;
+
+        periodoRegistros.forEach(registro => {
+          let inicioPeriodo = registro.fechaSalida > fechaInicioPeriodo ? registro.fechaSalida : fechaInicioPeriodo;
+          let finPeriodo = registro.fechaEntreda < fechaFinPeriodo ? registro.fechaEntreda : fechaFinPeriodo;
+
+          const inicioInterseccion = new Date(Math.max(inicioMes.getTime(), inicioPeriodo.getTime()));
+          const finInterseccion = new Date(Math.min(finMes.getTime(), finPeriodo.getTime()));
+
+          if (inicioInterseccion < finInterseccion) {
+            const diasInterseccion = (finInterseccion - inicioInterseccion) / (1000 * 60 * 60 * 24) + 1; // +1 para incluir el último día
+            diasFueraMes += diasInterseccion;
           }
-        } else {
-          const diferencia = cuota.valorCuotaPresente - cuota.valorCuotaAusente;
-          mesesAPagar.push({
-            mes: fechaMes.toLocaleDateString("es-ES", { month: "long", year: "numeric" }),
-            cuotaAusente: cuota.valorCuotaAusente,
-            cuotaPresente: cuota.valorCuotaPresente,
-            diferencia: diferencia,
-          });
-          totalPagar += diferencia;
+        });
+
+        diasDentroMes = (finMes - inicioMes) / (1000 * 60 * 60 * 24) + 1 - diasFueraMes; // Total días en el mes - Días fuera del país
+        diasFueraPaisTotal += diasFueraMes;
+        diasDentroPaisTotal += diasDentroMes;
+
+        const cuota = await prisma.cuota.findFirst({
+          where: {
+            categoria: socioData.Categoria,
+            anio: fechaMes.getFullYear(),
+          },
+        });
+
+        if (!cuota) {
+          return res.status(404).json({ msg: `No se encontró una cuota para la categoría ${socioData.Categoria} y el año ${fechaMes.getFullYear()}` });
         }
+
+        const cuotaPresente = cuota.valorCuotaPresente;
+        const cuotaAusente = cuota.valorCuotaAusente;
+        let diferencia = 0;
+
+        // Calcula la diferencia de acuerdo al total de días fuera del país del periodo
+        if (diasFueraPaisTotal >= 180) {
+          diferencia = 0;
+        } else {
+          diferencia = cuotaPresente - cuotaAusente;
+        }
+
+        mesesAPagar.push({
+          mes: fechaMes.toLocaleDateString("es-ES", { month: "long", year: "numeric" }),
+          diasFueraMes: diasFueraMes,
+          diasDentroMes: diasDentroMes,
+          cuotaAusente: cuotaAusente,
+          cuotaPresente: cuotaPresente,
+          diferencia: diferencia,
+        });
       }
+
+      // Verifica si el total de días fuera del país supera los 180 días y ajusta el totalPagar
+      const totalPagar = diasFueraPaisTotal >= 180 ? 0 : mesesAPagar.reduce((sum, mes) => sum + mes.diferencia, 0);
 
       periodos.push({
         periodo: `${fechaInicioPeriodo.getFullYear()}-${fechaFinPeriodo.getFullYear()}`,
         mesesAPagar: mesesAPagar,
         totalPagar: totalPagar,
+        totalDiasFueraPais: diasFueraPaisTotal,
+        totalDiasDentroPais: diasDentroPaisTotal,
       });
 
       fechaInicioPeriodo = new Date(fechaFinPeriodo);
@@ -330,3 +346,10 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
     res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
+
+
+
+
+
+
+

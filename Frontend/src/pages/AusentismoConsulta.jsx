@@ -7,6 +7,7 @@ const AusentismoConsulta = () => {
     const [ausentismo, setAusentismo] = useState({});
     const [registroMigratorio, setRegistroMigratorio] = useState([]);
     const [mensaje, setMensaje] = useState({});
+    const [mensajeRegistro, setMensajeRegistro] = useState({});
     const [busqueda, setBusqueda] = useState('');
     const [fechaSalida, setFechaSalida] = useState('');
     const [fechaEntrada, setFechaEntrada] = useState('');
@@ -40,9 +41,8 @@ const AusentismoConsulta = () => {
 
     const handleBuscar = () => {
         consultarAusentismo(busqueda);
-        if(ausentismo && ausentismo.data && ausentismo.data.FechaAusentismo){
-            consultarRegistroMigratorio(busqueda);
-        }      
+        consultarRegistroMigratorio(busqueda);
+          
     };
 
     const handleSubmit = async (membresia) => {
@@ -75,7 +75,7 @@ const AusentismoConsulta = () => {
 
     const consultarRegistroMigratorio = async (numeroMembresia) => {
         setRegistroMigratorio([]);
-        setMensaje({});
+        setMensajeRegistro({});
         if (numeroMembresia) {
             try {
                 const token = localStorage.getItem('token');
@@ -89,9 +89,9 @@ const AusentismoConsulta = () => {
                 const respuesta = await axios.get(url, options);
                 console.log("respuesta registro migratorio", respuesta);
                 setRegistroMigratorio(respuesta.data.data || []); // Asegúrate de manejar el caso en que `data` no sea un array
-                setMensaje({});
+                setMensajeRegistro({});
             } catch (error) {
-                setMensaje({ respuesta: error.response.data.msg, tipo: false });
+                setMensajeRegistro({ respuesta: error.response.data.msg, tipo: false });
                 setRegistroMigratorio([]);
             }
         }
@@ -208,7 +208,7 @@ const AusentismoConsulta = () => {
                         </button>
                     </div>
 
-                    {Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>}
+                    {Object.keys(mensajeRegistro).length > 0 && <Mensaje tipo={mensajeRegistro.tipo}>{mensajeR.respuesta}</Mensaje>}
 
                     <div className="bg-white shadow-md rounded-lg overflow-hidden">
                         <table className="min-w-full border-collapse">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MdDeleteForever } from "react-icons/md";
 import Mensaje from '../components/Alerts/Message';
 import axios from 'axios';
-
+import ModalCuotas from "../components/Modals/ModalCuotas";
 const consultarCuotas = () =>{
 
     const [busqueda, setBusqueda] = useState('')
@@ -41,6 +41,14 @@ const consultarCuotas = () =>{
     const handleBuscar = () => {
         consultarCuotas(busqueda);     
     };
+
+    const [modal, setModal] = useState(false)
+
+    const handleModal = () => {
+        setModal(!modal);
+
+    };
+
     return (
         <>
              <div>
@@ -101,9 +109,12 @@ const consultarCuotas = () =>{
                     </tbody>
                 </table>
             </div>
-            <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-2 rounded shadow">
+            <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+            onClick={handleModal}>
                 Registrar nueva cuota
             </button>
+
+            {modal && (<ModalCuotas/>)}
 
 
         

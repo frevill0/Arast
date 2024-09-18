@@ -6,6 +6,8 @@ import axios from 'axios';
 const RevisarAusentismo = () => {
     const [ausentismo, setAusentismo] = useState({});
     const [registroMigratorio, setRegistroMigratorio] = useState([]);
+    const [registrocuota, setRegistroCuota] = useState([]);
+    const [registropatrimonial, setRegistroPatrimonial] = useState([]);
     const [mensaje, setMensaje] = useState({});
     const [busqueda, setBusqueda] = useState('');
     const [fechaSalida, setFechaSalida] = useState('');
@@ -41,37 +43,12 @@ const RevisarAusentismo = () => {
     const handleBuscar = () => {
         consultarAusentismo(busqueda);
         consultarRegistroMigratorio(busqueda);
+        consultarRegistroCuotasPago(busqueda)
+        consultaPatrimonial(busqueda)
              
     };
 
-    const handleSubmit = async (membresia) => {
-        try {
-            const confirmar = confirm("¿Está seguro de registrar la fecha?");
-            if (confirmar) {
-                const token = localStorage.getItem('token');
-                const url = `${import.meta.env.VITE_BACKEND_URL}/ausentismo/registroMigratorio`;
-                const form = {
-                    membresia,
-                    fechaSalida,
-                    fechaEntrada
-                };
-                const options = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    }
-                };
-                const respuesta = await axios.post(url, form, options);
-                setMensaje({ respuesta: "Fechas registradas correctamente", tipo: true });
-                // Refrescar los datos después de registrar
-                consultarRegistroMigratorio(busqueda);
-            }
-        } catch (error) {
-            console.log(error);
-            setMensaje({ respuesta: error.response.data.msg, tipo: false });
-        }
-    };
-
+    
     const consultarRegistroMigratorio = async (numeroMembresia) => {
         setRegistroMigratorio([]);
         setMensaje({});
@@ -96,6 +73,53 @@ const RevisarAusentismo = () => {
         }
     };
 
+    const consultarRegistroCuotasPago = async (numeroMembresia) => {
+        setRegistroCuota([]);
+        setMensaje({});
+        if (numeroMembresia) {
+            try {
+                const token = localStorage.getItem('token');
+                const url = `${import.meta.env.VITE_BACKEND_URL}/ausentismo/consultarCuotaPagos/${numeroMembresia}`;
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    }
+                };
+                const respuesta = await axios.get(url, options);
+                console.log("respuesta registro cuota-pago", respuesta);
+                setRegistroCuota(respuesta.data.data || []); // Asegúrate de manejar el caso en que `data` no sea un array
+                setMensaje({});
+            } catch (error) {
+                setMensaje({ respuesta: error.response.data.msg, tipo: false });
+                setRegistroCuota([]);
+            }
+        }
+    };
+
+    const consultaPatrimonial = async (numeroMembresia) => {
+        setRegistroPatrimonial([]);
+        setMensaje({});
+        if (numeroMembresia) {
+            try {
+                const token = localStorage.getItem('token');
+                const url = `${import.meta.env.VITE_BACKEND_URL}/ausentismo/consultarPatrimonial/${numeroMembresia}`;
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    }
+                };
+                const respuesta = await axios.get(url, options);
+                console.log("respuesta registro patrimonial", respuesta);
+                setRegistroPatrimonial(respuesta.data.data || []); // Asegúrate de manejar el caso en que `data` no sea un array
+                setMensaje({});
+            } catch (error) {
+                setMensaje({ respuesta: error.response.data.msg, tipo: false });
+                setRegistroPatrimonial([]);
+            }
+        }
+    };
     return (
         <>
             <div>
@@ -214,7 +238,9 @@ const RevisarAusentismo = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {registroMigratorio.length > 0 ? registroMigratorio.map((row, index) => (
+                                {registroMigratorio.length > 0 ? (
+                                    <>
+                                    {registroMigratorio.map((row, index) => (
                                     <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
                                         <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaSalida}</td>
                                         <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaEntreda}</td>
@@ -225,7 +251,9 @@ const RevisarAusentismo = () => {
                                             <MdInfo className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2" />
                                         </td>
                                     </tr>
-                                )) : (
+                                    ))}
+                                   </>
+                                ) : (
                                     <tr>
                                         <td colSpan="5" className="text-center py-4">No hay registros</td>
                                     </tr>
@@ -246,21 +274,30 @@ const RevisarAusentismo = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {registroMigratorio.length > 0 ? registroMigratorio.map((row, index) => (
+                            {registrocuota.length > 0 ? (
+                                    <>
+                                    {registrocuota.map((row, index) => (
                                     <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.periodo}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.mesesAPagar.length}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.mesesAPagar[0].cuotaAusente}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.mesesAPagar[0].cuotaPresente}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.mesesAPagar[0].diferencia}</td>
                                     </tr>
-                                )) : (
+                                     ))}
+                                    <tr className="font-bold bg-gray-200">
+                                        <td className="border border-gray-300 px-4 py-2 text-center">Total</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{registrocuota.reduce((row)=>row.totalPagar)}</td>
+                                    </tr>
+                                </>
+                                ) : (
                                     <tr>
                                         <td colSpan="6" className="text-center py-4">No hay registros</td>
                                     </tr>
                                 )}
-                            </tbody>
-                        </table>
+                            
+                         </tbody>
+                         </table>
 
                         <div className="text-center mt-4 mb-10">
                              <h1 className="text-2xl text-left font-bold text-customBlue">Patrimonial</h1>
@@ -276,14 +313,22 @@ const RevisarAusentismo = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {registroMigratorio.length > 0 ? registroMigratorio.map((row, index) => (
+                            {registropatrimonial.length > 0 ? (
+                                    <>
+                                    {registropatrimonial.map((row, index) => (
                                     <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.periodo}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.valorPatrimonialAusente}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.valorPatrimonialPresente}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.diferencia}</td>
                                         </tr>
-                                )) : (
+                                        ))}
+                                        <tr className="font-bold bg-gray-200">
+                                            <td className="border border-gray-300 px-4 py-2 text-center">Total</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{registropatrimonial.reduce((row)=>row.totalPagar)}</td>
+                                        </tr>
+                                    </>
+                                ) : (
                                     <tr>
                                         <td colSpan="5" className="text-center py-4">No hay registros</td>
                                     </tr>

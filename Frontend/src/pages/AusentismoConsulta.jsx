@@ -208,7 +208,7 @@ const AusentismoConsulta = () => {
                         </button>
                     </div>
 
-                    {Object.keys(mensajeRegistro).length > 0 && <Mensaje tipo={mensajeRegistro.tipo}>{mensajeR.respuesta}</Mensaje>}
+                    {Object.keys(mensajeRegistro).length > 0 && <Mensaje tipo={mensajeRegistro.tipo}>{mensajeRegistro.respuesta}</Mensaje>}
 
                     <div className="bg-white shadow-md rounded-lg overflow-hidden">
                         <table className="min-w-full border-collapse">

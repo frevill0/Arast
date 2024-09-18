@@ -7,6 +7,9 @@ const consultarCuotas = () =>{
 
     const [busqueda, setBusqueda] = useState('')
     const [mensaje, setMensaje] = useState({});
+    const [mensajeD, setMensajeD] = useState({});
+
+
     const [cuota, setCuota] = useState([]);
 
     console.log("Data de las cuotas:",cuota)
@@ -50,6 +53,30 @@ const consultarCuotas = () =>{
     };
 
     const closeModal = () => setModal(false);
+
+    const handleDelete = async (anio) => {
+        try {
+            const confirmar = confirm("Vas a eliminar el registro de la cuota, ¿Estás seguro de realizar esta acción?")
+            if (confirmar) {
+                const token = localStorage.getItem('token')
+                const url = `${import.meta.env.VITE_BACKEND_URL}/cuotas/${anio}`
+                const options={
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+                console.log(anio)
+                const response= await axios.delete(url,options);
+                console.log(response)
+                const cuotasActualizadas = cuota.filter(cuota => cuota.anio !== anio)
+                setCuota(cuotasActualizadas)
+            }
+        }
+        catch (error) {
+            setMensajeD({ respuesta: error.response.data.messageD, tipo: false });
+        }
+    }
 
     return (
         <>
@@ -107,28 +134,27 @@ const consultarCuotas = () =>{
                             <tr>
                             <td colSpan="7" className="text-center  py-5">No hay registros</td>
                             </tr>
-                        )}
+                        )} 
                     </tbody>
                 </table>
             </div>
+            {Object.keys(mensajeD).length > 0 && <Mensaje tipo={mensajeD.tipo}>{mensajeD.respuesta}</Mensaje>}
+
             <div className="flex space-x-4">
                 <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
                     onClick={handleModal}>
                     Registrar nueva cuota
                 </button>
-
+            
                 <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
-                    onClick={handleModal}>
+                    onClick={()=>handleDelete(busqueda)}>
                     Eliminar cuota
                 </button>
             </div>
 
 
             {modal && (<ModalCuotas handleClose={closeModal}/>)}
-
-
-        
-        
+       
         </>
     )
 

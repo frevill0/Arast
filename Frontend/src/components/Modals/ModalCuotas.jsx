@@ -1,77 +1,107 @@
 import { useState } from "react";
-
+import axios from "axios"
 
 const ModalCuotas =  ({handleClose}) =>{
 
-    const [categorias, setCategorias] = useState([
+    const [cuotas, setcuotas] = useState([
         {
           categoria: "Activo >= 27",
-          valorCuotaPresente: "",
-          valorCuotaAusente: "",
-          valorPatrimonialPresente: "",
-          valorPatrimonialAusente: "",
-          valorPredial: "",
-          anio: "",
+          valorCuotaPresente: 0,
+          valorCuotaAusente: 0,
+          valorPatrimonialPresente: 0,
+          valorPatrimonialAusente: 0,
+          valorPredial: 0,
+          anio: 0
         },
         {
           categoria: "Activo < 27",
-          valorCuotaPresente: "",
-          valorCuotaAusente: "",
-          valorPatrimonialPresente: "",
-          valorPatrimonialAusente: "",
-          valorPredial: "",
-          anio: "",
+          valorCuotaPresente: 0,
+          valorCuotaAusente: 0,
+          valorPatrimonialPresente: 0,
+          valorPatrimonialAusente: 0,
+          valorPredial: 0,
+          anio: 0
         },
         {
           categoria: "Especial x Propios D",
-          valorCuotaPresente: "",
-          valorCuotaAusente: "",
-          valorPatrimonialPresente: "",
-          valorPatrimonialAusente: "",
-          valorPredial: "",
-          anio: "",
+          valorCuotaPresente: 0,
+          valorCuotaAusente: 0,
+          valorPatrimonialPresente: 0,
+          valorPatrimonialAusente: 0,
+          valorPredial: 0,
+          anio: 0
         },
         {
           categoria: "Especial Viudo",
-          valorCuotaPresente: "",
-          valorCuotaAusente: "",
-          valorPatrimonialPresente: "",
-          valorPatrimonialAusente: "",
-          valorPredial: "",
-          anio: "",
+          valorCuotaPresente: 0,
+          valorCuotaAusente: 0,
+          valorPatrimonialPresente: 0,
+          valorPatrimonialAusente: 0,
+          valorPredial: 0,
+          anio: 0
         },
         {
           categoria: "Vitalicio",
-          valorCuotaPresente: "",
-          valorCuotaAusente: "",
-          valorPatrimonialPresente: "",
-          valorPatrimonialAusente: "",
-          valorPredial: "",
-          anio: "",
+          valorCuotaPresente: 0,
+          valorCuotaAusente: 0,
+          valorPatrimonialPresente: 0,
+          valorPatrimonialAusente: 0,
+          valorPredial: 0,
+          anio: 0
         },
         {
           categoria: "Corresponsal",
-          valorCuotaPresente:"",
-          valorCuotaAusente: "",
-          valorPatrimonialPresente:"",
-          valorPatrimonialAusente: "",
-          valorPredial: "",
-          anio: "",
+          valorCuotaPresente:0,
+          valorCuotaAusente: 0,
+          valorPatrimonialPresente:0,
+          valorPatrimonialAusente: 0,
+          valorPredial: 0,
+          anio: 0
         },
       ]);
     
       const handleChange = (e, index) => {
         const { name, value } = e.target;
-        const updatedCategorias = [...categorias];
-        updatedCategorias[index][name] = value;
-        setCategorias(updatedCategorias);
+        const updatedcuotas = [...cuotas];
+        updatedcuotas[index][name] = value;
+        setcuotas(updatedcuotas);
       };
     
-      const handleSubmit = (e) => {
+      const handleSubmit = async(e) => {
         e.preventDefault();
+        // Validación para asegurarse de que los campos no estén vacíos
+       const cuotasCompletas = cuotas.filter(cuota => {
+          return (
+            cuota.valorCuotaPresente !== 0 &&
+            cuota.valorCuotaAusente !== 0 &&
+            cuota.valorPatrimonialPresente !== 0 &&
+            cuota.valorPatrimonialAusente !== 0 &&
+            cuota.valorPredial !== 0 &&
+            cuota.anio !== 0
+          );
+        });
+
+  if (cuotasCompletas.length === 0) {
+    alert("Por favor, complete todos los campos antes de enviar.");
+    return;
+  }
         // manejo el envío de datos 
-        
-        console.log(categorias);
+        try {
+          const token = localStorage.getItem('token')
+          const url = `${import.meta.env.VITE_BACKEND_URL}/cuotas/crear`
+          const options = {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        }
+        console.log("cuotas",cuotas)
+        const respuesta = await axios.post(url,cuotas,options)
+        console.log("respuesta: ", respuesta)
+        setcuotas(respuesta)
+        } catch (error) {
+          console.log("Error: ", error);
+        }
         handleClose(); // Para cerrar el modal después del registro
       };
     
@@ -80,16 +110,16 @@ const ModalCuotas =  ({handleClose}) =>{
           <div className="bg-white p-6 rounded-lg w-4/5 max-h-[80%] overflow-y-scroll">
             <h2 className="text-lg font-bold mb-4 text-center">Registro de Categorías</h2>
             <form onSubmit={handleSubmit}>
-              {categorias.map((categoria, index) => (
+              {cuotas.map((cuota, index) => (
                 <div key={index} className="mb-6 border-b pb-4">
-                  <h3 className="font-semibold mb-2 text-gray-700">{categoria.categoria}</h3>
+                  <h3 className="font-semibold mb-2 text-gray-700">{cuota.categoria}</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-gray-700">Valor Cuota Presente</label>
                       <input
                         type="number"
                         name="valorCuotaPresente"
-                        value={categoria.valorCuotaPresente}
+                        value={cuota.valorCuotaPresente}
                         onChange={(e) => handleChange(e, index)}
                         className="border p-2 w-full"
                       />
@@ -99,7 +129,7 @@ const ModalCuotas =  ({handleClose}) =>{
                       <input
                         type="number"
                         name="valorCuotaAusente"
-                        value={categoria.valorCuotaAusente}
+                        value={cuota.valorCuotaAusente}
                         onChange={(e) => handleChange(e, index)}
                         className="border p-2 w-full"
                       />
@@ -109,7 +139,7 @@ const ModalCuotas =  ({handleClose}) =>{
                       <input
                         type="number"
                         name="valorPatrimonialPresente"
-                        value={categoria.valorPatrimonialPresente}
+                        value={cuota.valorPatrimonialPresente}
                         onChange={(e) => handleChange(e, index)}
                         className="border p-2 w-full"
                       />
@@ -119,7 +149,7 @@ const ModalCuotas =  ({handleClose}) =>{
                       <input
                         type="number"
                         name="valorPatrimonialAusente"
-                        value={categoria.valorPatrimonialAusente}
+                        value={cuota.valorPatrimonialAusente}
                         onChange={(e) => handleChange(e, index)}
                         className="border p-2 w-full"
                       />
@@ -129,7 +159,7 @@ const ModalCuotas =  ({handleClose}) =>{
                       <input
                         type="number"
                         name="valorPredial"
-                        value={categoria.valorPredial}
+                        value={cuota.valorPredial}
                         onChange={(e) => handleChange(e, index)}
                         className="border p-2 w-full"
                       />
@@ -139,7 +169,7 @@ const ModalCuotas =  ({handleClose}) =>{
                       <input
                         type="number"
                         name="anio"
-                        value={categoria.anio}
+                        value={cuota.anio}
                         onChange={(e) => handleChange(e, index)}
                         className="border p-2 w-full"
                       />
@@ -151,14 +181,14 @@ const ModalCuotas =  ({handleClose}) =>{
               <div className="flex justify-center mt-4">
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                  className="bg-customBlue text-white px-6 py-2 rounded-lg hover:bg-blue-700"
                 >
                   Registrar
                 </button>
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="ml-4 bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+                  className="ml-4 bg-customBlue text-white px-6 py-2 rounded-lg hover:bg-red-700"
                 >
                   Cancelar
                 </button>

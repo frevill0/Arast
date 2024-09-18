@@ -49,6 +49,8 @@ const consultarCuotas = () =>{
 
     };
 
+    const closeModal = () => setModal(false);
+
     return (
         <>
              <div>
@@ -109,12 +111,20 @@ const consultarCuotas = () =>{
                     </tbody>
                 </table>
             </div>
-            <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
-            onClick={handleModal}>
-                Registrar nueva cuota
-            </button>
+            <div className="flex space-x-4">
+                <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                    onClick={handleModal}>
+                    Registrar nueva cuota
+                </button>
 
-            {modal && (<ModalCuotas/>)}
+                <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                    onClick={handleModal}>
+                    Eliminar cuota
+                </button>
+            </div>
+
+
+            {modal && (<ModalCuotas handleClose={closeModal}/>)}
 
 
         

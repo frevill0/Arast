@@ -45,6 +45,9 @@ const AusentismoConsulta = () => {
           
     };
 
+    
+    
+
     const handleSubmit = async (membresia) => {
         try {
             const confirmar = confirm("¿Está seguro de registrar la fecha?");

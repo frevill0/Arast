@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Navigate, Outlet } from 'react-router-dom';
-
+import LogoPrincipal from '../assets/LogoQTGC.png'
 const Dashboard = () => {
   const [showSubItemsAusentismo, setShowSubItemsAusentismo] = useState(false);
   const [showSubItemsUsuarios, setShowSubItemsUsuarios] = useState(false);
@@ -28,7 +28,8 @@ const Dashboard = () => {
     <div className="flex h-screen">
       {/* Sidebar */}
       <aside className="w-64 bg-customBlue text-white flex flex-col">
-        <div className="p-4">
+        <div className="mb-8 flex  items-center">
+        <img src={LogoPrincipal} alt="Logo" className="w-24 h-24" />
           <h1 className="text-2xl font-bold">ARAST</h1>
         </div>
         <nav className="flex-grow">

@@ -137,8 +137,17 @@ export const RegistroMigratorio = async (req, res) => {
       diasExterior = Math.floor((entrada - salida) / (1000 * 60 * 60 * 24));
     }
 
+    // Obtener el último idLiquidacion
+    const lastRecord = await prisma.registroMovMigracion.findFirst({
+      orderBy: { idLiquidacion: 'desc' },
+      select: { idLiquidacion: true }
+    });
+
+    const newIdLiquidacion = lastRecord ? lastRecord.idLiquidacion + 1 : 1;
+
     const nuevoRegistro = await prisma.registroMovMigracion.create({
       data: {
+        idLiquidacion: newIdLiquidacion,  // Agregar el idLiquidacion
         socio: socioData.Socio,  
         membresia: membresiaInt,
         fechaAusentismo: fechaAusentismo,  
@@ -161,6 +170,7 @@ export const RegistroMigratorio = async (req, res) => {
     res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
+
 
 
 export const verRegistrosMigratoriosPorMembresia = async (req, res) => {

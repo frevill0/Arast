@@ -93,7 +93,6 @@ model contactscm_fac_elec_arast {
   CodigoBanco           String?  @db.VarChar(50)
 }
 
-
 model Cuota {
   idCuotas                 Int     @id(map: "PK_Cuota") @default(autoincrement())
   categoria                String? @db.NVarChar(150)
@@ -287,7 +286,6 @@ model ValorCuota {
   Mes              Mes?          @relation(fields: [idMes], references: [idMes], onDelete: NoAction, onUpdate: NoAction, map: "FK_ValorCuota_Mes")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vw_estado_anterior_susp_temporal {
   USERID           String    @db.VarChar(8)
   ONDATE           DateTime?
@@ -304,6 +302,5 @@ model vw_estado_anterior_susp_temporal {
   NOTA1            String?   @db.VarChar(80)
   NOTA2            String    @db.VarChar(80)
   LASTUSER         String?   @db.VarChar(8)
-
-  @@ignore
+  ID               Int       @id(map: "PK_ID") @default(autoincrement())
 }

@@ -86,7 +86,7 @@ const consultarCuotas = () =>{
                 <p className='mb-8'>Este módulo te permite consultar cuotas por año.</p>
             </div>
             <div className="text-center mb-10">
-                    <h1 className="text-4xl font-bold text-gray-900">Reactivación de Ausentismo</h1>
+                    <h1 className="text-4xl font-bold text-gray-900">Consulta de cuotas</h1>
             </div>
             <div className="container mx-auto p-6">
                

@@ -46,14 +46,14 @@ const Dashboard = () => {
                   <li className="px-4 py-2 hover:bg-gray-700">
                     <Link to="usuarios/revisarausentismo">Revisar</Link>
                   </li>
-                  <li className="px-4 py-2 hover:bg-gray-700">
-                    <a href="#requirements">Pagar</a>
-                  </li>
                 </ul>
               )}
             </li>
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsSuspension}>
               <Link to='usuarios/suspension'>SUSPENSIÓN</Link>
+            </li>
+            <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">
+              <Link to='usuarios/reactivacion'>REACTIVACIÓN</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsReportes}>
               <span>REPORTES</span>
@@ -96,9 +96,6 @@ const Dashboard = () => {
                   </li>
                 </ul>
               )}
-            </li>
-            <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsUsuarios}>
-              <Link to='usuarios/reactivacion'>REACTIVACIÓN</Link>
             </li>
           </ul>
         </nav>

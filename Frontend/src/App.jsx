@@ -6,6 +6,8 @@ import ListarUsuarios from './pages/ListarUsuarios'
 import AusentismoConsulta from './pages/AusentismoConsulta'
 import CuotasConsulta from './pages/CuotasConsulta'
 import RevisarAusentismo from './pages/RevisarAusentismo'
+import Suspension from './pages/Suspension'
+import Reactivacion from './pages/Reactivacion'
 function App() {
   return (
     <>
@@ -20,6 +22,8 @@ function App() {
             <Route index element = {<AusentismoConsulta/>}/>
             <Route path = "usuarios/revisarausentismo" element= {<RevisarAusentismo/>}/>
             <Route path="usuarios/cuotas" element={<CuotasConsulta/>} />
+            <Route path="usuarios/suspension" element={<Suspension/>} />
+            <Route path="usuarios/reactivacion" element={<Reactivacion/>} />
           </Route>
           
         </Routes>

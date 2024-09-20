@@ -52,18 +52,7 @@ const Dashboard = () => {
               )}
             </li>
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsSuspension}>
-              <span>SUSPENSION</span>
-              {/* Sub-items for AUSENTISMO */}
-              {showSubItemsSuspension && (
-                <ul className="ml-4">
-                  <li className="px-4 py-2 hover:bg-gray-700">
-                    <a href="#getting-started">Suspensión</a>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-700">
-                    <a href="#requirements">Liquidación</a>
-                  </li>
-                </ul>
-              )}
+              <Link to='usuarios/suspension'>SUSPENSIÓN</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsReportes}>
               <span>REPORTES</span>
@@ -106,6 +95,9 @@ const Dashboard = () => {
                   </li>
                 </ul>
               )}
+            </li>
+            <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsUsuarios}>
+              <Link to='usuarios/reactivacion'>REACTIVACIÓN</Link>
             </li>
           </ul>
         </nav>

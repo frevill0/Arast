@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Navigate, Outlet } from 'react-router-dom';
 import LogoPrincipal from '../assets/LogoQTGC.png'
+
 const Dashboard = () => {
   const [showSubItemsAusentismo, setShowSubItemsAusentismo] = useState(false);
   const [showSubItemsUsuarios, setShowSubItemsUsuarios] = useState(false);

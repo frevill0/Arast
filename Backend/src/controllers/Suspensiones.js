@@ -29,6 +29,8 @@ export const ConsultaSuspension = async (req, res) => {
       },
     });
 
+    console.log(encontrarSocio)
+
     if (!encontrarSocio) {
       return res.status(400).send({ msg: "No se encontró un socio con esa membresía" });
     }
@@ -72,7 +74,7 @@ export const ConsultaSuspension = async (req, res) => {
 };
 
 export const consultaPagoSuspension = async (req, res) => {
-  const membresia = req.params.Membresia;  
+  const membresia = req.params.Membresia;
   console.log("Membresía recibida:", membresia);
 
   if (!membresia) {
@@ -150,32 +152,29 @@ export const consultaPagoSuspension = async (req, res) => {
       });
 
       if (cuota) {
-        const { valorCuotaPresente, valorPatrimonialPresente, valorPredial } = cuota;
+        const { valorPatrimonialPresente, valorPredial } = cuota;
 
         const mesResult = {
           Mes: new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(mes),
           Anio: anio,
-          ValorCuotaPresente: valorCuotaPresente,
-          ValorPatrimonial: mesNum === 1 ? valorPatrimonialPresente : null, // Febrero
-          ValorPredial: mesNum === 10 ? valorPredial : null, // Noviembre
+          ValorPatrimonial: mesNum === 1 ? valorPatrimonialPresente * 0.5 : null, // Febrero (50% de descuento)
+          ValorPredial: mesNum === 10 ? valorPredial * 0.5 : null, // Noviembre (50% de descuento)
         };
 
-        // Sumar al total a pagar
-        totalAPagar += valorCuotaPresente || 0;
-        if (mesNum === 1) totalAPagar += valorPatrimonialPresente || 0; // Febrero
-        if (mesNum === 10) totalAPagar += valorPredial || 0; // Noviembre
+        // Solo agregar al total y al resultado si tiene algo que pagar en ese mes
+        if (mesResult.ValorPatrimonial || mesResult.ValorPredial) {
+          if (mesNum === 1) totalAPagar += (valorPatrimonialPresente || 0) * 0.5; // Febrero
+          if (mesNum === 10) totalAPagar += (valorPredial || 0) * 0.5; // Noviembre
 
-        resultado.push(mesResult);
+          resultado.push(mesResult); // Solo se añade si debe pagar algo
+        }
       }
     }
 
+    // Responder solo con los meses que tienen pagos y el total acumulado
     res.status(200).json({ res: 'Detalles de pagos:', data: resultado, TotalAPagar: totalAPagar });
   } catch (error) {
     console.error(error);
     res.status(500).send({ msg: "Error interno del servidor" });
   }
 };
-
-
-
-

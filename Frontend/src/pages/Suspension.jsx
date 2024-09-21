@@ -141,38 +141,54 @@ const Suspension = () => {
                 )     
             }
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full border-collapse">
-                    <thead className="bg-customYellow text-slate-400">
-                        <tr>
-                            <th className="border border-gray-300 px-4 py-2">Mes/Año</th>
-                            <th className="border border-gray-300 px-4 py-2">Cuota Mensual</th>
-                            <th className="border border-gray-300 px-4 py-2">Tipo</th>
-                        </tr>
-                     </thead>
-                    <tbody>
-                    {pagoSuspension.length > 0 ? pagoSuspension.map((row, index) => {
-
-                        // Selecciona el valor que no sea null
-                        const cuotaMensual = row.ValorPredial !== null ? row.ValorPredial : row.ValorPatrimonial;
-                        // Determina el tipo basado en qué valor se tomó
-                         const tipo = row.ValorPredial !== null ? "Predial" : "Patrimonial";
-
-                        return (
-                            <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
-                                <td className="border border-gray-300 px-4 py-2 text-center">{row.Mes + "/" + row.Anio}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-center">{cuotaMensual}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-center">{tipo}</td>
+                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                    <table className="min-w-full border-collapse">
+                        <thead className="bg-customYellow text-slate-400">
+                            <tr>
+                                <th className="border border-gray-300 px-4 py-2">Mes/Año</th>
+                                <th className="border border-gray-300 px-4 py-2">Cuota Mensual</th>
+                                <th className="border border-gray-300 px-4 py-2">Tipo</th>
                             </tr>
-                         );
-                        }) : (
-                        <tr>
-                            <td colSpan="3" className="text-center py-4">No hay registros</td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                        {pagoSuspension.length > 0 ? (
+                            <>
+                                {pagoSuspension.map((row, index) => {
+                                    // Seleccionar el valor que no sea null
+                                    const cuotaMensual = row.ValorPredial !== null ? row.ValorPredial : row.ValorPatrimonial;
+                                    // Determinar el tipo basado en qué valor se tomó
+                                    const tipo = row.ValorPredial !== null ? "Predial" : "Patrimonial";
+
+                                    return (
+                                        <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.Mes + "/" + row.Anio}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{cuotaMensual}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{tipo}</td>
+                                        </tr>
+                                    );
+                                })}
+
+                                {/* Fila de total */}
+                                <tr className="font-bold bg-gray-200">
+                                    <td className="border border-gray-300 px-4 py-2 text-center">Total</td>
+                                    <td className="border border-gray-300 px-4 py-2 text-center">
+                                        {
+                                            // Calcular el total sumando los valores que no son null
+                                            pagoSuspension.reduce((acc, row) => {
+                                                return acc + (row.ValorPredial !== null ? row.ValorPredial : row.ValorPatrimonial);
+                                            }, 0)
+                                        }
+                                    </td>
+                                </tr>
+                            </>
+                        ) : (
+                            <tr>
+                                <td colSpan="3" className="text-center py-4">No hay registros</td>
+                            </tr>
+                        )}
+                        </tbody>
+                    </table>
+                </div>
 
             <div className="flex space-x-4">
                 <div className="w-1/2 px-2 mt-4" >

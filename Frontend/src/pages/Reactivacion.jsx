@@ -4,17 +4,17 @@ import axios from 'axios';
 
 const Reactivacion = () => {
 
-    const [ausentismo, setAusentismo] = useState({});
+    const [reingreso, setReingreso] = useState({});
     const [mensaje, setMensaje] = useState({});
     const [busqueda, setBusqueda] = useState('');
 
-    const consultarAusentismo = async (numeroMembresia) => {
-        setAusentismo({});
+    const consultarReingreso = async (numeroMembresia) => {
+        setReingreso({});
         setMensaje({});
         if (numeroMembresia) {
             try {
                 const token = localStorage.getItem('token');
-                const url = `${import.meta.env.VITE_BACKEND_URL}/ausentismo/${numeroMembresia}`;
+                const url = `${import.meta.env.VITE_BACKEND_URL}/reingreso/${numeroMembresia}`;
                 const options = {
                     headers: {
                         'Content-Type': 'application/json',
@@ -22,11 +22,12 @@ const Reactivacion = () => {
                     }
                 };
                 const respuesta = await axios.get(url, options);
-                setAusentismo(respuesta.data);
+                console.log("reingreso: ", respuesta.data)
+                setReingreso(respuesta.data);
                 setMensaje({});
             } catch (error) {
                 setMensaje({ respuesta: error.response.data.msg, tipo: false });
-                setAusentismo({});
+                setReingreso({});
             }
         }
     };
@@ -36,8 +37,8 @@ const Reactivacion = () => {
     };
 
     const handleBuscar = () => {
-        consultarAusentismo(busqueda);
-        consultarRegistroMigratorio(busqueda);
+        consultarReingreso(busqueda);
+        //consultarRegistroMigratorio(busqueda);
           
     };
 
@@ -72,44 +73,38 @@ const Reactivacion = () => {
             {Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>}
 
             {
-                Object.keys(ausentismo).length !== 0 &&
+                Object.keys(reingreso).length !== 0 &&
                 (
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-100 p-6 rounded-lg shadow-md mb-10">
                         <div>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Socio:</span>
-                                {ausentismo.data.Socio}
+                                {reingreso.data.Socio}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Titular:</span>
-                                {ausentismo.data.Titular}
+                                {reingreso.data.Titular}
                             </p>
                         </div>
                         <div>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Categoría:</span>
-                                {ausentismo.data.Categoria}
+                                {reingreso.data.Categoria}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Fecha Nacimiento:</span>
-                                {ausentismo.data.FechaNacimiento}
+                                {reingreso.data.FechaNacimiento}
                             </p>
                         </div>
                         <div>
                             <p className="text-md text-gray-00 mt-4">
-                                <span className="text-gray-600 uppercase font-bold">Estado:</span>
-                                {ausentismo.data.Estatus}
+                                <span className="text-gray-600 uppercase font-bold">Estado Proceso:</span>
+                                {reingreso.data.EstadoProceso}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
-                                <span className="text-gray-600 uppercase font-bold">Edad:</span>
-                                {ausentismo.data.Edad}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-md text-gray-00 mt-4">
-                                <span className="text-gray-600 uppercase font-bold">Fecha de Ausentismo:</span>
-                                {ausentismo.data.FechaAusentismo}
+                                <span className="text-gray-600 uppercase font-bold">Fecha de liquidación:</span>
+                                {reingreso.data.FechaFinalLiquidacion}
                             </p>
                         </div>
                     </div>

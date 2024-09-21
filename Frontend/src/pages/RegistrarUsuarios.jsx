@@ -12,5 +12,4 @@ const RegistrarUsuarios = () => {
         </div>
     )
 }
-
 export default RegistrarUsuarios

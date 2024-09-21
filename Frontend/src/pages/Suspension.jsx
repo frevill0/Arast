@@ -4,17 +4,18 @@ import axios from 'axios';
 
 const Suspension = () => {
 
-    const [ausentismo, setAusentismo] = useState({});
+    const [suspension, setSuspension] = useState({});
+    const [pagoSuspension, setPagoSuspension] = useState({});
     const [mensaje, setMensaje] = useState({});
     const [busqueda, setBusqueda] = useState('');
-
-    const consultarAusentismo = async (numeroMembresia) => {
-        setAusentismo({});
+    
+    const consultarSuspension = async (numeroMembresia) => {
+        setSuspension({});
         setMensaje({});
         if (numeroMembresia) {
             try {
                 const token = localStorage.getItem('token');
-                const url = `${import.meta.env.VITE_BACKEND_URL}/ausentismo/${numeroMembresia}`;
+                const url = `${import.meta.env.VITE_BACKEND_URL}/suspension/${numeroMembresia}`;
                 const options = {
                     headers: {
                         'Content-Type': 'application/json',
@@ -22,11 +23,35 @@ const Suspension = () => {
                     }
                 };
                 const respuesta = await axios.get(url, options);
-                setAusentismo(respuesta.data);
+                setSuspension(respuesta.data);
+                setMensaje({});
+            } catch (error) {
+                console.log(error)
+                setMensaje({ respuesta: error.response.data.msg, tipo: false });
+                setSuspension({});
+            }
+        }
+    };
+
+    const consultarPagoSuspension = async (numeroMembresia) => {
+        setPagoSuspension({});
+        setMensaje({});
+        if (numeroMembresia) {
+            try {
+                const token = localStorage.getItem('token');
+                const url = `${import.meta.env.VITE_BACKEND_URL}/suspension/pago/${numeroMembresia}`;
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    }
+                };
+                const respuesta = await axios.get(url, options);
+                setPagoSuspension(respuesta.data.data);
                 setMensaje({});
             } catch (error) {
                 setMensaje({ respuesta: error.response.data.msg, tipo: false });
-                setAusentismo({});
+                setPagoSuspension({});
             }
         }
     };
@@ -36,8 +61,8 @@ const Suspension = () => {
     };
 
     const handleBuscar = () => {
-        consultarAusentismo(busqueda);
-        consultarRegistroMigratorio(busqueda);
+        consultarSuspension(busqueda);
+        consultarPagoSuspension(busqueda);
           
     };
 
@@ -72,44 +97,44 @@ const Suspension = () => {
             {Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>}
 
             {
-                Object.keys(ausentismo).length !== 0 &&
+                Object.keys(suspension).length !== 0 &&
                 (
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-100 p-6 rounded-lg shadow-md mb-10">
                         <div>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Socio:</span>
-                                {ausentismo.data.Socio}
+                                {suspension.data.Socio}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Titular:</span>
-                                {ausentismo.data.Titular}
+                                {suspension.data.Titular}
                             </p>
                         </div>
                         <div>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Categoría:</span>
-                                {ausentismo.data.Categoria}
+                                {suspension.data.Categoria}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Fecha Nacimiento:</span>
-                                {ausentismo.data.FechaNacimiento}
+                                {suspension.data.FechaNacimiento}
                             </p>
                         </div>
                         <div>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Estado:</span>
-                                {ausentismo.data.Estatus}
+                                {suspension.data.Estatus}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Edad:</span>
-                                {ausentismo.data.Edad}
+                                {suspension.data.Edad}
                             </p>
                         </div>
                         <div>
                             <p className="text-md text-gray-00 mt-4">
-                                <span className="text-gray-600 uppercase font-bold">Fecha de Ausentismo:</span>
-                                {ausentismo.data.FechaAusentismo}
+                                <span className="text-gray-600 uppercase font-bold">Fecha de suspension:</span>
+                                {suspension.data.FechaSuspension}
                             </p>
                         </div>
                     </div>
@@ -126,11 +151,25 @@ const Suspension = () => {
                         </tr>
                      </thead>
                     <tbody>
-                        <tr  className="odd:bg-gray-100 even:bg-gray-50">
-                            <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                    {pagoSuspension.length > 0 ? pagoSuspension.map((row, index) => {
+
+                        // Selecciona el valor que no sea null
+                        const cuotaMensual = row.ValorPredial !== null ? row.ValorPredial : row.ValorPatrimonial;
+                        // Determina el tipo basado en qué valor se tomó
+                         const tipo = row.ValorPredial !== null ? "Predial" : "Patrimonial";
+
+                        return (
+                            <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                <td className="border border-gray-300 px-4 py-2 text-center">{row.Mes + "/" + row.Anio}</td>
+                                <td className="border border-gray-300 px-4 py-2 text-center">{cuotaMensual}</td>
+                                <td className="border border-gray-300 px-4 py-2 text-center">{tipo}</td>
+                            </tr>
+                         );
+                        }) : (
+                        <tr>
+                            <td colSpan="3" className="text-center py-4">No hay registros</td>
                         </tr>
+                    )}
                     </tbody>
                 </table>
             </div>

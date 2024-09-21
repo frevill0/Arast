@@ -275,16 +275,13 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
         return registro.fechaSalida <= fechaFinalPeriodo && registro.fechaEntreda >= fechaInicioPeriodo;
       });
 
-      console.log(periodoRegistros)
-
       let mesesAPagar = [];
       var diasFueraPaisTotal = 0; 
+      var diasDentroPaisTotal = 0; 
 
       for (let mes = 0; mes < 12; mes++) {
         const fechaMes = new Date(fechaInicioPeriodo);
         fechaMes.setMonth(fechaMes.getMonth() + mes);
-
-        console.log(fechaMes)
 
         const inicioMes = new Date(fechaMes.getFullYear(), fechaMes.getMonth(), 1);
         const finMes = new Date(fechaMes.getFullYear(), fechaMes.getMonth() + 1, 0);
@@ -302,6 +299,11 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
         });
 
         diasFueraPaisTotal += diasFueraMes;
+
+        // Calcular los días dentro del país en el mes
+        const diasTotalesMes = finMes.getDate(); // Total de días en el mes
+        const diasDentroMes = diasTotalesMes - diasFueraMes;
+        diasDentroPaisTotal += diasDentroMes;
 
         const cuota = await prisma.cuota.findFirst({
           where: {
@@ -321,6 +323,7 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
         mesesAPagar.push({
           mes: fechaMes.toLocaleDateString("es-ES", { month: "long", year: "numeric" }),
           diasFueraMes: diasFueraMes,
+          diasDentroMes: diasDentroMes,
           cuotaAusente: cuotaAusente,
           cuotaPresente: cuotaPresente,
           diferencia: diferencia,
@@ -353,6 +356,7 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
         mesesAPagar: mesesAPagar,
         totalPagar: totalPagar,
         totalDiasFueraPais: diasFueraPaisTotal,
+        totalDiasDentroPais: diasDentroPaisTotal, // Agregar los días dentro del país en el periodo
       });
 
       fechaInicioPeriodo = new Date(fechaFinPeriodo);
@@ -363,6 +367,7 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
     if (lastPeriodo) {
       lastPeriodo.periodo = `${new Date(registros[0].fechaSalida).getFullYear()}-${registros[registros.length - 1].fechaEntreda.getFullYear()}`;
       lastPeriodo.totalDiasFueraPais = diasFueraPaisTotal;
+      lastPeriodo.totalDiasDentroPais = diasDentroPaisTotal; // Asegurar que el último periodo también incluya días dentro
     }
 
     res.status(200).json({ msg: "Consulta de pago de ausentismo completada", data: periodos });
@@ -371,6 +376,7 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
     res.status(500).json({ msg: "Error interno del servidor", error: error.message });
   }
 };
+
 
 export const consultarPagoPatrimonial = async (req, res) => {
   try {

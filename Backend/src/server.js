@@ -10,6 +10,10 @@ import routerReingreso from './routers/Reingreso_routes.js'
 const app = express()
 dotenv.config()
 
+app.get('/arast', (req, res) => {
+    res.send("Server online, bienvenido a Arast")
+  })
+
 app.set('port',process.env.PORT || 3000)
 
 app.use(cors())

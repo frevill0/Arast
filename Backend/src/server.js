@@ -4,6 +4,7 @@ import cors from 'cors'
 import routerAusentismo from './routers/Ausentismos_routes.js'
 import routerUsuarios from './routers/Usuarios_routes.js'
 import routerCuotas from './routers/Cuotas_routes.js'
+import routerSuspencion from './routers/Suspensiones_routes.js'
 
 const app = express()
 dotenv.config()
@@ -16,6 +17,8 @@ app.use(express.json())
 app.use('/arast',routerAusentismo)
 app.use('/arast',routerUsuarios)
 app.use('/arast',routerCuotas)
+app.use('/arast',routerSuspencion)
+
 
 app.use((req,res) => res.status(404).send("Endpoint no encontrado - 404"))
 

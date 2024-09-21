@@ -53,7 +53,7 @@ const Dashboard = () => {
               <Link to='usuarios/suspension'>SUSPENSIÓN</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">
-              <Link to='usuarios/reactivacion'>REACTIVACIÓN</Link>
+              <Link to='usuarios/reactivacion'>REINGRESO</Link>
             </li>
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsReportes}>
               <span>REPORTES</span>

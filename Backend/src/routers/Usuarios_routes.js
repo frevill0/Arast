@@ -6,7 +6,8 @@ import {
   obtenerUsuarioPorUsername,
   actualizarUsuario,
   eliminarUsuario,
-} from '../controllers/usuarios.js';
+  obtenerUsuarioPorToken,
+} from '../controllers/Usuarios.js';
 import { verificarToken, esAdministrador } from '../middlewares/authMiddleware.js'
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.post('/usuarios/login', iniciarSesion)
 router.post('/usuarios/crear', verificarToken, esAdministrador, crearUsuario);
 router.get('/usuarios/todos', verificarToken, esAdministrador, obtenerUsuarios);
 router.get('/usuarios/:username', verificarToken, esAdministrador, obtenerUsuarioPorUsername);
+router.get('/usuario/token', verificarToken, obtenerUsuarioPorToken);
 router.put('/usuarios/:username', verificarToken, esAdministrador, actualizarUsuario);
 router.delete('/usuarios/:username', verificarToken, esAdministrador, eliminarUsuario);
 

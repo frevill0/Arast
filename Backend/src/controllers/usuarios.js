@@ -179,3 +179,30 @@ export const eliminarUsuario = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+
+  export const obtenerUsuarioPorToken = async (req, res) => {
+    try {
+      // El usuario ya está en req.user gracias al middleware de verificación
+      const { username } = req.user; // Extraemos el username del token
+  
+      // Buscamos al usuario en la base de datos
+      const usuario = await prisma.usuarios_Arast_Frevill.findUnique({
+        where: { username },
+        select: {
+          username: true,
+          nombre: true,
+          apellido: true,
+          rol: true,
+        }
+      });
+  
+      if (!usuario) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  
+      res.status(200).json(usuario);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+  

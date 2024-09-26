@@ -58,11 +58,12 @@ export const FormularioUsuarios = ({usuario}) => {
                 setMensaje({respuesta:"usuario registrado con éxito",tipo:true})
     
                 setTimeout(()=>{
-                    navigate('dashboard/usuarios/listar')
+                    setMensaje({})
+                    navigate('/dashboard/usuarios/listar')
                 }, 3000);
             } catch (error) {
                     console.log(error);
-                    setMensaje({respuesta:error.response.data.msg,tipo:false})
+                    setMensaje({respuesta:error.response.data.message,tipo:false})
             }
         }
     }
@@ -144,22 +145,6 @@ export const FormularioUsuarios = ({usuario}) => {
         </div>
         <div className="w-1/2 px-2">
             <label
-                htmlFor='confirmarContrasena'
-                className='text-gray-700 uppercase font-bold text-xs'>
-                Confirmar contraseña:
-            </label>
-            <input
-                id='confirmarContrasena'
-                type='password'
-                className='border-2 w-full p-1 mt-1 placeholder-gray-400 rounded-md mb-3'
-                placeholder='****************'
-                name='confirmarContrasena'
-                value={form.confirmarContrasena}
-                onChange={handleChange}
-            />
-        </div>
-        <div className="w-1/2 px-2">
-            <label
                 htmlFor='rol'
                 className='text-gray-700 uppercase font-bold text-xs'>
                 Rol:
@@ -179,6 +164,24 @@ export const FormularioUsuarios = ({usuario}) => {
                 <option value='consultor'>consultor</option>
             </select>
         </div>
+        
+        <div className="w-1/2 px-2">
+            <label
+                htmlFor='confirmarContrasena'
+                className='text-gray-700 uppercase font-bold text-xs'>
+                Confirmar contraseña:
+            </label>
+            <input
+                id='confirmarContrasena'
+                type='password'
+                className='border-2 w-full p-1 mt-1 placeholder-gray-400 rounded-md mb-3'
+                placeholder='****************'
+                name='confirmarContrasena'
+                value={form.confirmarContrasena}
+                onChange={handleChange}
+            />
+        </div>
+        
         
     </div>
 

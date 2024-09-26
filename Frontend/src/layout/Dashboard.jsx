@@ -37,6 +37,10 @@ const Dashboard = () => {
         </div>
         <nav className="flex-grow">
           <ul>
+          {
+		          (auth.rol === "administrador" || auth.rol ==="usuario")&&
+		          (
+                <>
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsAusentismo}>
               <span>AUSENTISMO</span>
               {/* Sub-items for AUSENTISMO */}
@@ -57,6 +61,9 @@ const Dashboard = () => {
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">
               <Link to='usuarios/reactivacion'>REINGRESO</Link>
             </li>
+            </>
+              )
+              }
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsReportes}>
               <span>REPORTES</span>
               {showSubItemsReportes && (
@@ -85,6 +92,9 @@ const Dashboard = () => {
             <li className="px-4 py-2 hover:bg-gray-700">
               <Link to='usuarios/cuotas' href="#webhooks">CUOTAS</Link>
             </li>
+            {
+		          auth.rol === "administrador" &&
+		          (
             <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer" onClick={toggleSubItemsUsuarios}>
               <span>USUARIOS</span>
               {/* Sub-items for USUARIOS */}
@@ -99,6 +109,8 @@ const Dashboard = () => {
                 </ul>
               )}
             </li>
+               )
+              }
           </ul>
         </nav>
       </aside>

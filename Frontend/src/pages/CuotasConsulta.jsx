@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { MdDeleteForever } from "react-icons/md";
 import Mensaje from '../components/Alerts/Message';
 import axios from 'axios';
 import ModalCuotas from "../components/Modals/ModalCuotas";
+import AuthContext from '../context/AuthProvider';
 const consultarCuotas = () =>{
 
     const [busqueda, setBusqueda] = useState('')
     const [mensaje, setMensaje] = useState({});
     const [mensajeD, setMensajeD] = useState({});
-
+    const {auth} = useContext(AuthContext)
 
     const [cuota, setCuota] = useState([]);
 
@@ -139,7 +140,11 @@ const consultarCuotas = () =>{
                 </table>
             </div>
             {Object.keys(mensajeD).length > 0 && <Mensaje tipo={mensajeD.tipo}>{mensajeD.respuesta}</Mensaje>}
-
+            
+            {
+		          auth.rol === "administrador" &&
+		          (
+            <>
             <div className="flex space-x-4">
                 <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
                     onClick={handleModal}>
@@ -154,7 +159,9 @@ const consultarCuotas = () =>{
 
 
             {modal && (<ModalCuotas handleClose={closeModal}/>)}
-       
+            </>
+        )
+        }
         </>
     )
 

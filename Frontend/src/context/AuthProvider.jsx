@@ -16,7 +16,7 @@ const AuthProvider = ({ children }) => {
                 }
             }
             const respuesta= await axios.get(url,options)
-            console.log("Authprovider:",respuesta)
+            console.log("Authprovider:",respuesta.data)
             setAuth(respuesta.data)
         } catch (error) {
             console.log("error Authproveider:",error);
@@ -35,7 +35,8 @@ const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={
             {
                 auth,
-                setAuth              
+                setAuth,
+                perfil              
             }
         }>
             {children}

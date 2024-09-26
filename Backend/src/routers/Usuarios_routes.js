@@ -7,7 +7,7 @@ import {
   actualizarUsuario,
   eliminarUsuario,
   obtenerUsuarioPorToken,
-} from '../controllers/Usuarios.js';
+} from '../controllers/usuarios.js';
 import { verificarToken, esAdministrador } from '../middlewares/authMiddleware.js'
 
 const router = express.Router();

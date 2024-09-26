@@ -54,27 +54,9 @@ export const crearUsuario = async (req, res) => {
 };
   
 export const iniciarSesion = async (req, res) => {
-    const { username, contrasena } = req.body;
-  
-    if (!username || !contrasena) {
-      return res.status(400).json({ error: 'Username y contraseña son requeridos' });
-    }
-  
-    try {
-      const usuario = await prisma.usuarios_Arast_Frevill.findUnique({
-        where: { username }
-      });
-  
-      if (!usuario) {
-        return res.status(401).json({ error: 'Credenciales inválidas' });
-      }
-  
-      const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
-  
-      if (!contrasenaValida) {
-        return res.status(401).json({ error: 'Contraseña Incorrecta' });
-      }
+  const { username, contrasena } = req.body;
 
+<<<<<<< HEAD
       const token = generarToken(usuario.username, usuario.rol);
   
       res.status(200).json({message : 'Bienvenido al sistema: ',
@@ -83,8 +65,40 @@ export const iniciarSesion = async (req, res) => {
     } catch (error) {
       console.log("error", error)
       res.status(500).json({ error: error.message });
+=======
+  if (!username || !contrasena) {
+    return res.status(400).json({ error: 'Username y contraseña son requeridos' });
+  }
+
+  try {
+    const usuario = await prisma.usuarios_Arast_Frevill.findUnique({
+      where: { username }
+    });
+
+    if (!usuario) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+>>>>>>> fc1452ffab9bdfb2a16d903a932d43a09b4636a4
     }
-  };
+
+    const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
+
+    if (!contrasenaValida) {
+      return res.status(401).json({ error: 'Contraseña Incorrecta' });
+    }
+
+    const token = generarToken(usuario.username, usuario.rol);
+
+    // Aquí devolvemos todos los datos del usuario junto con el token
+    res.status(200).json({
+      message: 'Bienvenido al sistema',
+      token,
+      usuario // Devuelve todos los datos del usuario
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
   export const obtenerUsuarios = async (req, res) => {
     try {

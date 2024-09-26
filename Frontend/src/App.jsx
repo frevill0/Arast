@@ -8,25 +8,28 @@ import CuotasConsulta from './pages/CuotasConsulta'
 import RevisarAusentismo from './pages/RevisarAusentismo'
 import Suspension from './pages/Suspension'
 import Reactivacion from './pages/Reactivacion'
+import {AuthProvider} from './context/AuthProvider'
 function App() {
   return (
     <>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          
-          {/* Dashboard con rutas hijas */}
-          <Route path="dashboard" element={<Dashboard />}>
-            <Route path="usuarios/listar" element={<ListarUsuarios />} />
-            <Route path="usuarios/registrar" element={<RegistrarUsuarios />} />
-            <Route index element = {<AusentismoConsulta/>}/>
-            <Route path = "usuarios/revisarausentismo" element= {<RevisarAusentismo/>}/>
-            <Route path="usuarios/cuotas" element={<CuotasConsulta/>} />
-            <Route path="usuarios/suspension" element={<Suspension/>} />
-            <Route path="usuarios/reactivacion" element={<Reactivacion/>} />
-          </Route>
-          
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            
+            {/* Dashboard con rutas hijas */}
+            <Route path="dashboard" element={<Dashboard />}>
+              <Route path="usuarios/listar" element={<ListarUsuarios />} />
+              <Route path="usuarios/registrar" element={<RegistrarUsuarios />} />
+              <Route index element = {<AusentismoConsulta/>}/>
+              <Route path = "usuarios/revisarausentismo" element= {<RevisarAusentismo/>}/>
+              <Route path="usuarios/cuotas" element={<CuotasConsulta/>} />
+              <Route path="usuarios/suspension" element={<Suspension/>} />
+              <Route path="usuarios/reactivacion" element={<Reactivacion/>} />
+            </Route>
+            
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </>
   );

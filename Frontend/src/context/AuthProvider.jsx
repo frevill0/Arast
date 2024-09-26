@@ -8,7 +8,7 @@ const AuthProvider = ({ children }) => {
 
     const perfil = async(token) => {
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/todos`
+            const url = `${import.meta.env.VITE_BACKEND_URL}/usuario/token`
             const options={
                 headers: {
                     'Content-Type': 'application/json',
@@ -16,14 +16,15 @@ const AuthProvider = ({ children }) => {
                 }
             }
             const respuesta= await axios.get(url,options)
-            console.log(respuesta)
+            console.log("Authprovider:",respuesta)
             setAuth(respuesta.data)
         } catch (error) {
-            console.log(error);
+            console.log("error Authproveider:",error);
         }
     }
     useEffect(() => {
         const token = localStorage.getItem('token')
+        console.log("token: ", token)
         if(token)
         {
             perfil(token)

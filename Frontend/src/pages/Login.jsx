@@ -1,11 +1,13 @@
 import axios from 'axios'
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import Message from '../components/Alerts/Message'
 import fondoLogin from '../assets/fondoLogin.jpeg'
+import AuthContext from '../context/AuthProvider'
 
 export const Login = () => {
     const navigate = useNavigate()
+    const {setAuth,auth, data} = useContext(AuthContext)
     const [mensaje, setMensaje] = useState({})
     const [errors, setErrors] = useState({})
 
@@ -49,7 +51,9 @@ export const Login = () => {
             const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/login`
             const respuesta = await axios.post(url, form)
             localStorage.setItem('token', respuesta.data.token)
-            // setAuth(respuesta.data)
+            console.log("Respuesta inicio de sesion:", respuesta.data.token)
+            console.log("Respuesta inicio de sesion:1", respuesta)
+            setAuth(respuesta.data.token)
             navigate('/dashboard')
         } catch (error) {
             setMensaje({ respuesta: error.response.data.msg, tipo: false })

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, Navigate, Outlet } from 'react-router-dom';
 import LogoPrincipal from '../assets/LogoQTGC.png'
+import AuthContext from '../context/AuthProvider';
 
 const Dashboard = () => {
+  const {auth} = useContext(AuthContext)
   const [showSubItemsAusentismo, setShowSubItemsAusentismo] = useState(false);
   const [showSubItemsUsuarios, setShowSubItemsUsuarios] = useState(false);
   const [showSubItemsSuspension, setShowSubItemsSuspension] = useState(false);
@@ -107,7 +109,7 @@ const Dashboard = () => {
         {/* Header */}
         <header className="bg-customBlue shadow p-4 flex justify-between items-center">
           <div className="flex items-center justify-end w-full">
-            <h1 className="text-white text-xl font-semibold mr-4">Bienvenido - frevill</h1>
+            <span className="text-white text-xl font-semibold mr-4"> Bienvenido - {auth?.nombre} </span>
             <Link
               to="/"
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

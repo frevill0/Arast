@@ -77,8 +77,11 @@ export const iniciarSesion = async (req, res) => {
 
       const token = generarToken(usuario.username, usuario.rol);
   
-      res.status(200).json({message : 'Bienvenido al sistema: ', token},);
+      res.status(200).json({message : 'Bienvenido al sistema: ',
+       token
+      });
     } catch (error) {
+      console.log("error", error)
       res.status(500).json({ error: error.message });
     }
   };

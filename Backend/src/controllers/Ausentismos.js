@@ -171,6 +171,45 @@ export const RegistroMigratorio = async (req, res) => {
   }
 };
 
+export const borrarRegistroMigratorio = async (req, res) => {
+  try {
+    const { membresia, fechaSalida, fechaEntrada } = req.body;
+
+    if (!membresia || !fechaSalida || !fechaEntrada) {
+      return res.status(400).json({ msg: "La membresía, fecha de salida y fecha de entrada son requeridas" });
+    }
+
+    // Convertir membresía a número entero
+    const membresiaInt = parseInt(membresia, 10);
+    if (isNaN(membresiaInt)) {
+      return res.status(400).json({ msg: "La membresía proporcionada no es válida" });
+    }
+
+    // Buscar si el registro existe con la membresía y las fechas proporcionadas
+    const registroExistente = await prisma.registroMovMigracion.findFirst({
+      where: {
+        membresia: membresiaInt,
+        fechaSalida: new Date(fechaSalida),  // Las fechas ahora vienen directamente en formato ISO (yyyy-mm-dd)
+        fechaEntreda: new Date(fechaEntrada),  // Usamos el formato adecuado para la búsqueda
+      },
+    });
+
+    if (!registroExistente) {
+      return res.status(404).json({ msg: "No se encontró un registro con esa membresía, fecha de salida y fecha de entrada" });
+    }
+
+    // Ahora, eliminamos el registro utilizando su idMovMigratorio (u otro campo único)
+    await prisma.registroMovMigracion.delete({
+      where: { idMovMigratorio: registroExistente.idMovMigratorio },  // Asegúrate de que 'idMovMigratorio' sea el identificador único en tu esquema
+    });
+
+    return res.status(200).json({ msg: "Registro eliminado exitosamente" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Hubo un error al eliminar el registro" });
+  }
+};
+
 
 
 export const verRegistrosMigratoriosPorMembresia = async (req, res) => {
@@ -193,7 +232,7 @@ export const verRegistrosMigratoriosPorMembresia = async (req, res) => {
         estadoMigratorio: "Abierto", 
       },
       orderBy: {
-        fechaEntreda: 'asc',
+        fechaSalida: 'asc',
       },
     });
 
@@ -263,111 +302,91 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
 
     let periodos = [];
     let fechaInicioPeriodo = new Date(registros[0].fechaSalida);
+
+    if (socioData.Marca_Ausentes && socioData.Marca_Ausentes < fechaInicioPeriodo) {
+      fechaInicioPeriodo = new Date(socioData.Marca_Ausentes);
+    }
+
     let fechaFinPeriodo = new Date(fechaInicioPeriodo);
-    fechaFinPeriodo.setFullYear(fechaFinPeriodo.getFullYear() + 1);  
+    fechaFinPeriodo.setFullYear(fechaFinPeriodo.getFullYear() + 1);
+    fechaFinPeriodo.setDate(fechaFinPeriodo.getDate() - 1); // Ajuste para terminar un día antes en el siguiente año
 
     while (fechaInicioPeriodo <= registros[registros.length - 1].fechaEntreda) {
-      const fechaFinalPeriodo = fechaFinPeriodo > registros[registros.length - 1].fechaEntreda
-        ? registros[registros.length - 1].fechaEntreda
-        : fechaFinPeriodo;
+      const fechaFinalPeriodo = new Date(Math.min(fechaFinPeriodo, registros[registros.length - 1].fechaEntreda));
 
       const periodoRegistros = registros.filter((registro) => {
-        return registro.fechaSalida <= fechaFinalPeriodo && registro.fechaEntreda >= fechaInicioPeriodo;
+        return (registro.fechaSalida <= fechaFinalPeriodo && registro.fechaEntreda >= fechaInicioPeriodo);
       });
 
-      let mesesAPagar = [];
-      var diasFueraPaisTotal = 0; 
-      var diasDentroPaisTotal = 0; 
+      let diasFueraPaisTotal = 0;
+      let diasDentroPaisTotal = 0;
 
-      for (let mes = 0; mes < 12; mes++) {
-        const fechaMes = new Date(fechaInicioPeriodo);
-        fechaMes.setMonth(fechaMes.getMonth() + mes);
+      // Cálculo de los días fuera del país en el periodo actual
+      periodoRegistros.forEach(registro => {
+        const inicioPeriodo = new Date(Math.max(registro.fechaSalida, fechaInicioPeriodo));
+        const finPeriodo = new Date(Math.min(registro.fechaEntreda, fechaFinalPeriodo));
 
-        const inicioMes = new Date(fechaMes.getFullYear(), fechaMes.getMonth(), 1);
-        const finMes = new Date(fechaMes.getFullYear(), fechaMes.getMonth() + 1, 0);
+        if (inicioPeriodo <= finPeriodo) {
+          const diasInterseccion = Math.ceil((finPeriodo - inicioPeriodo) / (1000 * 60 * 60 * 24)) + 1;
+          diasFueraPaisTotal += diasInterseccion;
+        }
+      });
 
-        var diasFueraMes = 0;
+      const diasTotalesPeriodo = Math.ceil((fechaFinalPeriodo - fechaInicioPeriodo) / (1000 * 60 * 60 * 24)) + 1;
+      diasFueraPaisTotal = Math.min(diasFueraPaisTotal, diasTotalesPeriodo);
+      diasDentroPaisTotal = diasTotalesPeriodo - diasFueraPaisTotal;
 
-        periodoRegistros.forEach(registro => {
-          const inicioPeriodo = new Date(Math.max(registro.fechaSalida, inicioMes));
-          const finPeriodo = new Date(Math.min(registro.fechaEntreda, finMes));
+      let totalPagar = 0;
 
-          if (inicioPeriodo <= finPeriodo) {
-            const diasInterseccion = Math.ceil((finPeriodo - inicioPeriodo) / (1000 * 60 * 60 * 24)) + 1;
-            diasFueraMes += diasInterseccion;
-          }
-        });
-
-        diasFueraPaisTotal += diasFueraMes;
-
-        // Calcular los días dentro del país en el mes
-        const diasTotalesMes = finMes.getDate(); // Total de días en el mes
-        const diasDentroMes = diasTotalesMes - diasFueraMes;
-        diasDentroPaisTotal += diasDentroMes;
-
+      if (diasFueraPaisTotal <= 180) {
         const cuota = await prisma.cuota.findFirst({
           where: {
             categoria: socioData.Categoria,
-            anio: fechaMes.getFullYear(),
+            anio: fechaInicioPeriodo.getFullYear(),
           },
         });
 
         if (!cuota) {
-          return res.status(404).json({ msg: `No se encontró una cuota para la categoría ${socioData.Categoria} y el año ${fechaMes.getFullYear()}` });
+          return res.status(404).json({ msg: `No se encontró una cuota para la categoría ${socioData.Categoria} y el año ${fechaInicioPeriodo.getFullYear()}` });
         }
 
-        const cuotaPresente = cuota.valorCuotaPresente || 0;
-        const cuotaAusente = cuota.valorCuotaAusente || 0;
-        const diferencia = cuotaPresente - cuotaAusente;
-
-        mesesAPagar.push({
-          mes: fechaMes.toLocaleDateString("es-ES", { month: "long", year: "numeric" }),
-          diasFueraMes: diasFueraMes,
-          diasDentroMes: diasDentroMes,
-          cuotaAusente: cuotaAusente,
-          cuotaPresente: cuotaPresente,
-          diferencia: diferencia,
-        });
+        totalPagar = (cuota.valorCuotaPresente - cuota.valorCuotaAusente) * 12;
       }
 
-      let totalPagar = 0;
-      const diasFueraPeriodo = diasFueraPaisTotal;
-      const mesesPeriodo = mesesAPagar.length;
 
-      if (fechaFinPeriodo.getFullYear() === registros[registros.length - 1].fechaEntreda.getFullYear()) {
-        const diasFueraUltimoPeriodo = Math.ceil((fechaFinalPeriodo - fechaInicioPeriodo) / (1000 * 60 * 60 * 24)) + 1;
-
-        if (diasFueraUltimoPeriodo < 180) {
-          const porcentajePago = diasFueraUltimoPeriodo / (mesesPeriodo * 30);
-          if (porcentajePago < 0.65) {
-            totalPagar = mesesAPagar.reduce((sum, mes) => sum + mes.diferencia, 0);
-          }
+      if (diasFueraPaisTotal < 180 && fechaFinalPeriodo >= registros[registros.length - 1].fechaEntreda) {
+        let porcentaje = 0.65
+        if (diasFueraPaisTotal < diasTotalesPeriodo * porcentaje) {
+          totalPagar = 0; 
         } else {
-          totalPagar = mesesAPagar.reduce((sum, mes) => sum + mes.diferencia, 0);
-        }
-      } else {
-        if (diasFueraPeriodo >= 180) {
-          totalPagar = mesesAPagar.reduce((sum, mes) => sum + mes.diferencia, 0);
+          const cuota = await prisma.cuota.findFirst({
+            where: {
+              categoria: socioData.Categoria,
+              anio: fechaInicioPeriodo.getFullYear(),
+            },
+          });
+
+          if (!cuota) {
+            return res.status(404).json({ msg: `No se encontró una cuota para la categoría ${socioData.Categoria} y el año ${fechaInicioPeriodo.getFullYear()}` });
+          }
+
+          const mesesPeriodo = Math.ceil((diasTotalesPeriodo / 30)-1);
+          totalPagar = (cuota.valorCuotaPresente - cuota.valorCuotaAusente) * mesesPeriodo; 
         }
       }
 
       periodos.push({
-        periodo: `${fechaInicioPeriodo.getFullYear()}-${fechaFinalPeriodo.getFullYear()}`,
-        mesesAPagar: mesesAPagar,
+        periodo: `${fechaInicioPeriodo.toLocaleDateString()} - ${fechaFinalPeriodo.toLocaleDateString()}`,
+        diasFueraPais: diasFueraPaisTotal,
+        diasDentroPais: diasDentroPaisTotal,
         totalPagar: totalPagar,
-        totalDiasFueraPais: diasFueraPaisTotal,
-        totalDiasDentroPais: diasDentroPaisTotal, // Agregar los días dentro del país en el periodo
       });
 
       fechaInicioPeriodo = new Date(fechaFinPeriodo);
+      fechaInicioPeriodo.setDate(fechaInicioPeriodo.getDate() + 1); 
+      fechaFinPeriodo = new Date(fechaInicioPeriodo);
       fechaFinPeriodo.setFullYear(fechaFinPeriodo.getFullYear() + 1);
-    }
-
-    const lastPeriodo = periodos[periodos.length - 1];
-    if (lastPeriodo) {
-      lastPeriodo.periodo = `${new Date(registros[0].fechaSalida).getFullYear()}-${registros[registros.length - 1].fechaEntreda.getFullYear()}`;
-      lastPeriodo.totalDiasFueraPais = diasFueraPaisTotal;
-      lastPeriodo.totalDiasDentroPais = diasDentroPaisTotal; // Asegurar que el último periodo también incluya días dentro
+      fechaFinPeriodo.setDate(fechaFinPeriodo.getDate() - 1); 
     }
 
     res.status(200).json({ msg: "Consulta de pago de ausentismo completada", data: periodos });
@@ -376,6 +395,9 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
     res.status(500).json({ msg: "Error interno del servidor", error: error.message });
   }
 };
+
+
+
 
 
 export const consultarPagoPatrimonial = async (req, res) => {

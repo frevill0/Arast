@@ -266,11 +266,10 @@ const RevisarAusentismo = () => {
                         <table className=" mt-4 min-w-full border-collapse">
                             <thead className="bg-customYellow text-slate-400">
                                 <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Años</th>
-                                    <th className="border border-gray-300 px-4 py-2">Meses Cobrados</th>
-                                    <th className="border border-gray-300 px-4 py-2">Cuota Ausente</th>
-                                    <th className="border border-gray-300 px-4 py-2">Cuota Presente</th>
-                                    <th className="border border-gray-300 px-4 py-2">Cuota Diferencia</th>
+                                    <th className="border border-gray-300 px-4 py-2">Períodos</th>
+                                    <th className="border border-gray-300 px-4 py-2">Días fuera del país</th>
+                                    <th className="border border-gray-300 px-4 py-2">Días dentro del país</th>
+                                    <th className="border border-gray-300 px-4 py-2">Total a pagar</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -279,15 +278,14 @@ const RevisarAusentismo = () => {
                                     {registrocuota.map((row, index) => (
                                     <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
                                         <td className="border border-gray-300 px-4 py-2 text-center">{row.periodo}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.mesesAPagar.length}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.mesesAPagar[0].cuotaAusente}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.mesesAPagar[0].cuotaPresente}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.mesesAPagar[0].diferencia}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.diasFueraPais}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.diasDentroPais}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPagar}</td>
                                     </tr>
                                      ))}
                                     <tr className="font-bold bg-gray-200">
-                                        <td className="border border-gray-300 px-4 py-2 text-center">Total</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{registrocuota.reduce((row)=>row.totalPagar)}</td>
+                                        <td colSpan="3"     className="border border-gray-300 px-4 py-2 text-center">Total</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{registrocuota.reduce((acc, row) => acc + row.totalPagar, 0)}</td>
                                     </tr>
                                 </>
                                 ) : (
@@ -306,10 +304,10 @@ const RevisarAusentismo = () => {
                         <table className="min-w-full mt-4 border-collapse">
                             <thead className="bg-customYellow text-slate-400">
                                 <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Año</th>
-                                    <th className="border border-gray-300 px-4 py-2">Cuota Ausente</th>
-                                    <th className="border border-gray-300 px-4 py-2">Cuota Presente</th>
-                                    <th className="border border-gray-300 px-4 py-2">Cuota Diferencia</th>
+                                <th className="border border-gray-300 px-4 py-2">Períodos</th>
+                                    <th className="border border-gray-300 px-4 py-2">Días fuera del país</th>
+                                    <th className="border border-gray-300 px-4 py-2">Días dentro del país</th>
+                                    <th className="border border-gray-300 px-4 py-2">Total a pagar</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -318,14 +316,14 @@ const RevisarAusentismo = () => {
                                     {registropatrimonial.map((row, index) => (
                                     <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
                                         <td className="border border-gray-300 px-4 py-2 text-center">{row.periodo}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.valorPatrimonialAusente}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.valorPatrimonialPresente}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.diferencia}</td>
-                                        </tr>
+                                    <   td className="border border-gray-300 px-4 py-2 text-center">{row.diasFueraPais}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.diasDentroPais}</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPagar}</td>
+                                    </tr>
                                         ))}
                                         <tr className="font-bold bg-gray-200">
-                                            <td className="border border-gray-300 px-4 py-2 text-center">Total</td>
-                                            <td className="border border-gray-300 px-4 py-2 text-center">{registropatrimonial.reduce((row)=>row.totalPagar)}</td>
+                                            <td colSpan="3" className="border border-gray-300 px-4 py-2 text-center">Total</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{registropatrimonial.reduce((acc, row) => acc + row.totalPagar, 0)}</td>
                                         </tr>
                                     </>
                                 ) : (

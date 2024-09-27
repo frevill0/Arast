@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { MdDeleteForever } from "react-icons/md";
 import Mensaje from '../components/Alerts/Message';
 import axios from 'axios';
+import { Link } from "react-router-dom";
 
 const AusentismoConsulta = () => {
     const [ausentismo, setAusentismo] = useState({});
     const [registroMigratorio, setRegistroMigratorio] = useState([]);
     const [mensaje, setMensaje] = useState({});
     const [mensajeRegistro, setMensajeRegistro] = useState({});
+    const [mensajeDelete, setMensajeDelete] = useState({});
     const [busqueda, setBusqueda] = useState('');
     const [fechaSalida, setFechaSalida] = useState('');
     const [fechaEntrada, setFechaEntrada] = useState('');
@@ -99,6 +101,32 @@ const AusentismoConsulta = () => {
             }
         }
     };
+
+    const handleDelete=async (membresia, fechaSalida, fechaEntrada)=>{
+        try {
+            const confirmar = confirm("¿Estás seguro de eliminar el Registro Migratorio?")
+            if(confirmar){
+                const token = localStorage.getItem('token')
+                const url = `${import.meta.env.VITE_BACKEND_URL}/ausentismo/eliminar/registroMigratorio`
+                const headers = {
+                    'Content-Type':'application/json',
+                    Authorization:`Bearer ${token}`
+                }
+                const data = {
+                    membresia,
+                    fechaSalida,
+                    fechaEntrada
+                }
+
+                const respuesta = await axios.delete(url,{headers, data});
+                setMensajeDelete({respuesta:respuesta.data.msg, tipo:true}) 
+                consultarRegistroMigratorio(membresia)
+            }
+
+        } catch (error) {
+            setMensajeDelete({ respuesta: error.response.data.msg, tipo: false });
+        }
+     }
 
     return (
         <>
@@ -212,7 +240,7 @@ const AusentismoConsulta = () => {
                     </div>
 
                     {Object.keys(mensajeRegistro).length > 0 && <Mensaje tipo={mensajeRegistro.tipo}>{mensajeRegistro.respuesta}</Mensaje>}
-
+                    {Object.keys(mensajeDelete).length > 0 && <Mensaje tipo={mensajeDelete.tipo}>{mensajeDelete.respuesta}</Mensaje>}
                     <div className="bg-white shadow-md rounded-lg overflow-hidden">
                         <table className="min-w-full border-collapse">
                             <thead className="bg-customYellow text-slate-400">
@@ -228,7 +256,7 @@ const AusentismoConsulta = () => {
                                         <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaSalida}</td>
                                         <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaEntreda || `No disponible`}</td>
                                         <td className="border border-gray-300 px-4 py-2 text-center">
-                                            <MdDeleteForever className="h-7 w-7 text-red-900 cursor-pointer inline-block" />
+                                            <MdDeleteForever className="h-7 w-7 text-red-900 cursor-pointer inline-block" onClick={() => { handleDelete(row.membresia , row.fechaSalida, row.fechaEntreda) }} />
                                         </td>
                                     </tr>
                                 )) : (
@@ -241,9 +269,9 @@ const AusentismoConsulta = () => {
                     </div>
 
                     <div className="text-center mt-6">
-                        <button className="bg-gray-900 hover:bg-gray-600 text-white px-6 py-3 rounded shadow-lg">
+                        <Link to='/dashboard/usuarios/revisarausentismo' className="bg-gray-900 hover:bg-gray-600 text-white px-6 py-3 rounded shadow-lg">
                             Revisar
-                        </button>
+                        </Link>
                     </div>
                 </>
             )}

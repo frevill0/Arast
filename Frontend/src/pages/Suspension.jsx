@@ -171,7 +171,7 @@ const Suspension = () => {
                                 {/* Fila de total */}
                                 <tr className="font-bold bg-gray-200">
                                     <td className="border border-gray-300 px-4 py-2 text-center">Total</td>
-                                    <td className="border border-gray-300 px-4 py-2 text-center">
+                                    <td colSpan="2" className="border border-gray-300 px-4 py-2 text-center">
                                         {
                                             // Calcular el total sumando los valores que no son null
                                             pagoSuspension.reduce((acc, row) => {

@@ -203,12 +203,19 @@ export const borrarRegistroMigratorio = async (req, res) => {
       return res.status(400).json({ msg: "La membresía proporcionada no es válida" });
     }
 
+    // Convertir fechas del formato dd/mm/aaaa a objeto Date
+    const [diaSalida, mesSalida, anioSalida] = fechaSalida.split('/').map(Number);
+    const [diaEntrada, mesEntrada, anioEntrada] = fechaEntrada.split('/').map(Number);
+
+    const fechaSalidaDate = new Date(anioSalida, mesSalida - 1, diaSalida); // Los meses en JS son 0-indexed
+    const fechaEntradaDate = new Date(anioEntrada, mesEntrada - 1, diaEntrada);
+
     // Buscar si el registro existe con la membresía y las fechas proporcionadas
     const registroExistente = await prisma.registroMovMigracion.findFirst({
       where: {
         membresia: membresiaInt,
-        fechaSalida: new Date(fechaSalida),  // Las fechas ahora vienen directamente en formato ISO (yyyy-mm-dd)
-        fechaEntreda: new Date(fechaEntrada),  // Usamos el formato adecuado para la búsqueda
+        fechaSalida: fechaSalidaDate,
+        fechaEntreda: fechaEntradaDate,
       },
     });
 
@@ -227,6 +234,7 @@ export const borrarRegistroMigratorio = async (req, res) => {
     return res.status(500).json({ msg: "Hubo un error al eliminar el registro" });
   }
 };
+
 
 
 
@@ -507,9 +515,9 @@ export const consultarPagoPatrimonial = async (req, res) => {
       let totalPagar = 0;
 
       if (diasFueraPaisTotal >= 180) {
-        totalPagar = valorPatrimonialAusente;
+        totalPagar = 0;
       } else {
-        totalPagar = valorPatrimonialPresente;
+        totalPagar = diferencia;
       }
 
       periodos.push({

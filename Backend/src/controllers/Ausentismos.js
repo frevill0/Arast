@@ -3,6 +3,24 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+function calcularMesesPorFechas(fechaInicio, fechaFin) {
+  const inicio = new Date(fechaInicio);
+  const fin = new Date(fechaFin);
+  
+  // Obtenemos el año y el mes de ambas fechas
+  const anioInicio = inicio.getFullYear();
+  const mesInicio = inicio.getMonth();
+  const anioFin = fin.getFullYear();
+  const mesFin = fin.getMonth();
+
+  // Calcular el número total de meses entre las dos fechas
+  const totalMeses = (anioFin - anioInicio) * 12 + (mesFin - mesInicio);
+
+  // Asegurarnos de que al menos un mes es contado si hay días en el rango
+  return totalMeses + (inicio.getDate() > 0 ? 1 : 0);
+}
+
+
 const formatoFecha = (dateString) => {
   if (!dateString) return null;
 
@@ -370,17 +388,13 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
             return res.status(404).json({ msg: `No se encontró una cuota para la categoría ${socioData.Categoria} y el año ${fechaInicioPeriodo.getFullYear()}` });
           }
 
-          let mesesPeriodo = 0
+          let mesesPeriodo = calcularMesesPorFechas(fechaInicioPeriodo, fechaFinalPeriodo);
+          totalPagar = (cuota.valorCuotaPresente - cuota.valorCuotaAusente) * (mesesPeriodo-1);
 
-          while (fechaInicioPeriodo <= fechaFinalPeriodo) {
-            mesesPeriodo++; 
-            fechaInicioPeriodo.setMonth(fechaInicioPeriodo.getMonth() + 1);
-        }
-
-          totalPagar = (cuota.valorCuotaPresente - cuota.valorCuotaAusente) * mesesPeriodo-1; 
         }
       }
 
+      // Sumar al total final
       totalFinal += totalPagar;
 
       periodos.push({
@@ -397,12 +411,18 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
       fechaFinPeriodo.setDate(fechaFinPeriodo.getDate() - 1); 
     }
 
+    // Respuesta con la lista de periodos y el total final
     res.status(200).json({ msg: "Consulta de pago de ausentismo completada", data: periodos, totalFinal });
   } catch (error) {
     console.error("Error en la consulta de pago de ausentismo:", error);
     res.status(500).json({ msg: "Error interno del servidor", error: error.message });
   }
 };
+
+
+
+
+
 
 export const consultarPagoPatrimonial = async (req, res) => {
   try {

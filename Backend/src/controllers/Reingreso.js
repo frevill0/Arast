@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { getYear, getMonth, format } from 'date-fns';
+import { getYear, getMonth, format, addYears } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const prisma = new PrismaClient(); 
@@ -16,17 +16,17 @@ const formatoFecha = (dateString) => {
     return `${day}/${month}/${year}`;
   }
 
-  // Función auxiliar para calcular el valor mensual
-  const calcularValorMensual = (mes, valorCuotaPresente, valorPatrimonialPresente, valorPredial) => {
-    let total = valorCuotaPresente; // Se cobra cada mes
-    if (mes === 1) { // Febrero (mes indexado en 0, por eso febrero es el 1)
-        total += valorPatrimonialPresente;
+  // Función para calcular el valor mensual según el mes
+  function calcularValorMensual(mes, valorCuotaPresente, valorPatrimonialPresente, valorPredial) {
+    let valorMensual = valorCuotaPresente; // Cobro mensual por defecto
+    if (mes === 1) {
+        valorMensual += valorPatrimonialPresente; // Cobro adicional en febrero
+    } else if (mes === 10) {
+        valorMensual += valorPredial; // Cobro adicional en noviembre
     }
-    if (mes === 10) { // Noviembre (mes indexado en 0, por eso noviembre es el 10)
-        total += valorPredial;
-    }
-    return total;
-};
+    return valorMensual;
+}
+
 
 // Función auxiliar para calcular la edad del socio
 const calcularEdad = (fechaNacimiento) => {
@@ -120,77 +120,136 @@ const calcularEdad = (fechaNacimiento) => {
             return res.status(404).json({ message: 'Socio no encontrado o en estado inválido' });
         }
 
-        // Paso 2: Buscar la categoría del socio en la misma tabla contactscm_fac_elec_arast
         let categoria = socio.Categoria;
+        const fechaCumple27 = addYears(new Date(socio.FechaNac), 27); // Calculamos la fecha del cumpleaños 27
+        const fecha21Sept2021 = new Date(2021, 8, 21); // 21 de septiembre de 2021
+        let fechaInicioCobro = new Date(socio.fechaRetSep); // Por defecto es la fecha de retiro
+        console.log(fechaCumple27)
 
-        if (categoria === "Activo >= 26") {
-            categoria = "Activo >= 27";
-        }
-
-        console.log(categoria);
-
-        // Si la categoría es "Juvenil", cambiarla a "Activo >= 27"
+        // Paso 2: Verificar si el socio es juvenil y maneja la fecha de cumpleaños 27
         if (categoria === "Juvenil") {
-            const edad = calcularEdad(socio.FechaNac); // Asumiendo que tienes una columna de fechaNacimiento
-            if (edad >= 27) {
+            if (fechaCumple27 >= fecha21Sept2021) {
+                // Si cumple 27 después del 21 de septiembre de 2021, tomamos su cumpleaños 27 como fechaRetSep
+                fechaInicioCobro = fechaCumple27;
                 categoria = "Activo >= 27";
+            } else {
+                // Si cumple antes o en esa fecha, cambiar la categoría al cumplir 27
+                fechaInicioCobro = new Date(socio.fechaRetSep); // Usamos fechaRetSep original
+                categoria = "Activo < 27";
             }
         }
 
-        const fechaRetSep = new Date(socio.fechaRetSep);
         const fechaActual = new Date();
-
         const listaAnios = [];
         let totalFinal = 0;
 
-        // Generar los años desde la fecha de retiro hasta el año actual
-        for (let anio = getYear(fechaRetSep); anio <= getYear(fechaActual); anio++) {
-            
-            // Paso 3: Buscar los valores en la tabla Cuota por categoría y año
-            const cuota = await prisma.cuota.findFirst({
-                where: {
-                    categoria,
-                    anio
-                },
-                select: {
-                    valorCuotaPresente: true,
-                    valorPatrimonialPresente: true,
-                    valorPredial: true
-                }
-            });
-
-            if (!cuota) {
-                return res.status(404).json({ message: `Cuota no encontrada para la categoría ${categoria} en el año ${anio}` });
-            }
-
-            const { valorCuotaPresente, valorPatrimonialPresente, valorPredial } = cuota;
-
+        // Generar los años desde la fecha de retiro o cumpleaños 27 hasta el año actual
+        for (let anio = getYear(fechaInicioCobro); anio <= getYear(fechaActual); anio++) {
             let meses = [];
             let totalAnual = 0;
 
-            if (anio === getYear(fechaRetSep)) {
-                // Si es el año de retiro, empezar desde el mes de retiro
-                for (let mes = getMonth(fechaRetSep); mes < 12; mes++) {
+            const cumpleEnEsteAnio = getYear(fechaCumple27) === anio; // ¿Cumple 27 este año?
+
+            if (anio === getYear(fechaInicioCobro)) {
+                // Si es el año de inicio de cobro, empezar desde el mes correspondiente
+                for (let mes = getMonth(fechaInicioCobro); mes < 12; mes++) {
+                    let categoriaMensual = categoria; // Categoría inicial
                     const mesNombre = format(new Date(anio, mes), 'MMMM', { locale: es }); // Mes en español
+
+                    // Si el socio cumple 27 en este año y es el mes de su cumpleaños o después, cambiamos la categoría
+                    if (cumpleEnEsteAnio && mes >= getMonth(fechaCumple27)) {
+                        categoriaMensual = "Activo >= 27";
+                    }
+
+                    // Buscar las cuotas según la categoría y el año
+                    const cuota = await prisma.cuota.findFirst({
+                        where: {
+                            categoria: categoriaMensual,
+                            anio
+                        },
+                        select: {
+                            valorCuotaPresente: true,
+                            valorPatrimonialPresente: true,
+                            valorPredial: true
+                        }
+                    });
+
+                    console.log(categoriaMensual)
+
+                    if (!cuota) {
+                        return res.status(404).json({ message: `Cuota no encontrada para la categoría ${categoriaMensual} en el año ${anio}` });
+                    }
+
+                    const { valorCuotaPresente, valorPatrimonialPresente, valorPredial } = cuota;
                     const valorMensual = calcularValorMensual(mes, valorCuotaPresente, valorPatrimonialPresente, valorPredial);
                     totalAnual += valorMensual;
-                    meses.push({ mes: mesNombre, valor: valorMensual });
+                    meses.push({ mes: mesNombre, categoria: categoriaMensual, valor: valorMensual });
                 }
             } else if (anio === getYear(fechaActual)) {
                 // Si es el año actual, calcular hasta el mes actual
                 for (let mes = 0; mes <= getMonth(fechaActual); mes++) {
+                    let categoriaMensual = categoria; // Categoría inicial
                     const mesNombre = format(new Date(anio, mes), 'MMMM', { locale: es }); // Mes en español
+
+                    // Si el socio cumple 27 en este año y es el mes de su cumpleaños o después, cambiamos la categoría
+                    if (cumpleEnEsteAnio && mes >= getMonth(fechaCumple27)) {
+                        categoriaMensual = "Activo >= 27";
+                    }
+
+                    // Buscar las cuotas según la categoría y el año
+                    const cuota = await prisma.cuota.findFirst({
+                        where: {
+                            categoria: categoriaMensual,
+                            anio
+                        },
+                        select: {
+                            valorCuotaPresente: true,
+                            valorPatrimonialPresente: true,
+                            valorPredial: true
+                        }
+                    });
+
+                    if (!cuota) {
+                        return res.status(404).json({ message: `Cuota no encontrada para la categoría ${categoriaMensual} en el año ${anio}` });
+                    }
+
+                    const { valorCuotaPresente, valorPatrimonialPresente, valorPredial } = cuota;
                     const valorMensual = calcularValorMensual(mes, valorCuotaPresente, valorPatrimonialPresente, valorPredial);
                     totalAnual += valorMensual;
-                    meses.push({ mes: mesNombre, valor: valorMensual });
+                    meses.push({ mes: mesNombre, categoria: categoriaMensual, valor: valorMensual });
                 }
             } else {
                 // Años intermedios, agregar todos los meses
                 for (let mes = 0; mes < 12; mes++) {
+                    let categoriaMensual = categoria; // Categoría inicial
                     const mesNombre = format(new Date(anio, mes), 'MMMM', { locale: es }); // Mes en español
+
+                    // Si el socio cumple 27 en este año y es el mes de su cumpleaños o después, cambiamos la categoría
+                    if (cumpleEnEsteAnio && mes >= getMonth(fechaCumple27)) {
+                        categoriaMensual = "Activo >= 27";
+                    }
+
+                    // Buscar las cuotas según la categoría y el año
+                    const cuota = await prisma.cuota.findFirst({
+                        where: {
+                            categoria: categoriaMensual,
+                            anio
+                        },
+                        select: {
+                            valorCuotaPresente: true,
+                            valorPatrimonialPresente: true,
+                            valorPredial: true
+                        }
+                    });
+
+                    if (!cuota) {
+                        return res.status(404).json({ message: `Cuota no encontrada para la categoría ${categoriaMensual} en el año ${anio}` });
+                    }
+
+                    const { valorCuotaPresente, valorPatrimonialPresente, valorPredial } = cuota;
                     const valorMensual = calcularValorMensual(mes, valorCuotaPresente, valorPatrimonialPresente, valorPredial);
                     totalAnual += valorMensual;
-                    meses.push({ mes: mesNombre, valor: valorMensual });
+                    meses.push({ mes: mesNombre, categoria: categoriaMensual, valor: valorMensual });
                 }
             }
 
@@ -215,11 +274,3 @@ const calcularEdad = (fechaNacimiento) => {
         return res.status(500).json({ message: 'Error en el servidor' });
     }
 };
-  
-
-  
-
-  
-  
-  
-  

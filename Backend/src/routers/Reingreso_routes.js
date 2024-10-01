@@ -5,6 +5,6 @@ import { verificarToken } from '../middlewares/authMiddleware.js'
 const router = Router()
 
 router.get('/reingreso/:Membresia',verificarToken,ConsultaReingreso)
-router.get('/reingreso/pago/:Membresia/:amnistia',verificarToken, consultaPagoReingreso)
+router.get('/reingreso/pago/:Membresia',verificarToken, consultaPagoReingreso)
 
 export default router

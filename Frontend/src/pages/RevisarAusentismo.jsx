@@ -333,11 +333,20 @@ const RevisarAusentismo = () => {
                                 )}
                             </tbody>
                         </table>
+                       
                     </div>
 
-                    <div className="text-center mt-6">
+                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
+                        <p>TOTAL A PAGAR: {(registrocuota.reduce((acc, row) => acc + row.totalPagar, 0) + registropatrimonial.reduce((acc, row) => acc + row.totalPagar, 0)).toFixed(2)}</p>
+                    </div>
+
+                    <div className="text-center mt-6 ">
                         <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
                             Confirmar
+                        </button>
+
+                        <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
+                            Imprimir Reporte
                         </button>
                     </div>
                 </>

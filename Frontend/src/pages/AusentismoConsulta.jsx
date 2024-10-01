@@ -52,8 +52,7 @@ const AusentismoConsulta = () => {
 
     const handleSubmit = async (membresia) => {
         try {
-            const confirmar = confirm("¿Está seguro de registrar la fecha?");
-            if (confirmar) {
+            
                 const token = localStorage.getItem('token');
                 const url = `${import.meta.env.VITE_BACKEND_URL}/ausentismo/registroMigratorio`;
                 const form = {
@@ -71,7 +70,7 @@ const AusentismoConsulta = () => {
                 setMensaje({ respuesta: "Fechas registradas correctamente", tipo: true });
                 // Refrescar los datos después de registrar
                 consultarRegistroMigratorio(busqueda);
-            }
+
         } catch (error) {
             console.log(error);
             setMensaje({ respuesta: error.response.data.msg, tipo: false });
@@ -234,7 +233,10 @@ const AusentismoConsulta = () => {
                             onChange={(e) => setFechaEntrada(e.target.value)}
                         />
                         <button className="bg-gray-900 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
-                            onClick={() => { handleSubmit(busqueda) }}>
+                            onClick={() => { handleSubmit(busqueda) 
+                                setFechaSalida("");
+                                setFechaEntrada("");
+                            }}>
                             Agregar
                         </button>
                     </div>

@@ -95,7 +95,7 @@ export const consultaPagoSuspension = async (req, res) => {
     if (!estadoSuspension) {
       return res.status(400).send({ msg: "No se encontró la suspensión para esa membresía" });
     }
-
+    
     const { Marca_Suspension } = estadoSuspension;
 
     // Calcular la fecha de finalización (último día del mes actual)

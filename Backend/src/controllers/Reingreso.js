@@ -19,13 +19,15 @@ const formatoFecha = (dateString) => {
 
 // Función para calcular el valor mensual según el mes
 function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial) {
-  let valorMensual = valorCuotaPresente; // Cobro mensual por defecto de las cuotas 
+  let valorMensual = valorCuotaPresente; // Cobro mensual por defecto de las cuotas
+  let valorPatrimonial = 0;
+  let valorPredialMensual = 0;
 
   // En enero (mes 0), se cobra el valor patrimonial del año anterior
   if (mes === 0) {
-      valorMensual += valorPatrimonialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
+      valorPatrimonial = valorPatrimonialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
   } else if (mes >= 1) { // A partir de febrero se cobra el valor patrimonial del año actual
-      valorMensual += valorPatrimonialPresente / 12;
+      valorPatrimonial = valorPatrimonialPresente / 12;
   }
 
   // Cobro fijo de 182 dólares en julio de 2022
@@ -35,11 +37,19 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
 
   // Cobro adicional en noviembre (predial)
   if (mes === 10) { // Noviembre es el mes 10
-      valorMensual += valorPredial;
+      valorPredialMensual = valorPredial;
   }
 
-  return valorMensual;
+  // Suma total del mes
+  valorMensual += valorPatrimonial + valorPredialMensual;
+
+  return {
+    valorMensual,
+    valorPatrimonial,
+    valorPredial: valorPredialMensual
+  };
 }
+
 
   export const ConsultaReingreso = async (req, res) => {
     const membresia = req.params.Membresia;  
@@ -125,19 +135,19 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
         const fechaCumple22 = addYears(new Date(socio.FechaNac), 22);
         const fecha21Sept2021 = new Date(2021, 8, 21);
         let fechaInicioCobro = new Date(socio.fechaRetSep);
-        fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 2)
-        console.log (fechaInicioCobro)
+        fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 2);
+        console.log(fechaInicioCobro);
 
         if (categoria === "Juvenil") {
             if (fechaCumple27 >= fecha21Sept2021) {
                 fechaInicioCobro = fechaCumple27;
-                fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 1);
-                console.log(fechaInicioCobro)
+                fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 2);
+                console.log(fechaInicioCobro);
                 categoria = "Activo >= 27";
             } else {
                 fechaInicioCobro = fechaCumple22;
                 fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 2);
-                console.log(fechaInicioCobro)
+                console.log(fechaInicioCobro);
                 categoria = "Activo < 27";
             }
         }
@@ -152,6 +162,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
         for (let anio = getYear(fechaInicioCobro); anio <= getYear(fechaActual); anio++) {
             let meses = [];
             let totalAnual = 0;
+            let totalPatrimonialAnual = 0; // Para acumular el valor patrimonial anual
 
             for (let mes = (anio === getYear(fechaInicioCobro)) ? getMonth(fechaInicioCobro) : 0; 
                  mes < ((anio === getYear(fechaActual)) ? getMonth(fechaActual) + 1 : 12); 
@@ -193,15 +204,16 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
                 const { valorCuotaPresente, valorPatrimonialPresente, valorPredial } = cuota;
                 const valorPatrimonialAnterior = cuotaAnterior ? cuotaAnterior.valorPatrimonialPresente : 0;
 
-                const valorMensual = calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial);
+                // Usamos la función actualizada para obtener los valores separados
+                const { valorMensual, valorPatrimonial, valorPredial: valorPredialMensual } = calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial);
+                
                 totalAnual += valorMensual;
                 totalCuota += valorCuotaPresente;
+                totalPatrimonial += valorPatrimonial; // Sumar patrimonial mensual al total global
+                totalPredial += valorPredialMensual;
 
-                // Sumamos patrimonial y predial solo en los meses que se cobran
-                if (mes === 0) { // Supongamos que solo se cobran en enero
-                    totalPatrimonial += valorPatrimonialPresente;
-                    totalPredial += valorPredial;
-                }
+                // Acumulamos el valor patrimonial anual
+                totalPatrimonialAnual += valorPatrimonial;
 
                 meses.push({ mes: mesNombre, categoria: categoriaMensual, valor: valorMensual });
             }
@@ -211,7 +223,8 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
             listaAnios.push({
                 anio,
                 meses,
-                totalAnual
+                totalAnual,
+                totalPatrimonialAnual // Agregamos el total anual de patrimonial
             });
         }
 
@@ -219,7 +232,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
             anios: listaAnios,
             totalFinal,
             totalCuota,
-            totalPatrimonial,
+            totalPatrimonial, // Suma total de patrimonial en todos los años
             totalPredial
         });
 

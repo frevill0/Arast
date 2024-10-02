@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { MdInfo } from "react-icons/md";
 import Mensaje from '../components/Alerts/Message';
 import axios from 'axios';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const RevisarAusentismo = () => {
     const [ausentismo, setAusentismo] = useState({});
@@ -120,6 +122,69 @@ const RevisarAusentismo = () => {
             }
         }
     };
+
+    // Función para generar el PDF
+    const generarPDF = () => {
+        const doc = new jsPDF();
+
+        // Título
+        doc.setFontSize(20);
+        doc.text('Reporte de Ausentismo', 10, 10);
+
+        // Tabla de ausentismo
+        if (Object.keys(ausentismo).length !== 0) {
+            doc.setFontSize(12);
+            doc.text('Datos del Socio:', 10, 30);
+            doc.text(`Socio: ${ausentismo.data.Socio}`, 10, 40);
+            doc.text(`Titular: ${ausentismo.data.Titular}`, 10, 50);
+            doc.text(`Categoría: ${ausentismo.data.Categoria}`, 10, 60);
+            doc.text(`Estado: ${ausentismo.data.Estatus}`, 10, 70);
+            doc.text(`Fecha de Ausentismo: ${ausentismo.data.FechaAusentismo}`, 10, 80);
+        }
+
+        // Tabla de movimientos migratorios
+        if (registroMigratorio.length > 0) {
+            doc.text('Movimientos Migratorios:', 10, 100);
+            doc.autoTable({
+                startY: 110,
+                head: [['Fecha Salida', 'Fecha Entrada', 'Días en Exterior', 'Días en el País']],
+                body: registroMigratorio.map(row => [
+                    row.fechaSalida, row.fechaEntreda, row.exterior, row.pais
+                ])
+            });
+        }
+
+        // Tabla de cuotas
+        if (registrocuota.length > 0) {
+            const lastPos = doc.autoTable.previous.finalY || 130; // Ubicación del final de la tabla anterior
+            doc.text('Cuotas:', 10, lastPos + 20);
+            doc.autoTable({
+                startY: lastPos + 30,
+                head: [['Período', 'Días fuera del país', 'Días dentro del país', 'Total a pagar']],
+                body: registrocuota.map(row => [
+                    row.periodo, row.diasFueraPais, row.diasDentroPais, row.totalPagar
+                ])
+            });
+        }
+
+        // Tabla patrimonial
+        if (registropatrimonial.length > 0) {
+            const lastPos = doc.autoTable.previous.finalY || 180; // Ubicación del final de la tabla anterior
+            doc.text('Patrimonial:', 10, lastPos + 20);
+            doc.autoTable({
+                startY: lastPos + 30,
+                head: [['Período', 'Días fuera del país', 'Días dentro del país', 'Total a pagar']],
+                body: registropatrimonial.map(row => [
+                    row.periodo, row.diasFueraPais, row.diasDentroPais, row.totalPagar
+                ])
+            });
+        }
+
+        // Descargar el PDF
+        doc.save(`reporte_ausentismo_${busqueda}.pdf`);
+    };
+
+
     return (
         <>
             <div>
@@ -345,7 +410,8 @@ const RevisarAusentismo = () => {
                             Confirmar
                         </button>
 
-                        <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
+                        <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg"  
+                            onClick={generarPDF}>
                             Imprimir Reporte
                         </button>
                     </div>

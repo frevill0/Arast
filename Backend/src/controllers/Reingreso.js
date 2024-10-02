@@ -23,15 +23,31 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
   let valorPatrimonial = 0;
   let valorPredialMensual = 0;
 
-  // En enero (mes 0), se cobra el valor patrimonial del año anterior
-  if (mes === 0) {
+  const fechaActual = new Date();
+  const anioActual = fechaActual.getFullYear();
+  const mesActual = fechaActual.getMonth(); // Obtener el mes actual (0 para enero, 11 para diciembre)
+
+  // Condición especial para el año actual
+  if (anio === anioActual) {
+    if (mes === 0) { // Si es enero del año actual
+      // Solo se cobra el valor patrimonial correspondiente a la última parte del año anterior
+      valorPatrimonial = valorPatrimonialAnterior / 12; // Cobrar la parte restante del patrimonial del año anterior
+    } else if (mes === mesActual) { // Si es el mes actual (excepto enero)
+      valorPatrimonial = valorPatrimonialPresente; // Cobrar todo el valor patrimonial del año actual
+    } else {
+      valorPatrimonial = 0; // No se cobra patrimonial en los demás meses del año actual
+    }
+  } else {
+    // Si no es el año actual, aplicar la lógica normal de cobro mensual de patrimonial
+    if (mes === 0) { // En enero de años anteriores
       valorPatrimonial = valorPatrimonialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
-  } else if (mes >= 1) { // A partir de febrero se cobra el valor patrimonial del año actual
+    } else if (mes >= 1) { // A partir de febrero se cobra el valor patrimonial del año actual
       valorPatrimonial = valorPatrimonialPresente / 12;
+    }
   }
 
-  // Cobro fijo de 182 dólares en julio de 2022
-  if (mes === 6 && anio === 2022) { // Julio es el mes 6
+  // Cobro fijo de 182 dólares en noviembre de 2022
+  if (mes === 10 && anio === 2022) { // Noviembre es el mes 10
       valorMensual += 182;
   }
 
@@ -49,6 +65,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
     valorPredial: valorPredialMensual
   };
 }
+
 
 
   export const ConsultaReingreso = async (req, res) => {
@@ -72,7 +89,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
       }
   
       // Validar que el estatus del socio sea uno de los permitidos
-      const estatusPermitidos = ["Separado", "Juv. Perdio Derecho", "Retirado"];
+      const estatusPermitidos = ["Separado", "Juv. Perdio Derecho", "Retirado", "Juv.No Tiene Derecho"];
       if (!estatusPermitidos.includes(encontrarSocio.Estatus)) {
         return res.status(400).send({ msg: "El socio no está en un estado válido para reingreso" });
       }
@@ -121,7 +138,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
             where: {
                 Membresia: membresia,
                 Estatus: {
-                    in: ["Separado", "Juv. Perdio Derecho", "Retirado"]
+                    in: ["Separado", "Juv. Perdio Derecho", "Retirado", "Juv.No Tiene Derecho"]
                 }
             }
         });
@@ -132,7 +149,9 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
 
         let categoria = socio.Categoria;
         const fechaCumple27 = addYears(new Date(socio.FechaNac), 27);
+        fechaCumple27.setMonth(fechaCumple27.getMonth() + 1)
         const fechaCumple22 = addYears(new Date(socio.FechaNac), 22);
+        fechaCumple22.setMonth(fechaCumple22.getMonth() + 1)
         const fecha21Sept2021 = new Date(2021, 8, 21);
         let fechaInicioCobro = new Date(socio.fechaRetSep);
         fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 2);
@@ -141,12 +160,10 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
         if (categoria === "Juvenil") {
             if (fechaCumple27 >= fecha21Sept2021) {
                 fechaInicioCobro = fechaCumple27;
-                fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 2);
                 console.log(fechaInicioCobro);
                 categoria = "Activo >= 27";
             } else {
                 fechaInicioCobro = fechaCumple22;
-                fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 2);
                 console.log(fechaInicioCobro);
                 categoria = "Activo < 27";
             }

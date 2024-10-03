@@ -7,6 +7,8 @@ const Reactivacion = () => {
     const [reingreso, setReingreso] = useState({});
     const [mensaje, setMensaje] = useState({});
     const [busqueda, setBusqueda] = useState('');
+    const [registros, setRegistros] = useState([]);
+    const [mensajeRegistro, setMensajeRegistro] = useState({});
 
     const consultarReingreso = async (numeroMembresia) => {
         setReingreso({});
@@ -22,12 +24,36 @@ const Reactivacion = () => {
                     }
                 };
                 const respuesta = await axios.get(url, options);
-                console.log("reingreso: ", respuesta.data)
-                setReingreso(respuesta.data);
+                setReingreso(respuesta.data.data);
+
                 setMensaje({});
             } catch (error) {
                 setMensaje({ respuesta: error.response.data.msg, tipo: false });
                 setReingreso({});
+            }
+        }
+    };
+
+
+    const consultarRegistros = async (numeroMembresia) => {
+        setRegistros([]);
+        setMensajeRegistro({});
+        if (numeroMembresia) {
+            try {
+                const token = localStorage.getItem('token');
+                const url = `${import.meta.env.VITE_BACKEND_URL}/reingreso/pago/${numeroMembresia}`;
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    }
+                };
+                const respuesta = await axios.get(url, options);
+                setRegistros(respuesta.data.anios); 
+                setMensajeRegistro({});
+            } catch (error) {
+                setMensajeRegistro({ respuesta: error.response.data.message, tipo: false });
+                setRegistros([]);
             }
         }
     };
@@ -38,7 +64,7 @@ const Reactivacion = () => {
 
     const handleBuscar = () => {
         consultarReingreso(busqueda);
-        //consultarRegistroMigratorio(busqueda);
+        consultarRegistros(busqueda);
           
     };
 
@@ -80,54 +106,74 @@ const Reactivacion = () => {
                         <div>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Socio:</span>
-                                {reingreso.data.Socio}
+                                {reingreso.Socio}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Titular:</span>
-                                {reingreso.data.Titular}
+                                {reingreso.Titular}
                             </p>
                         </div>
                         <div>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Categoría:</span>
-                                {reingreso.data.Categoria}
+                                {reingreso.Categoria}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Fecha Nacimiento:</span>
-                                {reingreso.data.FechaNacimiento}
+                                {reingreso.FechaNacimiento}
                             </p>
                         </div>
                         <div>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Estado Proceso:</span>
-                                {reingreso.data.EstadoProceso}
+                                {reingreso.EstadoProceso}
                             </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Fecha de liquidación:</span>
-                                {reingreso.data.FechaFinalLiquidacion}
+                                {reingreso.FechaFinalLiquidacion}
                             </p>
                         </div>
                     </div>
                 )     
             }
+            
+            {Object.keys(mensajeRegistro).length > 0 && <Mensaje tipo={mensajeRegistro.tipo}>{mensajeRegistro.respuesta}</Mensaje>}
 
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
                 <table className="min-w-full border-collapse">
                     <thead className="bg-customYellow text-slate-400">
                         <tr>
-                            <th className="border border-gray-300 px-4 py-2">Fechas</th>
-                            <th className="border border-gray-300 px-4 py-2">Categoría</th>
-                            <th className="border border-gray-300 px-4 py-2">Cuota Mensual</th>
-                            <th className="border border-gray-300 px-4 py-2">Cuota Período</th>
+                            <th className="border border-gray-300 px-4 py-2">Año</th>
+                            <th className="border border-gray-300 px-4 py-2">Total Anual</th>
+                            <th className="border border-gray-300 px-4 py-2">Total Patrimonial Anual</th>
+                            <th className="border border-gray-300 px-4 py-2">Total Predial Anual</th>
                         </tr>
+
                      </thead>
                     <tbody>
-                        <tr  className="odd:bg-gray-100 even:bg-gray-50">
-                            <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">{}</td>
+                    {registros.length > 0 ? (
+                                    <>
+                                    {registros.map((row, index) => (
+                        <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                            <td className="border border-gray-300 px-4 py-2 text-center">{row.anio}</td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalAnual.toFixed(1)}</td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPatrimonialAnual}</td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPredialAnual.toFixed(1) }</td>
                         </tr>
+                     ))}
+                     <tr className="font-bold bg-gray-200">
+                         <td colSpan="3"     className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
+                         <td className="border border-gray-300 px-4 py-2 text-center">{registros.reduce((acc, row) => acc + row.totalAnual, 0)}</td>
+                     </tr>
+                 </>
+                 ) : (
+                    <tr>
+                    <td colSpan="6" className="text-center py-4">No hay registros</td>
+                </tr>
+                )}
                     </tbody>
+
+                    
                 </table>
             </div>
 

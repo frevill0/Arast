@@ -16,7 +16,6 @@ const AuthProvider = ({ children }) => {
                 }
             }
             const respuesta= await axios.get(url,options)
-            console.log("Authprovider:",respuesta.data)
             setAuth(respuesta.data)
         } catch (error) {
             console.log("error Authproveider:",error);
@@ -24,7 +23,6 @@ const AuthProvider = ({ children }) => {
     }
     useEffect(() => {
         const token = localStorage.getItem('token')
-        console.log("token: ", token)
         if(token)
         {
             perfil(token)

@@ -116,15 +116,15 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
       }
   
       // Buscar el estado anterior en la vista
-      const estadoAnterior = await prisma.vw_estado_anterior_susp_temporal.findFirst({
-        where: {
-          membresia: membresia,
-        },
-      });
+      //const estadoAnterior = await prisma.vw_estado_anterior_susp_temporal.findFirst({
+        //where: {
+          //membresia: membresia,
+        //},
+      //});
   
-      if (!estadoAnterior) {
-        estadoAnterior.estadoAnterior = "Juvenil"
-      }
+     // if (!estadoAnterior) {
+       // estadoAnterior.estadoAnterior = "Juvenil"
+      //}
   
       // Fecha actual (para la liquidación)
       const fechaActual = new Date();

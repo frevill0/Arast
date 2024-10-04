@@ -322,6 +322,12 @@ export const consultaPagoAusentismoCuota = async (req, res) => {
       where: { Membresia: membresiaStr },
     });
 
+    if(socioData.Categoria === "Especial Viudo (a)"){
+      socioData.Categoria = "Especial Viudo"
+    }
+
+    console.log(socioData.Categoria)
+
     if (!socioData) {
       return res.status(404).json({ msg: "No se encontró un socio con esa membresía" });
     }
@@ -467,6 +473,10 @@ export const consultarPagoPatrimonial = async (req, res) => {
 
     if (!socioData) {
       return res.status(404).json({ msg: "No se encontró un socio con esa membresía" });
+    }
+
+    if(socioData.Categoria === "Especial Viudo (a)"){
+      socioData.Categoria = "Especial Viudo"
     }
 
     let periodos = [];

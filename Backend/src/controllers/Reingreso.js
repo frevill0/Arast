@@ -306,7 +306,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
             }
 
             totalFinal += totalAnual;
-            
+
             listaAnios.push({
                 anio,
                 meses,

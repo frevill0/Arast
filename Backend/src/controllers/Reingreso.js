@@ -112,21 +112,22 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
       // Validar que el estatus del socio sea uno de los permitidos
       const estatusPermitidos = ["Separado", "Juv. Perdio Derecho", "Retirado", "Juv.No Tiene Derecho"];
       if (!estatusPermitidos.includes(encontrarSocio.Estatus)) {
+        console.log(encontrarSocio.Estatus)
         return res.status(400).send({ msg: "El socio no está en un estado válido para reingreso" });
       }
   
-      // Buscar el estado anterior en la vista
-      //const estadoAnterior = await prisma.vw_estado_anterior_susp_temporal.findFirst({
-        //where: {
-          //membresia: membresia,
-        //},
-      //});
+    //   Buscar el estado anterior en la vista
+    //   const estadoAnterior = await prisma.vw_estado_anterior_susp_temporal.findFirst({
+    //     where: {
+    //       membresia: membresia,
+    //     },
+    //   });
   
-     // if (!estadoAnterior) {
-       // estadoAnterior.estadoAnterior = "Juvenil"
-      //}
+    //  if (!estadoAnterior) {
+    //    estadoAnterior.estadoAnterior = "Juvenil"
+    //   }
   
-      // Fecha actual (para la liquidación)
+    //   Fecha actual (para la liquidación)
       const fechaActual = new Date();
   
       const resultado = {
@@ -168,27 +169,63 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
             return res.status(404).json({ message: 'Socio no encontrado o en estado inválido' });
         }
 
+        let anterior = await prisma.vw_estado_anterior_susp_temporal.findFirst({
+          where: {
+              membresia: membresia,
+          }
+      });
+      
+      if (!anterior) {
+          console.log("El socio no cuenta con un estado anterior");
+          anterior = { // Crear un objeto temporal para evitar errores de null
+              estadoAnterior: "N/A",
+              NOTA2: "N/A"
+          };
+      }
+      
+      console.log("Estado anterior:", anterior.estadoAnterior);
+      console.log("NOTA2 anterior:", anterior.NOTA2);
+      console.log("Marca de suspensión del socio:", socio.Marca_Suspension);
+
         let categoria = socio.Categoria;
         const fechaCumple27 = addYears(new Date(socio.FechaNac), 27);
-        fechaCumple27.setMonth(fechaCumple27.getMonth() + 1)
+        fechaCumple27.setMonth(fechaCumple27.getMonth() + 1);
         const fechaCumple22 = addYears(new Date(socio.FechaNac), 22);
-        fechaCumple22.setMonth(fechaCumple22.getMonth() + 1)
+        fechaCumple22.setMonth(fechaCumple22.getMonth() + 1);
         const fecha21Sept2021 = new Date(2021, 8, 21);
         let fechaInicioCobro = new Date(socio.fechaRetSep);
         fechaInicioCobro.setMonth(fechaInicioCobro.getMonth() + 2);
-        console.log(fechaInicioCobro);
+        console.log("Fecha de inicio de cobro inicial:", fechaInicioCobro);
+        
+        const fechaSuspension = new Date(socio.Marca_Suspension);
+        fechaSuspension.setMonth(fechaSuspension.getMonth() + 2);
+
+                
+        const nota2Normalizada = anterior.NOTA2.replace(/’/g, "'").replace(/‘/g, "'").replace(/“/g, '"').replace(/”/g, '"');
+
+        if (nota2Normalizada.includes("Estatus: 'Presente' to 'Suspensión Temporal'") || nota2Normalizada.includes("Estatus: 'Ausente > 27' to 'Suspensión Temporal'")) {
+            fechaInicioCobro = fechaSuspension;
+            console.log("Fecha de inicio de cobro actualizada a fecha de suspensión:", fechaInicioCobro);
+        } else {
+            console.log("Condición no cumplida");
+        }
 
         if (categoria === "Juvenil") {
             if (fechaCumple27 >= fecha21Sept2021) {
                 fechaInicioCobro = fechaCumple27;
-                console.log(fechaInicioCobro);
+                console.log("Fecha de inicio de cobro actualizada a:", fechaInicioCobro);
+                categoria = "Activo >= 27";
+            } else if (categoria === "Activo >= 26") {
                 categoria = "Activo >= 27";
             } else {
                 fechaInicioCobro = fechaCumple22;
-                console.log(fechaInicioCobro);
+                console.log("Fecha de inicio de cobro actualizada a:", fechaInicioCobro);
                 categoria = "Activo < 27";
             }
         }
+
+
+        console.log("Fecha de inicio de cobro final:", fechaInicioCobro);
 
         const fechaActual = new Date();
         const listaAnios = [];
@@ -204,7 +241,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
             let meses = [];
             let totalAnual = 0;
             let totalPatrimonialAnual = 0; // Para acumular el valor patrimonial anual
-            let totalPredialAnual = 0
+            let totalPredialAnual = 0;
 
             for (let mes = (anio === getYear(fechaInicioCobro)) ? getMonth(fechaInicioCobro) : 0; 
                  mes < ((anio === getYear(fechaActual)) ? getMonth(fechaActual) + 1 : 12); 
@@ -252,7 +289,6 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
                 const { valorCuotaPresente, valorPatrimonialPresente, valorPredial } = cuota;
                 const valorPatrimonialAnterior = cuotaAnterior ? cuotaAnterior.valorPatrimonialPresente : 0;
                 const valorPredialAnterior = cuotaAnterior ? cuotaAnterior.valorPredial : 0;
-                console.log(valorPredialAnterior)
 
                 // Usamos la función actualizada para obtener los valores separados
                 const { valorMensual, valorPatrimonial, valorPredial: valorPredialMensual } = calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior, fechaInicioCobro);
@@ -264,13 +300,13 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
 
                 // Acumulamos el valor patrimonial anual
                 totalPatrimonialAnual += valorPatrimonial;
-                totalPredialAnual += valorPredialMensual
+                totalPredialAnual += valorPredialMensual;
 
                 meses.push({ mes: mesNombre, categoria: categoriaMensual, valor: valorMensual });
             }
 
             totalFinal += totalAnual;
-
+            
             listaAnios.push({
                 anio,
                 meses,
@@ -280,7 +316,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
             });
         }
 
-        // Si en algún momento fue Juvenil, agregar el pago extra de $8000
+        // Si en algún momento fue juvenil, agregar el pago extra de $8000
         if (fueJuvenil) {
             totalFinal += 8000;
         }

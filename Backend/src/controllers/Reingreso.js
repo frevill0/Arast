@@ -18,7 +18,7 @@ const formatoFecha = (dateString) => {
   }
 
 // Función para calcular el valor mensual según el mes
-function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior,fechaEntrada) {
+function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior,fechaEntrada, categoria) {
   let valorMensual = valorCuotaPresente; // Cobro mensual por defecto de las cuotas
   let valorPatrimonial = 0;
   let valorPredialMensual = 0;
@@ -50,7 +50,18 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
 
   // Cobro fijo de 182 dólares en noviembre de 2022
   if (mes === 10 && anio === 2022) { // Noviembre es el mes 10
-      valorMensual += 182;
+    if (categoria === "Activo >= 27"){
+      valorPatrimonial += 182;
+    }else if (categoria === "Especial x Propios D"){
+      valorPatrimonial += 105;
+    }else if (categoria === "Especial Viudo"){
+      valorPatrimonial += 105;
+    }else if (categoria === "Vitalicio"){
+      valorPatrimonial += 38.5;
+    }else if (categoria === "Corresponsal"){
+      valorPatrimonial += 182;
+    }
+      
   }
 
   // Cobro adicional en noviembre (predial)
@@ -113,7 +124,7 @@ export const ConsultaReingreso = async (req, res) => {
     }
 
     // Validar que el estatus del socio sea uno de los permitidos
-    const estatusPermitidos = ["Juv. Perdio Derecho", "Retirado"];
+    const estatusPermitidos = ["Juv. Perdio Derecho", "Retirado", "Juv.No Tiene Derecho"];
     if (!estatusPermitidos.includes(encontrarSocio.Estatus)) {
       console.log(encontrarSocio.Estatus);
       return res.status(400).send({ msg: "El socio no está en un estado válido para reingreso" });
@@ -164,7 +175,7 @@ export const consultaPagoReingreso = async (req, res) => {
           where: {
               Membresia: Membresia,
               Estatus: {
-                  in: ["Juv. Perdio Derecho", "Retirado"]
+                  in: ["Juv. Perdio Derecho", "Retirado", "Juv.No Tiene Derecho"]
               }
           }
       });
@@ -189,21 +200,22 @@ export const consultaPagoReingreso = async (req, res) => {
           fechaCumple27.setMonth(fechaCumple27.getMonth() + 1);
           fechaCumple22 = addYears(new Date(socio.FechaNac), 22);
           fechaCumple22.setMonth(fechaCumple22.getMonth() + 1);
-          fecha21Sept2021 = new Date(2021, 8, 21);
+          fecha21Sept2021 = new Date(2022, 10, 1);
+        
+          console.log(fechaCumple27)
 
-          if (categoria === "Juvenil") {
-              if (fechaCumple27 >= fecha21Sept2021) {
+          if (fechaCumple27 >= fecha21Sept2021) {
                   fechaInicioCobro = fechaCumple27;
-                  console.log("Fecha de inicio de cobro actualizada a:", fechaInicioCobro);
+                  console.log("Fecha de inicio de cobro actualizada a 27:", fechaInicioCobro);
                   categoria = "Activo >= 27";
-              } else if (categoria === "Activo >= 26") {
+          } else if (categoria === "Activo >= 26") {
                   categoria = "Activo >= 27";
-              } else {
+          } else if (fechaCumple27 < fecha21Sept2021) {
                   fechaInicioCobro = fechaCumple22;
-                  console.log("Fecha de inicio de cobro actualizada a:", fechaInicioCobro);
+                  console.log("Fecha de inicio de cobro actualizada a 22:", fechaInicioCobro);
                   categoria = "Activo < 27";
-              }
           }
+    
       }
 
       const fechaActual = new Date();
@@ -227,9 +239,15 @@ export const consultaPagoReingreso = async (req, res) => {
               const mesNombre = format(new Date(anio, mes), 'MMMM', { locale: es });
 
               if (anio > getYear(fechaCumple27) || (anio === getYear(fechaCumple27) && mes >= getMonth(fechaCumple27))) {
-                  categoriaMensual = "Activo >= 27";
+                if(tipoCobro == "Juvenil"){
+                  categoriaMensual = "Activo >= 27"
+                }else{
+                  categoriaMensual = categoria;
+                  if(categoriaMensual = "Activo >= 26"){
+                    categoriaMensual = "Activo >= 27"
+                  }
+                }
               }
-
               const cuota = await prisma.cuota.findFirst({
                   where: {
                       categoria: categoriaMensual,
@@ -241,6 +259,7 @@ export const consultaPagoReingreso = async (req, res) => {
                       valorPredial: true
                   }
               });
+
 
               if (!cuota) {
                   return res.status(404).json({ message: `Cuota no encontrada para la categoría ${categoriaMensual} en el año ${anio}` });
@@ -269,7 +288,8 @@ export const consultaPagoReingreso = async (req, res) => {
                   valorPatrimonialAnterior,
                   valorPredial,
                   valorPredialAnterior,
-                  fechaInicioCobro
+                  fechaInicioCobro,
+                  categoriaMensual
               );
 
               totalAnual += valorMensual;
@@ -283,8 +303,6 @@ export const consultaPagoReingreso = async (req, res) => {
               meses.push({ mes: mesNombre, categoria: categoriaMensual, valor: valorMensual });
           }
 
-          totalFinal += totalAnual;
-
           listaAnios.push({
               anio,
               meses,
@@ -294,13 +312,20 @@ export const consultaPagoReingreso = async (req, res) => {
           });
       }
 
-      // Si el tipo de cobro es "Juvenil", sumar $8000 al total final
-      if (tipoCobro === "Juvenil") {
-          totalFinal += 8000;
-      }
+      totalFinal = totalCuota + totalPatrimonial + totalPredial
+
+      let amnistia = 0 
 
       // Calcular amnistía (mitad del total final)
-      const amnistia = totalFinal / 2;
+      amnistia = totalFinal
+
+            // Si el tipo de cobro es "Juvenil", sumar $8000 al total final
+      if (tipoCobro === "Juvenil") {
+          amnistia = (totalFinal/2) + 8000;
+      }else{
+        amnistia = totalFinal/2
+      }
+        
 
       return res.json({
           anios: listaAnios,

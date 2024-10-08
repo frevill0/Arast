@@ -293,7 +293,8 @@ export const consultaPagoReingreso = async (req, res) => {
           totalFinal,
           totalCuota,
           totalPatrimonial,
-          totalPredial
+          totalPredial,
+          
       });
 
   } catch (error) {

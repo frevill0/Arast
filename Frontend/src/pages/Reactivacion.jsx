@@ -222,7 +222,7 @@ const Reactivacion = () => {
                                     <td colSpan="3" className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
                                     <td className="border border-gray-300 px-4 py-2 text-center">
                                       
-                                        {registrosData.totalFinal.toFixed(1)}
+                                        {registrosData.totalFinal}
                                     </td>
                                 </tr>
                             </>
@@ -258,7 +258,7 @@ const Reactivacion = () => {
                     Total Amnistía:
                 </label>
                 <div className='border-2 w-full p-1 mt-1 rounded-md mb-3'>
-                    {registrosData.amnistia.toFixed(1)}
+                    {registrosData.amnistia}
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { getYear, getMonth, format, addYears } from 'date-fns';
+import { getYear, getMonth, format, addYears, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const prisma = new PrismaClient(); 
@@ -123,8 +123,8 @@ export const ConsultaReingreso = async (req, res) => {
 
     const resultado = {
       Socio: encontrarSocio.Socio,
-      Categoria: encontrarSocio.Categoria,  
-      Titular: encontrarSocio.Titular,     
+      Categoria: encontrarSocio.Categoria, 
+      Titular: encontrarSocio.Titular, 
       Estatus: encontrarSocio.Estatus,
       FechaNacimiento: formatoFecha(encontrarSocio.FechaNac),
       Edad: encontrarSocio.Edad,
@@ -141,14 +141,25 @@ export const ConsultaReingreso = async (req, res) => {
 export const consultaPagoReingreso = async (req, res) => {
   try {
       const { Membresia } = req.params;
-      const { estadoAnterior, fechaInicioCobroInput, tipoCobro } = req.body; // 'tipoCobro' puede ser 'Retirado' o 'Juvenil'
+      const { fechaInicioCobroInput, tipoCobro } = req.body; // 'tipoCobro' puede ser 'Retirado' o 'Juvenil'
+
+      // Verificar si 'tipoCobro' y 'fechaInicioCobroInput' son proporcionados
+      if (!tipoCobro || !fechaInicioCobroInput) {
+          return res.status(400).json({ message: 'Tipo de Cobro y Fecha de Inicio de Cobro son obligatorios' });
+      }
+      
+      // Convertir la fecha de formato dd-mm-aaaa a un objeto Date
+      let fechaInicioCobro = parse(fechaInicioCobroInput, 'dd-MM-yyyy', new Date(), { locale: es });
+      
+      if (isNaN(fechaInicioCobro.getTime())) {
+          return res.status(400).json({ message: 'Formato de fecha inválido. Utilice dd-mm-aaaa' });
+      }
 
       console.log("Membresía recibida:", Membresia);
-      console.log("Estado anterior proporcionado:", estadoAnterior);
       console.log("Fecha de inicio de cobro ingresada:", fechaInicioCobroInput);
+      console.log("Fecha de inicio de cobro convertida:", fechaInicioCobro);
       console.log("Tipo de cobro seleccionado:", tipoCobro);
 
-      // Paso 1: Buscar al socio por su membresía
       const socio = await prisma.contactscm_fac_elec_arast.findUnique({
           where: {
               Membresia: Membresia,
@@ -162,26 +173,21 @@ export const consultaPagoReingreso = async (req, res) => {
           return res.status(404).json({ message: 'Socio no encontrado o en estado inválido' });
       }
 
-      let fechaCumple27 = 0
-      let fecha21Sept2021 = 0
-      let fechaCumple22 = 0
+      let fechaCumple27 = 0;
+      let fecha21Sept2021 = 0;
+      let fechaCumple22 = 0;
 
-      // Convertir la fecha de inicio de cobro ingresada por el usuario a un objeto Date
-      let fechaInicioCobro = new Date(fechaInicioCobroInput);
       console.log("Fecha de inicio de cobro inicial:", fechaInicioCobro);
 
       let categoria = socio.Categoria;
 
-      // Lógica según la opción de cobro elegida por el usuario
       if (tipoCobro === "Retirado") {
-          // Mantener lógica de retiro normal
           console.log("Calculando como Retirado...");
       } else {
-          // Lógica para calcular como Juvenil
           console.log("Calculando como Juvenil Perdido Derecho...");
-          fechaCumple27 = addYears(new Date(socio.FechaNac), 27 );
+          fechaCumple27 = addYears(new Date(socio.FechaNac), 27);
           fechaCumple27.setMonth(fechaCumple27.getMonth() + 1);
-          fechaCumple22 = addYears(new Date(socio.FechaNac), 22 );
+          fechaCumple22 = addYears(new Date(socio.FechaNac), 22);
           fechaCumple22.setMonth(fechaCumple22.getMonth() + 1);
           fecha21Sept2021 = new Date(2021, 8, 21);
 
@@ -288,13 +294,21 @@ export const consultaPagoReingreso = async (req, res) => {
           });
       }
 
+      // Si el tipo de cobro es "Juvenil", sumar $8000 al total final
+      if (tipoCobro === "Juvenil") {
+          totalFinal += 8000;
+      }
+
+      // Calcular amnistía (mitad del total final)
+      const amnistia = totalFinal / 2;
+
       return res.json({
           anios: listaAnios,
           totalFinal,
           totalCuota,
           totalPatrimonial,
           totalPredial,
-          
+          amnistia // Devolver el valor de amnistía
       });
 
   } catch (error) {

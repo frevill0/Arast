@@ -141,18 +141,17 @@ export const ConsultaReingreso = async (req, res) => {
 export const consultaPagoReingreso = async (req, res) => {
   try {
       const { Membresia } = req.params;
-      const { fechaInicioCobroInput, tipoCobro } = req.body; // 'tipoCobro' puede ser 'Retirado' o 'Juvenil'
+      const { fechaInicioCobroInput, tipoCobro } = req.body;
 
-      // Verificar si 'tipoCobro' y 'fechaInicioCobroInput' son proporcionados
       if (!tipoCobro || !fechaInicioCobroInput) {
           return res.status(400).json({ message: 'Tipo de Cobro y Fecha de Inicio de Cobro son obligatorios' });
       }
-      
-      // Convertir la fecha de formato dd-mm-aaaa a un objeto Date
-      let fechaInicioCobro = parse(fechaInicioCobroInput, 'dd-MM-yyyy', new Date(), { locale: es });
-      
+
+      // Convertir la fecha de formato dd/mm/aaaa a un objeto Date
+      let fechaInicioCobro = parse(fechaInicioCobroInput, 'dd/MM/yyyy', new Date(), { locale: es });
+
       if (isNaN(fechaInicioCobro.getTime())) {
-          return res.status(400).json({ message: 'Formato de fecha inválido. Utilice dd-mm-aaaa' });
+          return res.status(400).json({ message: 'Formato de fecha inválido. Utilice dd/mm/aaaa' });
       }
 
       console.log("Membresía recibida:", Membresia);

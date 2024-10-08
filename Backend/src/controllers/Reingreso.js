@@ -148,11 +148,12 @@ export const consultaPagoReingreso = async (req, res) => {
       }
 
       // Convertir la fecha de formato dd/mm/aaaa a un objeto Date
-      let fechaInicioCobro = parse(fechaInicioCobroInput, 'dd/MM/yyyy', new Date(), { locale: es });
+      let fechaInicioCobro = parse(fechaInicioCobroInput, 'yyyy-MM-dd', new Date(), { locale: es });
 
       if (isNaN(fechaInicioCobro.getTime())) {
           return res.status(400).json({ message: 'Formato de fecha inválido. Utilice dd/mm/aaaa' });
       }
+
 
       console.log("Membresía recibida:", Membresia);
       console.log("Fecha de inicio de cobro ingresada:", fechaInicioCobroInput);

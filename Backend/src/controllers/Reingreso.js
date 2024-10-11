@@ -18,7 +18,7 @@ const formatoFecha = (dateString) => {
   }
 
 // Función para calcular el valor mensual según el mes
-function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior,fechaEntrada, categoria) {
+function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior, fechaEntrada, categoria, tipoCobro) {
   let valorMensual = valorCuotaPresente; // Cobro mensual por defecto de las cuotas
   let valorPatrimonial = 0;
   let valorPredialMensual = 0;
@@ -29,10 +29,18 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
 
   const anioEntrada = fechaEntrada.getFullYear();
 
+  // Condición para categoría "Juvenil" después de la fecha de detención
+  if (tipoCobro === "Juvenil" && anio == 2021 && mes >= 9) {
+    return {
+      valorMensual,
+      valorPatrimonial: 0,
+      valorPredial: 0
+    };
+  }
+
   // Condición especial para el año actual
   if (anio === anioActual) {
     if (mes === 0) { // Si es enero del año actual
-      // Solo se cobra el valor patrimonial correspondiente a la última parte del año anterior
       valorPatrimonial = valorPatrimonialAnterior / 12; // Cobrar la parte restante del patrimonial del año anterior
     } else if (mes === mesActual) { // Si es el mes actual (excepto enero)
       valorPatrimonial = valorPatrimonialPresente; // Cobrar todo el valor patrimonial del año actual
@@ -52,23 +60,21 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
   if (mes === 10 && anio === 2022) { // Noviembre es el mes 10
     if (categoria === "Activo >= 27"){
       valorPatrimonial += 182;
-    }else if (categoria === "Especial x Propios D"){
+    } else if (categoria === "Especial x Propios D"){
       valorPatrimonial += 105;
-    }else if (categoria === "Especial Viudo"){
+    } else if (categoria === "Especial Viudo"){
       valorPatrimonial += 105;
-    }else if (categoria === "Vitalicio"){
+    } else if (categoria === "Vitalicio"){
       valorPatrimonial += 38.5;
-    }else if (categoria === "Corresponsal"){
+    } else if (categoria === "Corresponsal"){
       valorPatrimonial += 182;
     }
-      
   }
 
   // Cobro adicional en noviembre (predial)
   // Condición especial para el año actual
   if (anio === anioActual) {
-    if (mes < 10) { 
-      // Solo se cobra el valor patrimonial correspondiente a la última parte del año anterior
+    if (mes < 10 ) { 
       valorPredialMensual = valorPredialAnterior / 12; // Cobrar la parte restante del patrimonial del año anterior
     } else if (mes === mesActual) { // Si es el mes actual (excepto enero)
       valorPredialMensual = valorPredial; // Cobrar todo el valor patrimonial del año actual
@@ -76,17 +82,19 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
       valorPredialMensual = 0; // No se cobra patrimonial en los demás meses del año actual
     }
   } else if (anio === anioEntrada) {
-    if(mes >= 10){
+    if (mes >= 10) {
       valorPredialMensual = valorPredial / 12;
     }
   } else {
     // Si no es el año actual, aplicar la lógica normal de cobro mensual de patrimonial
     if (mes < 10) { // En meses antes de noviembre de años anteriores
       valorPredialMensual = valorPredialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
-    } else if (mes >= 10) { // A partir de febrero se cobra el valor patrimonial del año actual
+    } else if (mes >= 10) { // A partir de noviembre se cobra el valor patrimonial del año actual
       valorPredialMensual = valorPredial / 12;
     }
   }
+
+  if (mes )
 
   // Suma total del mes
   valorMensual += valorPatrimonial + valorPredialMensual;
@@ -97,6 +105,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
     valorPredial: valorPredialMensual
   };
 }
+
 
 const obtenerFechaActual = () => {
   const fecha = new Date();
@@ -289,7 +298,8 @@ export const consultaPagoReingreso = async (req, res) => {
                   valorPredial,
                   valorPredialAnterior,
                   fechaInicioCobro,
-                  categoriaMensual
+                  categoriaMensual,
+                  tipoCobro
               );
 
               totalAnual += valorMensual;
@@ -316,12 +326,10 @@ export const consultaPagoReingreso = async (req, res) => {
 
       let amnistia = 0 
 
-      // Calcular amnistía (mitad del total final)
-      amnistia = totalFinal
-
             // Si el tipo de cobro es "Juvenil", sumar $8000 al total final
       if (tipoCobro === "Juvenil") {
           amnistia = (totalFinal/2) + 8000;
+          totalFinal = totalFinal + 8000; 
       }else{
         amnistia = totalFinal/2
       }

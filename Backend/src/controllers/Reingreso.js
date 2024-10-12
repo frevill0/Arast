@@ -29,15 +29,6 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
 
   const anioEntrada = fechaEntrada.getFullYear();
 
-  // Condición para categoría "Juvenil" después de la fecha de detención
-  if (tipoCobro === "Juvenil" && anio == 2021 && mes >= 9) {
-    return {
-      valorMensual,
-      valorPatrimonial: 0,
-      valorPredial: 0
-    };
-  }
-
   // Condición especial para el año actual
   if (anio === anioActual) {
     if (mes === 0) { // Si es enero del año actual
@@ -48,53 +39,68 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
       valorPatrimonial = 0; // No se cobra patrimonial en los demás meses del año actual
     }
   } else {
-    // Si no es el año actual, aplicar la lógica normal de cobro mensual de patrimonial
-    if (mes === 0) { // En enero de años anteriores
-      valorPatrimonial = valorPatrimonialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
-    } else if (mes >= 1) { // A partir de febrero se cobra el valor patrimonial del año actual
-      valorPatrimonial = valorPatrimonialPresente / 12;
+    // Si no es el año actual y el tipo de cobro es "juvenil", no cobrar después de septiembre de 2021
+    if (anio === 2021 && mes >= 9 && tipoCobro === "Juvenil" && categoria == "Activo < 27") {
+      valorPatrimonial = 0; // No se cobra patrimonial después de septiembre de 2021
+    } 
+    if (anio > 2022 && mes >= 0 && tipoCobro === "Juvenil" && categoria == "Activo < 27") {
+      valorPatrimonial = 0; // No se cobra patrimonial después de septiembre de 2021
+    } 
+      else {
+      // Lógica normal de cobro mensual de patrimonial
+      if (mes === 0) { // En enero de años anteriores
+        valorPatrimonial = valorPatrimonialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
+      } else if (mes >= 1) { // A partir de febrero se cobra el valor patrimonial del año actual
+        valorPatrimonial = valorPatrimonialPresente / 12;
+      }
     }
   }
 
   // Cobro fijo de 182 dólares en noviembre de 2022
   if (mes === 10 && anio === 2022) { // Noviembre es el mes 10
-    if (categoria === "Activo >= 27"){
+    if (categoria === "Activo >= 27") {
       valorPatrimonial += 182;
-    } else if (categoria === "Especial x Propios D"){
+    } else if (categoria === "Especial x Propios D") {
       valorPatrimonial += 105;
-    } else if (categoria === "Especial Viudo"){
+    } else if (categoria === "Especial Viudo") {
       valorPatrimonial += 105;
-    } else if (categoria === "Vitalicio"){
+    } else if (categoria === "Vitalicio") {
       valorPatrimonial += 38.5;
-    } else if (categoria === "Corresponsal"){
+    } else if (categoria === "Corresponsal") {
       valorPatrimonial += 182;
     }
   }
 
   // Cobro adicional en noviembre (predial)
-  // Condición especial para el año actual
   if (anio === anioActual) {
-    if (mes < 10 ) { 
-      valorPredialMensual = valorPredialAnterior / 12; // Cobrar la parte restante del patrimonial del año anterior
-    } else if (mes === mesActual) { // Si es el mes actual (excepto enero)
-      valorPredialMensual = valorPredial; // Cobrar todo el valor patrimonial del año actual
+    if (mes < 10) {
+      valorPredialMensual = valorPredialAnterior / 12; // Cobrar la parte restante del predial del año anterior
+    } else if (mes === mesActual) {
+      valorPredialMensual = valorPredial; // Cobrar todo el valor predial del año actual
     } else {
-      valorPredialMensual = 0; // No se cobra patrimonial en los demás meses del año actual
+      valorPredialMensual = 0; // No se cobra predial en los demás meses del año actual
     }
   } else if (anio === anioEntrada) {
     if (mes >= 10) {
       valorPredialMensual = valorPredial / 12;
     }
   } else {
-    // Si no es el año actual, aplicar la lógica normal de cobro mensual de patrimonial
     if (mes < 10) { // En meses antes de noviembre de años anteriores
-      valorPredialMensual = valorPredialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
-    } else if (mes >= 10) { // A partir de noviembre se cobra el valor patrimonial del año actual
+      valorPredialMensual = valorPredialAnterior / 12; // Cobro del año anterior dividido en 12
+    } else if (mes >= 10) { // A partir de noviembre se cobra el valor del año actual
       valorPredialMensual = valorPredial / 12;
     }
   }
 
-  if (mes )
+  // Aplicar la misma condición para el predial si el tipo de cobro es "juvenil"
+  if (anio === 2021 && mes >= 9 && tipoCobro === "Juvenil" && categoria === "Activo < 27") {
+    valorPredialMensual = 0; // No se cobra predial después de septiembre de 2021
+  }
+  if (anio > 2022 && mes >= 0 && tipoCobro === "Juvenil" && categoria === "Activo < 27") {
+    valorPredialMensual = 0; 
+  }
+
+
 
   // Suma total del mes
   valorMensual += valorPatrimonial + valorPredialMensual;
@@ -105,6 +111,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
     valorPredial: valorPredialMensual
   };
 }
+
 
 
 const obtenerFechaActual = () => {

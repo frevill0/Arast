@@ -126,6 +126,11 @@ const AusentismoConsulta = () => {
             setMensajeDelete({ respuesta: error.response.data.msg, tipo: false });
         }
      }
+     const handleNuevaBusqueda = () => {
+        setBusqueda(''); 
+        setAusentismo({}); 
+        setMensaje({}); 
+    };
 
     return (
         <>
@@ -139,17 +144,22 @@ const AusentismoConsulta = () => {
                     <h1 className="text-4xl font-bold text-customBlue">Reactivación de Ausentismo</h1>
                 </div>
 
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center mb-8 items-center">
+                    <h1 className='text-gray-700 item uppercase mr-2 font-bold text-sm'>Número de membresía: </h1>
                     <input
                         type="text"
-                        placeholder="Ingrese el número de socio"
+                        placeholder="Ingrese el número de membresía"
                         value={busqueda}
                         onChange={handleInputChange}
-                        className="border border-gray-400 rounded p-3 w-64 mr-4 shadow-sm"
+                        className="border border-gray-400 rounded p-3 w-72 mr-4 shadow-sm"
                     />
-                    <button className="bg-customBlue hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                    <button className="bg-customBlue hover:bg-blue-900 text-white px-6 py-2 rounded shadow mr-2"
                         onClick={handleBuscar}>
                         Buscar
+                    </button>
+                    <button className="bg-customBlue mr hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                         onClick={handleNuevaBusqueda}>
+                        Nueva Búsqueda
                     </button>
                 </div>
             </div>

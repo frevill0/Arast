@@ -30,6 +30,7 @@ const RevisarAusentismo = () => {
                 };
                 const respuesta = await axios.get(url, options);
                 setAusentismo(respuesta.data);
+                console.log("ausentismo: ", respuesta.data)
                 setMensaje({});
             } catch (error) {
                 setMensaje({ respuesta: error.response.data.msg, tipo: false });
@@ -126,62 +127,97 @@ const RevisarAusentismo = () => {
     // Función para generar el PDF
     const generarPDF = () => {
         const doc = new jsPDF();
-
-        // Título
-        doc.setFontSize(20);
-        doc.text('Reporte de Ausentismo', 10, 10);
-
-        // Tabla de ausentismo
+    
+        // Título principal
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text('ARAST', 105, 15, { align: 'center' });
+        doc.setFontSize(12);
+        doc.text('Liquidación de Ausentismo', 105, 22, { align: 'center' });
+        doc.line(10, 55, 200, 55);
+        // Sección de información del socio
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 10);
+        doc.text('Liquidada desde Septiembre 2023', 10, 30);
+        doc.text(`Fecha Reactivación: `, 10, 40);
+        doc.text('Observación: ', 10, 50);
+       
+        // Datos del socio
         if (Object.keys(ausentismo).length !== 0) {
-            doc.setFontSize(12);
-            doc.text('Datos del Socio:', 10, 30);
-            doc.text(`Socio: ${ausentismo.data.Socio}`, 10, 40);
-            doc.text(`Titular: ${ausentismo.data.Titular}`, 10, 50);
-            doc.text(`Categoría: ${ausentismo.data.Categoria}`, 10, 60);
-            doc.text(`Estado: ${ausentismo.data.Estatus}`, 10, 70);
-            doc.text(`Fecha de Ausentismo: ${ausentismo.data.FechaAusentismo}`, 10, 80);
+            doc.text(`Membresía: ${busqueda}`, 10, 60);
+            doc.text(`Socio: ${ausentismo.data.Socio}`, 10, 70);
+            doc.text(`Categoría: ${ausentismo.data.Categoria}`, 10, 80);
+            doc.text(`Fecha: ${ausentismo.data.Fecha}`, 10, 90);
+            doc.text(`Estado: ${ausentismo.data.Estado}`, 10, 100);
         }
-
-        // Tabla de movimientos migratorios
+    
+        // Datos adicionales del socio
+        doc.text(`Fecha de Nacimiento: ${ausentismo.data.FechaNacimiento}`, 100, 60);
+        doc.text(`Edad: ${ausentismo.data.Edad}`, 100, 70);
+        doc.text(`Estado Anterior: ${ausentismo.data.EstadoAnterior}`, 100, 80);
+        doc.text(`Estado Migratorio: ${ausentismo.data.EstadoMigratorio}`, 100, 90);
+    
+        doc.line(10, 105, 200, 105);
+        // Sección de Movimiento Migratorio
+        doc.setFont("helvetica", "bold");
+        doc.text('Movimiento:', 10, 110);
+        doc.setFont("helvetica", "normal");
+    
         if (registroMigratorio.length > 0) {
-            doc.text('Movimientos Migratorios:', 10, 100);
             doc.autoTable({
-                startY: 110,
-                head: [['Fecha Salida', 'Fecha Entrada', 'Días en Exterior', 'Días en el País']],
+                startY: 120,
+                head: [['Fecha de Salida', 'Fecha de Entrada', 'Días en el Exterior', 'Días en el País']],
                 body: registroMigratorio.map(row => [
                     row.fechaSalida, row.fechaEntreda, row.exterior, row.pais
                 ])
             });
         }
-
-        // Tabla de cuotas
+    
+        // Sección de Cuotas
+        const lastPos = doc.autoTable.previous.finalY || 140;
+        doc.setFont("helvetica", "bold");
+        doc.text('Cuotas:', 10, lastPos + 10);
+        doc.setFont("helvetica", "normal");
+    
         if (registrocuota.length > 0) {
-            const lastPos = doc.autoTable.previous.finalY || 130; // Ubicación del final de la tabla anterior
-            doc.text('Cuotas:', 10, lastPos + 20);
             doc.autoTable({
-                startY: lastPos + 30,
-                head: [['Período', 'Días fuera del país', 'Días dentro del país', 'Total a pagar']],
+                startY: lastPos + 20,
+                head: [['Períodos', 'Días fuera del país', 'Dias dentro del país', 'Total a pagar']],
                 body: registrocuota.map(row => [
                     row.periodo, row.diasFueraPais, row.diasDentroPais, row.totalPagar
                 ])
             });
         }
-
-        // Tabla patrimonial
+    
+        // Sección de Patrimonial
+        const cuotaPos = doc.autoTable.previous.finalY || 180;
+        doc.setFont("helvetica", "bold");
+        doc.text('Patrimonial:', 10, cuotaPos + 10);
+        doc.setFont("helvetica", "normal");
+    
         if (registropatrimonial.length > 0) {
-            const lastPos = doc.autoTable.previous.finalY || 180; // Ubicación del final de la tabla anterior
-            doc.text('Patrimonial:', 10, lastPos + 20);
             doc.autoTable({
-                startY: lastPos + 30,
-                head: [['Período', 'Días fuera del país', 'Días dentro del país', 'Total a pagar']],
+                startY: cuotaPos + 20,
+                head: [['Períodos', 'Días fuera del país', 'Dias dentro del país', 'Total a pagar']],
                 body: registropatrimonial.map(row => [
                     row.periodo, row.diasFueraPais, row.diasDentroPais, row.totalPagar
                 ])
             });
         }
-
+    
+        // Sección de Valor de Reajuste y total
+        const patrimonialPos = doc.autoTable.previous.finalY || 220;
+        doc.text(`Total a Liquidar: ${registropatrimonial.reduce((acc, row) => acc + row.totalPagar, 0)}`, 10, patrimonialPos + 20);
+    
         // Descargar el PDF
         doc.save(`reporte_ausentismo_${busqueda}.pdf`);
+    };
+
+    const handleNuevaBusqueda = () => {
+        setBusqueda(''); 
+        setAusentismo({}); 
+        setMensaje({}); 
     };
 
 
@@ -194,17 +230,22 @@ const RevisarAusentismo = () => {
             </div>
             <div className="container mx-auto p-6">
 
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center mb-8 items-center">
+                    <h1 className='text-gray-700 item uppercase mr-2 font-bold text-sm'>Número de membresía: </h1>
                     <input
                         type="text"
-                        placeholder="Ingrese el número de socio"
+                        placeholder="Ingrese el número de membresía"
                         value={busqueda}
                         onChange={handleInputChange}
-                        className="border border-gray-400 rounded p-3 w-64 mr-4 shadow-sm"
+                        className="border border-gray-400 rounded p-3 w-72 mr-4 shadow-sm"
                     />
-                    <button className="bg-customBlue hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                    <button className="bg-customBlue mr-2 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
                         onClick={handleBuscar}>
                         Buscar
+                    </button>
+                    <button className="bg-customBlue hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                         onClick={handleNuevaBusqueda}>
+                        Nueva Búsqueda
                     </button>
                 </div>
             </div>
@@ -265,7 +306,7 @@ const RevisarAusentismo = () => {
                     <div className="flex items-center justify-center mb-6">
                     <label
                         htmlFor='Salida:'
-                        className='text-gray-700 uppercase font-bold text-sm'>Liquida desde: </label>
+                        className='text-gray-700 uppercase font-bold text-sm mr-2'>Liquida desde: </label>
                         <input
                             type="text"
                             className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
@@ -276,7 +317,7 @@ const RevisarAusentismo = () => {
                        
                         <label
                         htmlFor='Entrada:'
-                        className='text-gray-700  uppercase font-bold text-sm'>Comentario: </label>
+                        className='text-gray-700  uppercase font-bold text-sm mr-2'>Comentario: </label>
                         <input
                             type="text"
                             className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
@@ -292,7 +333,7 @@ const RevisarAusentismo = () => {
                          <div className="text-center mb-10">
                              <h1 className="text-2xl text-left font-bold text-customBlue">Movimientos migratorios</h1>
                         </div>
-                        <table className="min-w-full mt-4 border-collapse">
+                        <table className="min-w-full mt-1 border-collapse">
                             <thead className="bg-customYellow text-slate-400">
                                 <tr>
                                     <th className="border border-gray-300 px-4 py-2">Fecha Salida</th>
@@ -325,10 +366,10 @@ const RevisarAusentismo = () => {
                                 )}
                             </tbody>
                         </table>
-                        <div className="mt-4 text-center mb-10">
+                        <div className="mt-1 text-center mb-10">
                              <h1 className="text-2xl text-left font-bold text-customBlue">Cuotas</h1>
                         </div>
-                        <table className=" mt-4 min-w-full border-collapse">
+                        <table className=" mt-1 min-w-full border-collapse">
                             <thead className="bg-customYellow text-slate-400">
                                 <tr>
                                     <th className="border border-gray-300 px-4 py-2">Períodos</th>
@@ -362,11 +403,11 @@ const RevisarAusentismo = () => {
                          </tbody>
                          </table>
 
-                        <div className="text-center mt-4 mb-10">
+                        <div className="text-center mt-1 mb-10">
                              <h1 className="text-2xl text-left font-bold text-customBlue">Patrimonial</h1>
                         </div>
 
-                        <table className="min-w-full mt-4 border-collapse">
+                        <table className="min-w-full mt-1 border-collapse">
                             <thead className="bg-customYellow text-slate-400">
                                 <tr>
                                 <th className="border border-gray-300 px-4 py-2">Períodos</th>

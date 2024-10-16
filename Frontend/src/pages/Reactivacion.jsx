@@ -51,7 +51,6 @@ const Reactivacion = () => {
         if (numeroMembresia) {
             try {
                 const token = localStorage.getItem('token');
-                console.log(token)
                 const url = `${import.meta.env.VITE_BACKEND_URL}/reingreso/pago/${numeroMembresia}`;
                 const options = {
                     headers: {
@@ -60,7 +59,6 @@ const Reactivacion = () => {
                     }
                 };
                 const respuesta = await axios.post(url,form, options);
-                console.log(respuesta.data)
                 setRegistros(respuesta.data.anios); 
                 setRegistrosData(respuesta.data)
                 setMensajeRegistro({});
@@ -81,6 +79,16 @@ const Reactivacion = () => {
           
     };
 
+    const handleNuevaBusqueda = () => {
+        setBusqueda(''); 
+        setReingreso({}); 
+        setRegistros([])
+        setMensaje({}); 
+        setform({
+            fechaInicioCobroInput: "", 
+            tipoCobro: ""
+        }); 
+    };
 
     return (
         <>
@@ -94,19 +102,20 @@ const Reactivacion = () => {
                     <h1 className="text-4xl font-bold text-customBlue">Registros por período</h1>
                 </div>
 
-                <div className="flex justify-center mb-8 items-center space-x-4">
+                <div className="flex justify-center mb-8 items-center ">
+                    <h1 className='text-gray-700 item uppercase mr-2 font-bold text-sm'>Número de membresía: </h1>
                     <input
                         type="text"
-                        placeholder="Ingrese el número de socio"
+                        placeholder="Ingrese el número de membresía"
                         value={busqueda}
                         onChange={handleInputChange}
-                        className="border border-gray-400 rounded p-3 w-64 shadow-sm"
+                        className="border-2 border-gray-400 mr-2 rounded p-2 w-72 shadow-sm"
                     />
 
-                    <div className="w-1/3">
+                    <div className="">
                         <input
                             type="date"
-                            className='border-2 w-full p-2 mt-1 placeholder-gray-400 rounded-md'
+                            className='border-2 w-40 p-2 mt-1 mr-2 placeholder-gray-400 rounded-md'
                             placeholder="Ingrese fecha inicio de cobro YYYY-MM-DD"
                             name='fechaInicioCobroInput'
                             value={form.fechaInicioCobroInput}
@@ -115,22 +124,30 @@ const Reactivacion = () => {
                         />
                     </div>
 
-                    <div className="w-1/3">
-                        <input
+                    <div className=" px-2">
+                        <select
                             id='tipoCobro'
-                            type='text'
-                            className='border-2 w-full p-2 mt-1 placeholder-gray-400 rounded-md'
-                            placeholder='Ingrese tipo de cobro'
+                            className='border-2 w-60  p-2 mt-1 placeholder-gray-400 rounded-md mr-2'
                             name='tipoCobro'
                             value={form.tipoCobro}
                             onChange={handleChange}
-                        />
+                        >
+                            <option value='' disabled>
+                                Seleccione el tipo de cobro
+                            </option>
+                            <option value='Juvenil'>Juvenil</option>
+                            <option value='Retirado'>Retirado</option>
+                        </select>
                     </div>
 
                     <button 
-                        className="bg-customBlue hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                        className="bg-customBlue hover:bg-blue-900 mr-2 text-white px-6 py-2 rounded shadow"
                         onClick={handleBuscar}>
                         Buscar
+                    </button>
+                    <button className="bg-customBlue mr hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
+                        onClick={handleNuevaBusqueda}>
+                        Nueva Búsqueda
                     </button>
                 </div>
 
@@ -195,78 +212,76 @@ const Reactivacion = () => {
             }
             
             {Object.keys(mensajeRegistro).length > 0 && <Mensaje tipo={mensajeRegistro.tipo}>{mensajeRegistro.respuesta}</Mensaje>}
-
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full border-collapse">
-                    <thead className="bg-customYellow text-slate-400">
-                        <tr>
-                            <th className="border border-gray-300 px-4 py-2">Año</th>
-                            <th className="border border-gray-300 px-4 py-2">Total Anual</th>
-                            <th className="border border-gray-300 px-4 py-2">Total Patrimonial Anual</th>
-                            <th className="border border-gray-300 px-4 py-2">Total Predial Anual</th>
-                        </tr>
-
-                     </thead>
-                     <tbody>
-                        {registros.length > 0 ? (
-                            <>
-                                {registros.map((row, index) => (
-                                    <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.anio}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.totalAnual.toFixed(1)}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPatrimonialAnual}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPredialAnual.toFixed(1)}</td>
-                                    </tr>
-                                ))}
-                                <tr className="font-bold bg-gray-200">
-                                    <td colSpan="3" className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
-                                    <td className="border border-gray-300 px-4 py-2 text-center">
-                                      
-                                        {registrosData.totalFinal}
-                                    </td>
-                                </tr>
-                            </>
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center py-4">No hay registros</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-
-            </div>
-
-            <div className="flex space-x-4">
-            <div className="w-1/2 px-2 mt-4">
-                <label
-                    htmlFor='observacion'
-                    className='text-gray-700 uppercase font-bold text-xs'>
-                    Observación:
-                </label>
-                <input
-                    id='observacion'
-                    type='text'
-                    className='border-2 w-full p-1 mt-1 placeholder-gray-400 rounded-md mb-3'
-                    placeholder='Ingrese la observación'
-                    name='observacion'
-                />
-            </div>
-            <div className="w-1/2 px-2 mt-4">
-                <label
-                    htmlFor='total'
-                    className='text-gray-700 uppercase font-bold text-xs'>
-                    Total Amnistía:
-                </label>
-                <div className='border-2 w-full p-1 mt-1 rounded-md mb-3'>
-                    {registrosData.amnistia}
+            
+            {registros.length > 0 && (
+             <>
+                <div className="flex items-center justify-center mb-6">
+                    <label
+                        htmlFor='Entrada:'
+                        className='text-gray-700 mr-2 uppercase font-bold text-sm'>Observación: </label>
+                        <input
+                            type="text"
+                            className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
+                            placeholder="Ingresa una observación"
+                        />
                 </div>
-            </div>
-        </div>
+                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                    <table className="min-w-full border-collapse">
+                        <thead className="bg-customYellow text-slate-400">
+                            <tr>
+                                <th className="border border-gray-300 px-4 py-2">Año</th>
+                                <th className="border border-gray-300 px-4 py-2">Total Patrimonial Anual</th>
+                                <th className="border border-gray-300 px-4 py-2">Total Predial Anual</th>
+                                <th className="border border-gray-300 px-4 py-2">Total Anual</th>
+                            </tr>
 
-            <button className="bg-gray-900 mt-4 hover:bg-blue-900 text-white px-6 py-1 rounded shadow">
-                    Confirmar
-            </button>
+                        </thead>
+                        <tbody>
+                            {registros.length > 0 ? (
+                                <>
+                                    {registros.map((row, index) => (
+                                        <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.anio}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPatrimonialAnual}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPredialAnual.toFixed(1)}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalAnual.toFixed(1)}</td>
+                                        </tr>
+                                    ))}
+                                    <tr className="font-bold bg-gray-200">
+                                        <td colSpan="3" className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
+                                        <td className="border border-gray-300 px-4 py-2 text-center">
+                                        
+                                            {(registrosData.totalFinal).toFixed(2)}
+                                        </td>
+                                    </tr>
+                                </>
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="text-center py-4">No hay registros</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+
+                </div>
+                <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
+                    <p>TOTAL AMNISTÍA: {(registrosData.amnistia).toFixed(2)}</p>
+                 </div>
+
+                <div className="text-center mt-6 ">
+                    <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
+                        Confirmar
+                     </button>
+
+                     <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg"  
+                     >
+                        Imprimir Reporte
+                    </button>
+                </div>
         </>
+        )}
+        </>
+        
     )
 }
 

@@ -238,6 +238,8 @@ export const consultaPagoReingreso = async (req, res) => {
     
       }
 
+      console.log(categoria)
+
       const fechaActual = new Date();
       const listaAnios = [];
       let totalFinal = 0;

@@ -4,7 +4,6 @@ import { generarToken } from '../middlewares/authController.js';
 
 const prisma = new PrismaClient();
 
-
 export const crearUsuario = async (req, res) => {
   const { username, nombre, apellido, contrasena, confirmarContrasena, rol } = req.body;
 
@@ -12,6 +11,7 @@ export const crearUsuario = async (req, res) => {
     return res.status(400).json({ message: 'Las contraseñas no coinciden' });
   }
 
+  
   try {
     const usuarioExistente = await prisma.usuarios_Arast_Frevill.findUnique({
       where: { username }

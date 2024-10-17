@@ -18,7 +18,7 @@ const formatoFecha = (dateString) => {
   }
 
 // Función para calcular el valor mensual según el mes
-function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior, fechaEntrada, categoria, tipoCobro) {
+function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior, fechaEntrada, categoria, tipoCobro, fechaCumple27) {
   let valorMensual = valorCuotaPresente; // Cobro mensual por defecto de las cuotas
   let valorPatrimonial = 0;
   let valorPredialMensual = 0;
@@ -40,21 +40,13 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
     }
   } else {
     // Si no es el año actual y el tipo de cobro es "juvenil", no cobrar después de septiembre de 2021
-    if (anio === 2021 && mes >= 9 && tipoCobro === "Juvenil" && categoria == "Activo < 27") {
-      valorPatrimonial = 0; // No se cobra patrimonial después de septiembre de 2021
-    } 
-    if (anio > 2022 && mes >= 0 && tipoCobro === "Juvenil" && categoria == "Activo < 27") {
-      valorPatrimonial = 0; // No se cobra patrimonial después de septiembre de 2021
-    } 
-      else {
-      // Lógica normal de cobro mensual de patrimonial
       if (mes === 0) { // En enero de años anteriores
         valorPatrimonial = valorPatrimonialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
       } else if (mes >= 1) { // A partir de febrero se cobra el valor patrimonial del año actual
         valorPatrimonial = valorPatrimonialPresente / 12;
       }
     }
-  }
+  
 
   // Cobro fijo de 182 dólares en noviembre de 2022
   if (mes === 10 && anio === 2022) { // Noviembre es el mes 10
@@ -92,15 +84,29 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
     }
   }
 
+  if (anio === 2021 && mes >= 9 && tipoCobro === "Juvenil" && categoria == "Activo < 27") {
+    valorPatrimonial = 0; // No se cobra patrimonial después de septiembre de 2021
+  } 
+  if (anio >= 2022 && mes == 0 && tipoCobro === "Juvenil" && categoria == "Activo < 27") {
+    valorPatrimonial = 0; // No se cobra patrimonial después de septiembre de 2021
+  } 
+  const fecha1OCT2021 = new Date(2021, 9, 1);
+  if (anio === 2022 && mes == 0  && tipoCobro === "Juvenil" && categoria === "Activo >= 27" && fechaCumple27 > fecha1OCT2021){
+    valorPatrimonial = 0; 
+  }
+
+
   // Aplicar la misma condición para el predial si el tipo de cobro es "juvenil"
   if (anio === 2021 && mes >= 9 && tipoCobro === "Juvenil" && categoria === "Activo < 27") {
     valorPredialMensual = 0; // No se cobra predial después de septiembre de 2021
   }
-  if (anio > 2022 && mes >= 0 && tipoCobro === "Juvenil" && categoria === "Activo < 27") {
+  if (anio >= 2022 && mes >= 0 && tipoCobro === "Juvenil" && categoria === "Activo < 27") {
     valorPredialMensual = 0; 
   }
-
-
+  const fecha1Nov2021 = new Date(2021, 10, 1);
+  if (anio === 2022 && mes >= 0 && mes <= 9 && tipoCobro === "Juvenil" && categoria === "Activo >= 27" && fechaCumple27 > fecha1Nov2021){
+    valorPredialMensual = 0; 
+  }
 
   // Suma total del mes
   valorMensual += valorPatrimonial + valorPredialMensual;
@@ -217,8 +223,6 @@ export const consultaPagoReingreso = async (req, res) => {
           fechaCumple22 = addYears(new Date(socio.FechaNac), 22);
           fechaCumple22.setMonth(fechaCumple22.getMonth() + 1);
           fecha21Sept2021 = new Date(2022, 10, 1);
-        
-          console.log(fechaCumple27)
 
           if (fechaCumple27 >= fecha21Sept2021) {
                   fechaInicioCobro = fechaCumple27;
@@ -233,6 +237,8 @@ export const consultaPagoReingreso = async (req, res) => {
           }
     
       }
+
+      console.log(categoria)
 
       const fechaActual = new Date();
       const listaAnios = [];
@@ -253,15 +259,14 @@ export const consultaPagoReingreso = async (req, res) => {
 
               let categoriaMensual = categoria;
               const mesNombre = format(new Date(anio, mes), 'MMMM', { locale: es });
-
               if (anio > getYear(fechaCumple27) || (anio === getYear(fechaCumple27) && mes >= getMonth(fechaCumple27))) {
                 if(tipoCobro == "Juvenil"){
                   categoriaMensual = "Activo >= 27"
                 }else{
                   categoriaMensual = categoria;
-                  if(categoriaMensual = "Activo >= 26"){
-                    categoriaMensual = "Activo >= 27"
-                  }
+                    if(categoriaMensual === "Activo >= 26"){
+                      categoriaMensual = "Activo >= 27"
+                    }
                 }
               }
               const cuota = await prisma.cuota.findFirst({
@@ -306,7 +311,8 @@ export const consultaPagoReingreso = async (req, res) => {
                   valorPredialAnterior,
                   fechaInicioCobro,
                   categoriaMensual,
-                  tipoCobro
+                  tipoCobro,
+                  fechaCumple27
               );
 
               totalAnual += valorMensual;

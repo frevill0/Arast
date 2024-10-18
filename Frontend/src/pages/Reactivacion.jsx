@@ -346,7 +346,7 @@ const Reactivacion = () => {
                         Confirmar
                      </button>
 
-                     <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg"  
+                     <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg" onClick={generarPDF}  
                      >
                         Imprimir Reporte
                     </button>

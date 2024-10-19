@@ -20,6 +20,17 @@ const Reactivacion = () => {
     })
     const [observacion, setObservacion] = useState('');
 
+    // Función para formatear la fecha a dd/mm/yyyy
+    const formatearFecha = (fecha) => {
+        const [año, mes, dia] = fecha.split('-');
+        return `${dia}/${mes}/${año}`; 
+    };
+
+    // Función para obtener el valor formateado de la fecha
+    const obtenerFechaFormateada = () => {
+        return form.fechaInicioCobroInput ? formatearFecha(form.fechaInicioCobroInput) : '';
+    };
+
     const consultarReingreso = async (numeroMembresia) => {
         setReingreso({});
         setMensaje({});
@@ -138,6 +149,7 @@ const Reactivacion = () => {
     // Función para generar el PDF
     const generarPDF = async () => {
         const doc = new jsPDF();
+        const fechaFormateada = obtenerFechaFormateada();
         const base64Image = await convertImageToBase64(LogoPrincipal)
         doc.addImage(base64Image, 'PNG', 10, 5, 20, 20); 
         // Título principal
@@ -151,8 +163,8 @@ const Reactivacion = () => {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 10);
-        doc.text(`Liquidada desde: ${form.fechaInicioCobroInput}`, 10, 40);
-        doc.text(`Observación:${observacion} `, 10, 50);
+        doc.text(`Liquidada desde: ${fechaFormateada}`, 10, 40);
+        doc.text(`Observación: ${observacion} `, 10, 50);
        
         // Datos del socio
         if (Object.keys(reingreso).length !== 0) {
@@ -161,12 +173,11 @@ const Reactivacion = () => {
             doc.text(`Categoría: ${reingreso.Categoria}`, 10, 80);
             doc.text(`Fecha final liquidación: ${reingreso.FechaFinalLiquidacion}`, 10, 90);
             doc.text(`Estado: ${reingreso.Estatus}`, 10, 100);
-            doc.text(`Estado: ${reingreso.Estatus}`, 10, 100);
         }
 
         // Datos adicionales del socio
         doc.text(`Fecha de Nacimiento: ${reingreso.FechaNacimiento}`, 100, 60);
-        doc.text(`Estado Anterior: ${form.estadoAnterior}${reingreso.estadoAnterior}`, 100, 80);
+        doc.text(`Estado Anterior: ${form.estadoAnterior}`, 100, 80);
 
         doc.line(10, 105, 200, 105);
 
@@ -174,7 +185,7 @@ const Reactivacion = () => {
         if (registros.length > 0) {
             doc.autoTable({
                 startY: 120,
-                head: [['Año','Categoria','TotalCuota', 'Categoria','Total Patrimonial Anual', 'Total Predial Anual', 'Total Cuota Anual', 'Total Anual']],
+                head: [['Año','Categoria','Total Patrimonial Anual', 'Total Predial Anual', 'Total Cuota Anual', 'Total Anual']],
                 body: registros.map(row => [
                     row.anio, row.categoriasAnuales, row.totalPatrimonialAnual.toFixed(2), row.totalPredialAnual.toFixed(2), row.totalCuotaAnual, row.totalAnual.toFixed(2)
                 ]),

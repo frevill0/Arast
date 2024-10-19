@@ -61,6 +61,7 @@ const Reactivacion = () => {
                     }
                 };
                 const respuesta = await axios.post(url,form, options);
+                console.log("Registros: ", respuesta.data.anios)
                 setRegistros(respuesta.data.anios); 
                 setRegistrosData(respuesta.data)
                 setMensajeRegistro({});
@@ -303,8 +304,10 @@ const Reactivacion = () => {
                         <thead className="bg-customYellow text-slate-400">
                             <tr>
                                 <th className="border border-gray-300 px-4 py-2">Año</th>
+                                <th className="border border-gray-300 px-4 py-2">Categoría</th>
                                 <th className="border border-gray-300 px-4 py-2">Total Patrimonial Anual</th>
                                 <th className="border border-gray-300 px-4 py-2">Total Predial Anual</th>
+                                <th className="border border-gray-300 px-4 py-2">Total Cuota Anual</th>
                                 <th className="border border-gray-300 px-4 py-2">Total Anual</th>
                             </tr>
 
@@ -315,13 +318,15 @@ const Reactivacion = () => {
                                     {registros.map((row, index) => (
                                         <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
                                             <td className="border border-gray-300 px-4 py-2 text-center">{row.anio}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.categoriasAnuales}</td>
                                             <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPatrimonialAnual}</td>
                                             <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPredialAnual.toFixed(1)}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalCuotaAnual}</td>
                                             <td className="border border-gray-300 px-4 py-2 text-center">{row.totalAnual.toFixed(1)}</td>
                                         </tr>
                                     ))}
                                     <tr className="font-bold bg-gray-200">
-                                        <td colSpan="3" className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
+                                        <td colSpan="5" className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
                                         <td className="border border-gray-300 px-4 py-2 text-center">
                                         
                                             {(registrosData.totalFinal).toFixed(2)}

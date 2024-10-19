@@ -180,19 +180,14 @@ export const consultaPagoReingreso = async (req, res) => {
           return res.status(400).json({ message: 'Tipo de Cobro y Fecha de Inicio de Cobro son obligatorios' });
       }
 
-      // Convertir la fecha de formato dd/mm/aaaa a un objeto Date
+      // Convertir la fecha de formato yyyy-MM-dd a un objeto Date
       let fechaInicioCobro = parse(fechaInicioCobroInput, 'yyyy-MM-dd', new Date(), { locale: es });
 
       if (isNaN(fechaInicioCobro.getTime())) {
-          return res.status(400).json({ message: 'Formato de fecha inválido. Utilice dd/mm/aaaa' });
+          return res.status(400).json({ message: 'Formato de fecha inválido. Utilice yyyy-MM-dd' });
       }
 
-
-      console.log("Membresía recibida:", Membresia);
-      console.log("Fecha de inicio de cobro ingresada:", fechaInicioCobroInput);
-      console.log("Fecha de inicio de cobro convertida:", fechaInicioCobro);
-      console.log("Tipo de cobro seleccionado:", tipoCobro);
-
+      // Buscar al socio con el estado correspondiente
       const socio = await prisma.contactscm_fac_elec_arast.findUnique({
           where: {
               Membresia: Membresia,
@@ -206,147 +201,102 @@ export const consultaPagoReingreso = async (req, res) => {
           return res.status(404).json({ message: 'Socio no encontrado o en estado inválido' });
       }
 
-      let fechaCumple27 = 0;
-      let fecha21Sept2021 = 0;
-      let fechaCumple22 = 0;
-
-      console.log("Fecha de inicio de cobro inicial:", fechaInicioCobro);
-
       let categoria = socio.Categoria;
+      let fechaCumple27 = addYears(new Date(socio.FechaNac), 27);
+      let fechaCumple22 = addYears(new Date(socio.FechaNac), 22);
+      let fecha21Sept2021 = new Date(2022, 10, 1);
 
-      if (tipoCobro === "Retirado") {
-          console.log("Calculando como Retirado...");
-      } else {
-          console.log("Calculando como Juvenil Perdido Derecho...");
-          fechaCumple27 = addYears(new Date(socio.FechaNac), 27);
-          fechaCumple27.setMonth(fechaCumple27.getMonth() + 1);
-          fechaCumple22 = addYears(new Date(socio.FechaNac), 22);
-          fechaCumple22.setMonth(fechaCumple22.getMonth() + 1);
-          fecha21Sept2021 = new Date(2022, 10, 1);
+      fechaCumple27.setMonth(fechaCumple27.getMonth() + 1);
+      fechaCumple22.setMonth(fechaCumple22.getMonth() + 1);
 
+      // Ajustar la fecha de inicio de cobro y categoría según condiciones
+      if (tipoCobro !== "Retirado") {
           if (fechaCumple27 >= fecha21Sept2021) {
-                  fechaInicioCobro = fechaCumple27;
-                  console.log("Fecha de inicio de cobro actualizada a 27:", fechaInicioCobro);
-                  categoria = "Activo >= 27";
-          } else if (categoria === "Activo >= 26") {
-                  categoria = "Activo >= 27";
-          } else if (fechaCumple27 < fecha21Sept2021) {
-                  fechaInicioCobro = fechaCumple22;
-                  console.log("Fecha de inicio de cobro actualizada a 22:", fechaInicioCobro);
-                  categoria = "Activo < 27";
+              fechaInicioCobro = fechaCumple27;
+              categoria = "Activo >= 27";
+          } else if (categoria === "Activo >= 26" || fechaCumple27 < fecha21Sept2021) {
+              categoria = fechaCumple27 < fecha21Sept2021 ? "Activo < 27" : "Activo >= 27";
+              fechaInicioCobro = fechaCumple22;
           }
-    
       }
-
-      console.log(categoria)
 
       const fechaActual = new Date();
       const listaAnios = [];
-      let totalFinal = 0;
       let totalCuota = 0;
       let totalPatrimonial = 0;
       let totalPredial = 0;
 
+      // Bucle para calcular año por año
       for (let anio = getYear(fechaInicioCobro); anio <= getYear(fechaActual); anio++) {
           let meses = [];
           let totalAnual = 0;
+          let totalCuotaAnual = 0;
           let totalPatrimonialAnual = 0;
           let totalPredialAnual = 0;
+          let categoriasAnuales = new Set(); // Para evitar categorías duplicadas
 
           for (let mes = (anio === getYear(fechaInicioCobro)) ? getMonth(fechaInicioCobro) : 0;
               mes < ((anio === getYear(fechaActual)) ? getMonth(fechaActual) + 1 : 12);
               mes++) {
 
               let categoriaMensual = categoria;
-              const mesNombre = format(new Date(anio, mes), 'MMMM', { locale: es });
               if (anio > getYear(fechaCumple27) || (anio === getYear(fechaCumple27) && mes >= getMonth(fechaCumple27))) {
-                if(tipoCobro == "Juvenil"){
-                  categoriaMensual = "Activo >= 27"
-                }else{
-                  categoriaMensual = categoria;
-                    if(categoriaMensual === "Activo >= 26"){
-                      categoriaMensual = "Activo >= 27"
-                    }
-                }
+                  categoriaMensual = tipoCobro === "Juvenil" ? "Activo >= 27" : categoriaMensual;
               }
-              const cuota = await prisma.cuota.findFirst({
-                  where: {
-                      categoria: categoriaMensual,
-                      anio
-                  },
-                  select: {
-                      valorCuotaPresente: true,
-                      valorPatrimonialPresente: true,
-                      valorPredial: true
-                  }
-              });
+              categoriasAnuales.add(categoriaMensual); // Agregar la categoría mensual
 
+              // Consultar las cuotas del año
+              const cuota = await prisma.cuota.findFirst({
+                  where: { categoria: categoriaMensual, anio },
+                  select: { valorCuotaPresente: true, valorPatrimonialPresente: true, valorPredial: true }
+              });
 
               if (!cuota) {
                   return res.status(404).json({ message: `Cuota no encontrada para la categoría ${categoriaMensual} en el año ${anio}` });
               }
 
+              // Consultar la cuota anterior para patrimonial y predial
               const cuotaAnterior = await prisma.cuota.findFirst({
-                  where: {
-                      categoria: categoriaMensual,
-                      anio: anio - 1
-                  },
-                  select: {
-                      valorPatrimonialPresente: true,
-                      valorPredial: true
-                  }
+                  where: { categoria: categoriaMensual, anio: anio - 1 },
+                  select: { valorPatrimonialPresente: true, valorPredial: true }
               });
 
-              const { valorCuotaPresente, valorPatrimonialPresente, valorPredial } = cuota;
-              const valorPatrimonialAnterior = cuotaAnterior ? cuotaAnterior.valorPatrimonialPresente : 0;
-              const valorPredialAnterior = cuotaAnterior ? cuotaAnterior.valorPredial : 0;
+              const valorPatrimonialAnterior = cuotaAnterior?.valorPatrimonialPresente || 0;
+              const valorPredialAnterior = cuotaAnterior?.valorPredial || 0;
 
+              // Calcular valores mensuales
               const { valorMensual, valorPatrimonial, valorPredial: valorPredialMensual } = calcularValorMensual(
-                  mes,
-                  anio,
-                  valorCuotaPresente,
-                  valorPatrimonialPresente,
-                  valorPatrimonialAnterior,
-                  valorPredial,
-                  valorPredialAnterior,
-                  fechaInicioCobro,
-                  categoriaMensual,
-                  tipoCobro,
-                  fechaCumple27
+                  mes, anio, cuota.valorCuotaPresente, cuota.valorPatrimonialPresente,
+                  valorPatrimonialAnterior, cuota.valorPredial, valorPredialAnterior,
+                  fechaInicioCobro, categoriaMensual, tipoCobro, fechaCumple27
               );
 
               totalAnual += valorMensual;
-              totalCuota += valorCuotaPresente;
-              totalPatrimonial += valorPatrimonial;
-              totalPredial += valorPredialMensual;
-
+              totalCuotaAnual += cuota.valorCuotaPresente;
               totalPatrimonialAnual += valorPatrimonial;
               totalPredialAnual += valorPredialMensual;
 
-              meses.push({ mes: mesNombre, categoria: categoriaMensual, valor: valorMensual });
+              totalCuota += cuota.valorCuotaPresente;
+              totalPatrimonial += valorPatrimonial;
+              totalPredial += valorPredialMensual;
+
+              meses.push({ mes: format(new Date(anio, mes), 'MMMM', { locale: es }), categoria: categoriaMensual, valor: valorMensual });
           }
 
           listaAnios.push({
               anio,
               meses,
               totalAnual,
+              totalCuotaAnual,
               totalPatrimonialAnual,
-              totalPredialAnual
+              totalPredialAnual,
+              categoriasAnuales: Array.from(categoriasAnuales)
           });
       }
 
-      totalFinal = totalCuota + totalPatrimonial + totalPredial
-
-      let amnistia = 0 
-
-            // Si el tipo de cobro es "Juvenil", sumar $8000 al total final
-      if (tipoCobro === "Juvenil") {
-          amnistia = (totalFinal/2) + 8000;
-          totalFinal = totalFinal + 8000; 
-      }else{
-        amnistia = totalFinal/2
-      }
-        
+      let totalFinal = totalCuota + totalPatrimonial + totalPredial;
+      let amnistia = tipoCobro === "Juvenil" ? (totalFinal / 2) + 8000 : totalFinal / 2;
+      totalFinal = tipoCobro === "Juvenil" ? totalFinal + 8000 : totalFinal;
 
       return res.json({
           anios: listaAnios,
@@ -354,7 +304,7 @@ export const consultaPagoReingreso = async (req, res) => {
           totalCuota,
           totalPatrimonial,
           totalPredial,
-          amnistia // Devolver el valor de amnistía
+          amnistia
       });
 
   } catch (error) {
@@ -362,3 +312,6 @@ export const consultaPagoReingreso = async (req, res) => {
       return res.status(500).json({ message: 'Error en el servidor' });
   }
 };
+
+
+

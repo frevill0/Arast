@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Mensaje from '../components/Alerts/Message';
 import axios from 'axios';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable'; 
+import 'jspdf-autotable';
 import LogoPrincipal from '../assets/LogoQTGC.png'
 
 const Reactivacion = () => {
@@ -14,9 +14,9 @@ const Reactivacion = () => {
     const [registrosData, setRegistrosData] = useState({});
     const [mensajeRegistro, setMensajeRegistro] = useState({});
     const [form, setform] = useState({
-        estadoAnterior : "", 
-        fechaInicioCobroInput: "", 
-        tipoCobro : ""  
+        estadoAnterior: "",
+        fechaInicioCobroInput: "",
+        tipoCobro: ""
     })
     const [observacion, setObservacion] = useState('');
 
@@ -45,8 +45,9 @@ const Reactivacion = () => {
     };
 
     const handleChange = (e) => {
-        setform({...form,
-            [e.target.name]:e.target.value
+        setform({
+            ...form,
+            [e.target.name]: e.target.value
         })
     }
     const consultarRegistros = async (numeroMembresia) => {
@@ -80,18 +81,18 @@ const Reactivacion = () => {
     const handleBuscar = () => {
         consultarReingreso(busqueda);
         consultarRegistros(busqueda);
-          
+
     };
 
     const handleNuevaBusqueda = () => {
-        setBusqueda(''); 
-        setReingreso({}); 
+        setBusqueda('');
+        setReingreso({});
         setRegistros([])
-        setMensaje({}); 
+        setMensaje({});
         setform({
-            fechaInicioCobroInput: "", 
+            fechaInicioCobroInput: "",
             tipoCobro: ""
-        }); 
+        });
     };
 
     // Función para manejar el cambio en el input
@@ -104,14 +105,14 @@ const Reactivacion = () => {
             const response = await fetch(url);
             if (!response.ok) {
                 console.error('Error al cargar la imagen: ' + response.statusText);
-                return null;  // Salir de la función si hay un error en la carga
+                return null;  
             }
     
             // Verificar el tipo de archivo
             const contentType = response.headers.get("Content-Type");
             if (!contentType.startsWith("image/")) {
                 console.error('El archivo no es una imagen. Tipo de archivo: ' + contentType);
-                return null;  // Retorna null si no es una imagen
+                return null;  
             }
     
             const blob = await response.blob();
@@ -123,10 +124,10 @@ const Reactivacion = () => {
                 };
                 reader.onerror = (error) => {
                     console.error('Error al convertir a base64: ' + error);
-                    reject(error);  // Rechazar la promesa si ocurre un error
+                    reject(error);  
                 };
     
-                reader.readAsDataURL(blob);  // Iniciar la conversión a Base64
+                reader.readAsDataURL(blob);  // Inicia la conversión a Base64
             });
         } catch (error) {
             console.error('Error durante la conversión:', error);
@@ -134,8 +135,8 @@ const Reactivacion = () => {
         }
       };
 
-     // Función para generar el PDF
-     const generarPDF = async () => {
+    // Función para generar el PDF
+    const generarPDF = async () => {
         const doc = new jsPDF();
         const base64Image = await convertImageToBase64(LogoPrincipal)
         doc.addImage(base64Image, 'PNG', 10, 5, 20, 20); 
@@ -160,44 +161,43 @@ const Reactivacion = () => {
             doc.text(`Categoría: ${reingreso.Categoria}`, 10, 80);
             doc.text(`Fecha final liquidación: ${reingreso.FechaFinalLiquidacion}`, 10, 90);
             doc.text(`Estado: ${reingreso.Estatus}`, 10, 100);
+            doc.text(`Estado: ${reingreso.Estatus}`, 10, 100);
         }
-    
+
         // Datos adicionales del socio
         doc.text(`Fecha de Nacimiento: ${reingreso.FechaNacimiento}`, 100, 60);
-        //doc.text(`Edad: ${ausentismo.data.Edad}`, 100, 70);
-        doc.text(`Estado Anterior: ${form.estadoAnterior}`, 100, 80);
-       // doc.text(`Estado Migratorio: ${ausentismo.data.EstadoMigratorio}`, 100, 90);
-    
+        doc.text(`Estado Anterior: ${form.estadoAnterior}${reingreso.estadoAnterior}`, 100, 80);
+
         doc.line(10, 105, 200, 105);
-          
-    
+
+
         if (registros.length > 0) {
             doc.autoTable({
                 startY: 120,
-                head: [['Año', 'Categoria','Total Patrimonial Anual', 'Total Predial Anual', 'Total Cuota Anual', 'Total Anual']],
+                head: [['Año','Categoria','TotalCuota', 'Categoria','Total Patrimonial Anual', 'Total Predial Anual', 'Total Cuota Anual', 'Total Anual']],
                 body: registros.map(row => [
                     row.anio, row.categoriasAnuales, row.totalPatrimonialAnual.toFixed(2), row.totalPredialAnual.toFixed(2), row.totalCuotaAnual, row.totalAnual.toFixed(2)
                 ]),
-                headStyles: { 
+                headStyles: {
                     fillColor: [255, 255, 0],
                     textColor: [0, 0, 0]
-                 },  // Cambia el color de fondo del encabezado a amarillo
+                },  // Cambia el color de fondo del encabezado a amarillo
                 styles: {
                     halign: 'center', // Centrar texto en la tabla
                     cellPadding: 5,
                 }
             });
         }
-    
-        
-    
+
+
+
 
         // Sección de Valor de Reajuste y total
         const patrimonialPos = doc.autoTable.previous.finalY || 210;
         doc.setFont("helvetica", "bold")
         doc.text(`Total Final: ${(registrosData.totalFinal).toFixed(2)}`, 158, patrimonialPos + 20);
         doc.text(`Total Amnistía: ${(registrosData.amnistia).toFixed(2)}`, 95, patrimonialPos + 30);
-    
+
         // Descargar el PDF
         doc.save(`reporte_reingreso_${busqueda}.pdf`);
     };
@@ -207,7 +207,7 @@ const Reactivacion = () => {
             <div>
                 <h1 className='font-black text-4xl text-gray-500'>Reingreso</h1>
                 <hr className='my-4' />
-                <p className='mb-8'>Este módulo te permite reactivar</p>
+                <p className='mb-8'>Este módulo te permite hacer el calculo del reingreso</p>
             </div>
             <div className="container mx-auto p-6">
                 <div className="text-center mb-10">
@@ -252,7 +252,7 @@ const Reactivacion = () => {
                         </select>
                     </div>
 
-                    <button 
+                    <button
                         className="bg-customBlue hover:bg-blue-900 mr-2 text-white px-6 py-2 rounded shadow"
                         onClick={handleBuscar}>
                         Buscar
@@ -270,7 +270,7 @@ const Reactivacion = () => {
             {
                 Object.keys(reingreso).length !== 0 &&
                 (
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-100 p-6 rounded-lg shadow-md mb-10">
                         <div>
                             <p className="text-md text-gray-00 mt-4">
@@ -293,10 +293,6 @@ const Reactivacion = () => {
                             </p>
                         </div>
                         <div>
-                            <p className="text-md text-gray-00 mt-4">
-                                <span className="text-gray-600 uppercase font-bold">Estado Proceso:</span>
-                                {reingreso.EstadoProceso}
-                            </p>
                             <p className="text-md text-gray-00 mt-4">
                                 <span className="text-gray-600 uppercase font-bold">Fecha de liquidación:</span>
                                 {reingreso.FechaFinalLiquidacion}
@@ -321,17 +317,17 @@ const Reactivacion = () => {
                         </div>
 
                     </div>
-                )     
+                )
             }
-            
+
             {Object.keys(mensajeRegistro).length > 0 && <Mensaje tipo={mensajeRegistro.tipo}>{mensajeRegistro.respuesta}</Mensaje>}
-            
+
             {registros.length > 0 && (
-             <>
-                <div className="flex items-center justify-center mb-6">
-                    <label
-                        htmlFor='Entrada:'
-                        className='text-gray-700 mr-2 uppercase font-bold text-sm'>Observación: </label>
+                <>
+                    <div className="flex items-center justify-center mb-6">
+                        <label
+                            htmlFor='Entrada:'
+                            className='text-gray-700 mr-2 uppercase font-bold text-sm'>Observación: </label>
                         <input
                             type="text"
                             className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
@@ -340,68 +336,68 @@ const Reactivacion = () => {
                             value={observacion} 
                             onChange={handleObservacionChange}  
                         />
-                </div>
-                <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                    <table className="min-w-full border-collapse">
-                        <thead className="bg-customYellow text-slate-400">
-                            <tr>
-                                <th className="border border-gray-300 px-4 py-2">Año</th>
-                                <th className="border border-gray-300 px-4 py-2">Categoría</th>
-                                <th className="border border-gray-300 px-4 py-2">Total Patrimonial Anual</th>
-                                <th className="border border-gray-300 px-4 py-2">Total Predial Anual</th>
-                                <th className="border border-gray-300 px-4 py-2">Total Cuota Anual</th>
-                                <th className="border border-gray-300 px-4 py-2">Total Anual</th>
-                            </tr>
-
-                        </thead>
-                        <tbody>
-                            {registros.length > 0 ? (
-                                <>
-                                    {registros.map((row, index) => (
-                                        <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
-                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.anio}</td>
-                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.categoriasAnuales}</td>
-                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPatrimonialAnual}</td>
-                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPredialAnual.toFixed(1)}</td>
-                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalCuotaAnual}</td>
-                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalAnual.toFixed(1)}</td>
-                                        </tr>
-                                    ))}
-                                    <tr className="font-bold bg-gray-200">
-                                        <td colSpan="5" className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">
-                                        
-                                            {(registrosData.totalFinal).toFixed(2)}
-                                        </td>
-                                    </tr>
-                                </>
-                            ) : (
+                    </div>
+                    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                        <table className="min-w-full border-collapse">
+                            <thead className="bg-customYellow text-slate-400">
                                 <tr>
-                                    <td colSpan="6" className="text-center py-4">No hay registros</td>
+                                    <th className="border border-gray-300 px-4 py-2">Año</th>
+                                    <th className="border border-gray-300 px-4 py-2">Categoría</th>
+                                    <th className="border border-gray-300 px-4 py-2">Anual Cuotas </th>
+                                    <th className="border border-gray-300 px-4 py-2">Anual Patrimonial</th>
+                                    <th className="border border-gray-300 px-4 py-2">Anual Predial</th>
+                                    <th className="border border-gray-300 px-4 py-2">Total Anual</th>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
 
-                </div>
-                <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
-                    <p>TOTAL AMNISTÍA: {(registrosData.amnistia).toFixed(2)}</p>
-                 </div>
+                            </thead>
+                            <tbody>
+                                {registros.length > 0 ? (
+                                    <>
+                                        {registros.map((row, index) => (
+                                            <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                                <td className="border border-gray-300 px-4 py-2 text-center">{row.anio}</td>
+                                                <td className="border border-gray-300 px-4 py-2 text-center">{row.categoriasAnuales}</td>
+                                                <td className="border border-gray-300 px-4 py-2 text-center">{row.totalCuotaAnual.toFixed(1)}</td>
+                                                <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPatrimonialAnual.toFixed(1)}</td>
+                                                <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPredialAnual.toFixed(1)}</td>
+                                                <td className="border border-gray-300 px-4 py-2 text-center">{row.totalAnual.toFixed(1)}</td>
+                                            </tr>
+                                        ))}
+                                        <tr className="font-bold bg-gray-200">
+                                            <td colSpan="5" className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">
 
-                <div className="text-center mt-6 ">
-                    <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
-                        Confirmar
-                     </button>
+                                                {(registrosData.totalFinal).toFixed(2)}
+                                            </td>
+                                        </tr>
+                                    </>
+                                ) : (
+                                    <tr>
+                                        <td colSpan="6" className="text-center py-4">No hay registros</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
 
-                     <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg" onClick={generarPDF}  
-                     >
-                        Imprimir Reporte
-                    </button>
-                </div>
+                    </div>
+                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
+                        <p>TOTAL AMNISTÍA: {(registrosData.amnistia).toFixed(2)}</p>
+                    </div>
+
+                    <div className="text-center mt-6 ">
+                        <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
+                            Confirmar
+                        </button>
+
+                        <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg" onClick={generarPDF}
+                        >
+                            Imprimir Reporte
+                        </button>
+                    </div>
+                </>
+            )}
         </>
-        )}
-        </>
-        
+
     )
 }
 

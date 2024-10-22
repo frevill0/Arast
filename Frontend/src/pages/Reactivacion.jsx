@@ -163,7 +163,7 @@ const Reactivacion = () => {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 10);
-        doc.text(`Liquidada desde: ${fechaFormateada}`, 10, 40);
+        //doc.text(`Liquidada desde: ${fechaFormateada}`, 10, 40);
         doc.text(`Observación: ${observacion} `, 10, 50);
        
         // Datos del socio

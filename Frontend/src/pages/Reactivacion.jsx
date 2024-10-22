@@ -98,7 +98,8 @@ const Reactivacion = () => {
     const handleNuevaBusqueda = () => {
         setBusqueda('');
         setReingreso({});
-        setRegistros([])
+        setRegistros([]);
+        setObservacion("");
         setMensaje({});
         setform({
             fechaInicioCobroInput: "",

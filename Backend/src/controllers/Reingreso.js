@@ -294,12 +294,13 @@ export const consultaPagoReingreso = async (req, res) => {
           });
       }
 
-      let totalFinal = totalCuota + totalPatrimonial + totalPredial;
-      let amnistia = tipoCobro === "Juvenil" ? (totalFinal / 2) + 8000 : totalFinal / 2;
-      totalFinal = tipoCobro === "Juvenil" ? totalFinal + 8000 : totalFinal;
+      let total = totalCuota + totalPatrimonial + totalPredial;
+      let totalFinal = tipoCobro === "Juvenil" ? total + 8000 : total;
+      let amnistia = tipoCobro === "Juvenil" ? (total/2) + 8000 : total/2;
 
       return res.json({
           anios: listaAnios,
+          total,
           totalFinal,
           totalCuota,
           totalPatrimonial,

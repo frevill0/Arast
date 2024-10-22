@@ -207,8 +207,9 @@ const Reactivacion = () => {
         // Sección de Valor de Reajuste y total
         const patrimonialPos = doc.autoTable.previous.finalY || 210;
         doc.setFont("helvetica", "bold")
-        doc.text(`Total Final: ${(registrosData.totalFinal).toFixed(2)}`, 158, patrimonialPos + 20);
-        doc.text(`Total Amnistía: ${(registrosData.amnistia).toFixed(2)}`, 95, patrimonialPos + 30);
+        doc.text(`Total: ${(registrosData.total).toFixed(2)}`, 150, patrimonialPos + 20);
+        doc.text(`Total Recategorización: ${(registrosData.totalFinal).toFixed(2)}`, 150, patrimonialPos + 25);
+        doc.text(`Total Amnistía: ${(registrosData.amnistia).toFixed(2)}`, 90, patrimonialPos + 35);
 
         // Descargar el PDF
         doc.save(`reporte_reingreso_${busqueda}.pdf`);
@@ -376,10 +377,10 @@ const Reactivacion = () => {
                                             </tr>
                                         ))}
                                         <tr className="font-bold bg-gray-200">
-                                            <td colSpan="5" className="border border-gray-300 px-4 py-2 text-center">Total Final</td>
+                                            <td colSpan="5" className="border border-gray-300 px-4 py-2 text-center">Total</td>
                                             <td className="border border-gray-300 px-4 py-2 text-center">
 
-                                                {(registrosData.totalFinal).toFixed(2)}
+                                                {(registrosData.total).toFixed(2)}
                                             </td>
                                         </tr>
                                     </>
@@ -393,16 +394,17 @@ const Reactivacion = () => {
 
                     </div>
                     <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
+                        <p>TOTAL RECATEGORIZACIÓN: {(registrosData.totalFinal).toFixed(2)}</p>
+                    </div>
+                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
                         <p>TOTAL AMNISTÍA: {(registrosData.amnistia).toFixed(2)}</p>
                     </div>
-
                     <div className="text-center mt-6 ">
                         <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
                             Confirmar
                         </button>
 
-                        <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg" onClick={generarPDF}
-                        >
+                        <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg" onClick={generarPDF}>
                             Imprimir Reporte
                         </button>
                     </div>

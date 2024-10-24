@@ -294,9 +294,10 @@ export const consultaPagoReingreso = async (req, res) => {
           });
       }
 
+      let recategorizacion = tipoCobro === "Juvenil" ? 8000 : 0
       let total = totalCuota + totalPatrimonial + totalPredial;
-      let totalFinal = tipoCobro === "Juvenil" ? total + 8000 : total;
-      let amnistia = tipoCobro === "Juvenil" ? (total/2) + 8000 : total/2;
+      let descuento = total/2;
+      let totalFinal = tipoCobro === "Juvenil" ? descuento + recategorizacion : descuento;  
 
       return res.json({
           anios: listaAnios,
@@ -305,7 +306,8 @@ export const consultaPagoReingreso = async (req, res) => {
           totalCuota,
           totalPatrimonial,
           totalPredial,
-          amnistia
+          amnistia : descuento,
+          recategorizacion
       });
 
   } catch (error) {

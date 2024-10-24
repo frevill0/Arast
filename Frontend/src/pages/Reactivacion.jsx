@@ -207,9 +207,11 @@ const Reactivacion = () => {
         // Sección de Valor de Reajuste y total
         const patrimonialPos = doc.autoTable.previous.finalY || 210;
         doc.setFont("helvetica", "bold")
-        doc.text(`Total: ${(registrosData.total).toFixed(2)}`, 150, patrimonialPos + 20);
-        doc.text(`Total Recategorización: ${(registrosData.totalFinal).toFixed(2)}`, 150, patrimonialPos + 25);
-        doc.text(`Total Amnistía: ${(registrosData.amnistia).toFixed(2)}`, 90, patrimonialPos + 35);
+        doc.text(`Total Anual Final: ${(registrosData.total).toFixed(2)}`, 140, patrimonialPos + 20);
+        doc.text(`Total Descuento: ${(registrosData.amnistia).toFixed(2)}`, 140, patrimonialPos + 25);
+        doc.text(`Total Recategorización: ${(registrosData.recategorizacion).toFixed(2)}`, 140, patrimonialPos + 30);
+        doc.text(`Total Final: ${(registrosData.totalFinal).toFixed(2)}`, 90, patrimonialPos + 40);
+        
 
         // Descargar el PDF
         doc.save(`reporte_reingreso_${busqueda}.pdf`);
@@ -220,7 +222,7 @@ const Reactivacion = () => {
             <div>
                 <h1 className='font-black text-4xl text-gray-500'>Reingreso</h1>
                 <hr className='my-4' />
-                <p className='mb-8'>Este módulo te permite hacer el calculo del reingreso</p>
+                <p className='mb-8'>Este módulo te permite hacer el calculo del reingreso de los socios</p>
             </div>
             <div className="container mx-auto p-6">
                 <div className="text-center mb-10">
@@ -394,10 +396,13 @@ const Reactivacion = () => {
 
                     </div>
                     <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
-                        <p>TOTAL RECATEGORIZACIÓN: {(registrosData.totalFinal).toFixed(2)}</p>
+                        <p>TOTAL DESCUENTO: {(registrosData.amnistia).toFixed(2)}</p>
                     </div>
                     <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
-                        <p>TOTAL AMNISTÍA: {(registrosData.amnistia).toFixed(2)}</p>
+                        <p>TOTAL RECATEGORIZACIÓN: {(registrosData.recategorizacion).toFixed(2)}</p>
+                    </div>
+                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
+                        <p>TOTAL FINAL: {(registrosData.totalFinal).toFixed(2)}</p>
                     </div>
                     <div className="text-center mt-6 ">
                         <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">

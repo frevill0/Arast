@@ -18,7 +18,7 @@ const formatoFecha = (dateString) => {
   }
 
 // Función para calcular el valor mensual según el mes
-function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior, fechaEntrada, categoria, tipoCobro, fechaCumple27) {
+function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPresente, valorPatrimonialAnterior, valorPredial, valorPredialAnterior, fechaEntrada, categoria, tipoCobro, fechaCumple27, fechaInicioCobro) {
   let valorMensual = valorCuotaPresente; // Cobro mensual por defecto de las cuotas
   let valorPatrimonial = 0;
   let valorPredialMensual = 0;
@@ -29,23 +29,28 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
 
   const anioEntrada = fechaEntrada.getFullYear();
 
-  // Condición especial para el año actual
-  if (anio === anioActual) {
-    if (mes === 0) { // Si es enero del año actual
-      valorPatrimonial = valorPatrimonialAnterior / 12; // Cobrar la parte restante del patrimonial del año anterior
-    } else if (mes === mesActual) { // Si es el mes actual (excepto enero)
-      valorPatrimonial = valorPatrimonialPresente; // Cobrar todo el valor patrimonial del año actual
-    } else {
-      valorPatrimonial = 0; // No se cobra patrimonial en los demás meses del año actual
-    }
+  // Si la fecha de inicio de cobro es en enero, no se debe cobrar patrimonial en enero
+  if (anio === getYear(fechaEntrada) && mes === 0) {
+    valorPatrimonial = 0; // No cobrar patrimonial en enero
   } else {
-    // Si no es el año actual y el tipo de cobro es "juvenil", no cobrar después de septiembre de 2021
+    // Condición especial para el año actual
+    if (anio === anioActual) {
+      if (mes === 0) { // Si es enero del año actual
+        valorPatrimonial = valorPatrimonialAnterior / 12; // Cobrar la parte restante del patrimonial del año anterior
+      } else if (mes === mesActual) { // Si es el mes actual (excepto enero)
+        valorPatrimonial = valorPatrimonialPresente; // Cobrar todo el valor patrimonial del año actual
+      } else {
+        valorPatrimonial = 0; // No se cobra patrimonial en los demás meses del año actual
+      }
+    } else {
+      // Si no es el año actual y el tipo de cobro es "juvenil", no cobrar después de septiembre de 2021
       if (mes === 0) { // En enero de años anteriores
         valorPatrimonial = valorPatrimonialAnterior / 12; // Cobro patrimonial del año anterior dividido en 12
       } else if (mes >= 1) { // A partir de febrero se cobra el valor patrimonial del año actual
         valorPatrimonial = valorPatrimonialPresente / 12;
       }
     }
+  }
   
 
   // Cobro fijo de 182 dólares en noviembre de 2022
@@ -218,6 +223,10 @@ export const consultaPagoReingreso = async (req, res) => {
               categoria = fechaCumple27 < fecha21Sept2021 ? "Activo < 27" : "Activo >= 27";
               fechaInicioCobro = fechaCumple22;
           }
+      }else if (tipoCobro == "Retirado"){
+        if (categoria === "Activo >= 26" ) {
+              categoria = "Activo >= 27"
+            }
       }
 
       const fechaActual = new Date();

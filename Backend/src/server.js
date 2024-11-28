@@ -6,6 +6,7 @@ import routerUsuarios from './routers/Usuarios_routes.js'
 import routerCuotas from './routers/Cuotas_routes.js'
 import routerSuspencion from './routers/Suspensiones_routes.js'
 import routerReingreso from './routers/Reingreso_routes.js'
+import routerReportes from './routers/Reportes_routes.js'
 
 const app = express()
 dotenv.config()
@@ -24,7 +25,7 @@ app.use('/arast',routerUsuarios)
 app.use('/arast',routerCuotas)
 app.use('/arast',routerSuspencion)
 app.use('/arast',routerReingreso)
-
+app.use('/arast',routerReportes)
 
 app.use((req,res) => res.status(404).send("Endpoint no encontrado - 404"))
 

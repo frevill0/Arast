@@ -113,11 +113,6 @@ const Dashboard = () => {
                   </li>
                   <li>
                     <Link to="#" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
-                      Alerta Suspensión
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="#" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
                       Vitalicio
                     </Link>
                   </li>

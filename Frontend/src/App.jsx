@@ -8,6 +8,8 @@ import RevisarAusentismo from './pages/RevisarAusentismo'
 import Suspension from './pages/Suspension'
 import Reactivacion from './pages/Reactivacion'
 import {AuthProvider} from './context/AuthProvider'
+import Reporte27 from './pages/Reporte27'
+import Reporte65 from './pages/Reporte65'
 function App() {
   return (
     <>
@@ -24,6 +26,8 @@ function App() {
               <Route path="usuarios/cuotas" element={<CuotasConsulta/>} />
               <Route path="usuarios/suspension" element={<Suspension/>} />
               <Route path="usuarios/reactivacion" element={<Reactivacion/>} />
+              <Route path="usuarios/reporte27" element={<Reporte27/>} />
+              <Route path="usuarios/reporte65" element={<Reporte65/>} />
             </Route>
             
           </Routes>

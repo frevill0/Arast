@@ -21,15 +21,15 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-72 bg-[#0f172a] text-white flex flex-col shadow-xl">
-        {/* Logo Section */}
-        <div className="p-6 flex items-center gap-3 border-b border-gray-700">
+      <aside className="w-52 bg-[#0f172a] text-white flex flex-col shadow-xl overflow-hidden">
+        {/* Logo Section - Fixed */}
+        <div className="p-6 flex items-center gap-3 border-b border-gray-700 shrink-0">
           <img src={LogoPrincipal} alt="Logo" className="w-12 h-12" />
           <h1 className="text-2xl font-bold tracking-wider">ARAST</h1>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-grow py-6">
+        {/* Navigation - Scrollable */}
+        <nav className="flex-1 overflow-y-auto py-6">
           <ul className="space-y-1.5">
             {(auth.rol === "administrador" || auth.rol ==="usuario") && (
               <>
@@ -107,12 +107,12 @@ const Dashboard = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to="#" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
+                    <Link to="/dashboard/usuarios/reporte27" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
                       Reporte 27 años
                     </Link>
                   </li>
                   <li>
-                    <Link to="#" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
+                    <Link to="/dashboard/usuarios/reporte65" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
                       Vitalicio
                     </Link>
                   </li>

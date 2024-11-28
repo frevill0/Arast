@@ -212,3 +212,33 @@ export const eliminarUsuario = async (req, res) => {
     }
   };
   
+export const cambiarPassword = async (req, res) => {
+    const { username } = req.params;
+    const { contrasena } = req.body;
+
+    try {
+        const usuarioExistente = await prisma.usuarios_Arast_Frevill.findUnique({
+            where: { username }
+        });
+
+        if (!usuarioExistente) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const saltRounds = 10;
+        const contrasenaEncriptada = await bcrypt.hash(contrasena, saltRounds);
+
+        await prisma.usuarios_Arast_Frevill.update({
+            where: { username },
+            data: {
+                contrasena: contrasenaEncriptada,
+                fechaModificacion: new Date()
+            }
+        });
+
+        res.status(200).json({ msg: "La contraseña ha sido actualizada exitosamente" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+  

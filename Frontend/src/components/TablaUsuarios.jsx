@@ -144,79 +144,81 @@ const TablaUsuarios = () => {
             </div>
 
             {/* Tabla */}
-            <table className='w-full mt-5 table-auto shadow-lg bg-white'>
-                <thead className='bg-customBlue text-white'>
-                    <tr>
-                        <th className='p-3'>N°</th>
-                        <th className='p-3'>Usuario</th>
-                        <th className='p-3'>Nombre</th>
-                        <th className='p-3'>Apellido</th>
-                        <th className='p-3'>Rol</th>
-                        <th className='p-3'>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {registrosActuales.map((usuario, index) => (
-                        <tr key={usuario.username} 
-                            className="border-b hover:bg-gray-50 text-center transition-colors">
-                            <td className="p-3">{indicePrimerRegistro + index + 1}</td>
-                            <td className="p-3">{usuario.username}</td>
-                            <td className="p-3">{usuario.nombre}</td>
-                            <td className="p-3">{usuario.apellido}</td>
-                            <td className="p-3 capitalize">{usuario.rol}</td>
-                            <td className='p-3 text-center'>
-                                {/* Icono de Ver Detalles */}
-                                <button 
-                                    className="inline-flex items-center justify-center w-8 h-8 mr-2
-                                             bg-customBlue bg-opacity-10 rounded-lg
-                                             hover:bg-customYellow hover:bg-opacity-20 
-                                             transition-all duration-300 group"
-                                    onClick={() => handleOpenModal(usuario)}
-                                >
-                                    <MdNoteAdd className="w-5 h-5 text-customBlue group-hover:text-customYellow 
-                                                        transition-colors" />
-                                </button>
-
-                                {/* Icono de Editar */}
-                                <button 
-                                    className="inline-flex items-center justify-center w-8 h-8 mr-2
-                                             bg-customYellow bg-opacity-10 rounded-lg
-                                             hover:bg-customYellow hover:bg-opacity-20 
-                                             transition-all duration-300 group"
-                                    onClick={() => handleOpenEditModal(usuario)}
-                                >
-                                    <MdInfo className="w-5 h-5 text-customYellow group-hover:text-customBlue 
-                                                     transition-colors" />
-                                </button>
-
-                                {/* Icono de Cambiar Contraseña */}
-                                <button 
-                                    className="inline-flex items-center justify-center w-8 h-8 mr-2
-                                             bg-green-50 rounded-lg
-                                             hover:bg-green-100 
-                                             transition-all duration-300 group"
-                                    onClick={() => handleOpenPasswordModal(usuario)}
-                                >
-                                    <MdLock className="w-5 h-5 text-green-600 group-hover:text-green-700 
-                                                     transition-colors" />
-                                </button>
-
-                                {/* Icono de Eliminar */}
-                                <button 
-                                    className="inline-flex items-center justify-center w-8 h-8
-                                             bg-red-50 rounded-lg
-                                             hover:bg-red-100 
-                                             transition-all duration-300 group"
-                                    onClick={() => handleDeleteClick(usuario.username)}
-                                >
-                                    <MdDeleteForever className="w-5 h-5 text-red-600 group-hover:text-red-700 
-                                                              transition-colors" />
-                                </button>
-                            </td>
+            <div className="overflow-x-auto shadow-md sm:rounded-lg">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className='p-3'>N°</th>
+                            <th className='p-3'>Usuario</th>
+                            <th className='p-3'>Nombre</th>
+                            <th className='p-3'>Apellido</th>
+                            <th className='p-3'>Rol</th>
+                            <th className='p-3'>Acciones</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {registrosActuales.map((usuario, index) => (
+                            <tr key={usuario.username} 
+                                className="border-b hover:bg-gray-50 text-center transition-colors">
+                                <td className="p-3">{indicePrimerRegistro + index + 1}</td>
+                                <td className="p-3">{usuario.username}</td>
+                                <td className="p-3">{usuario.nombre}</td>
+                                <td className="p-3">{usuario.apellido}</td>
+                                <td className="p-3 capitalize">{usuario.rol}</td>
+                                <td className='p-3 text-center'>
+                                    {/* Icono de Ver Detalles */}
+                                    <button 
+                                        className="inline-flex items-center justify-center w-8 h-8 mr-2
+                                                 bg-customBlue bg-opacity-10 rounded-lg
+                                                 hover:bg-customYellow hover:bg-opacity-20 
+                                                 transition-all duration-300 group"
+                                        onClick={() => handleOpenModal(usuario)}
+                                    >
+                                        <MdNoteAdd className="w-5 h-5 text-customBlue group-hover:text-customYellow 
+                                                            transition-colors" />
+                                    </button>
+
+                                    {/* Icono de Editar */}
+                                    <button 
+                                        className="inline-flex items-center justify-center w-8 h-8 mr-2
+                                                 bg-customYellow bg-opacity-10 rounded-lg
+                                                 hover:bg-customYellow hover:bg-opacity-20 
+                                                 transition-all duration-300 group"
+                                        onClick={() => handleOpenEditModal(usuario)}
+                                    >
+                                        <MdInfo className="w-5 h-5 text-customYellow group-hover:text-customBlue 
+                                                         transition-colors" />
+                                    </button>
+
+                                    {/* Icono de Cambiar Contraseña */}
+                                    <button 
+                                        className="inline-flex items-center justify-center w-8 h-8 mr-2
+                                                 bg-green-50 rounded-lg
+                                                 hover:bg-green-100 
+                                                 transition-all duration-300 group"
+                                        onClick={() => handleOpenPasswordModal(usuario)}
+                                    >
+                                        <MdLock className="w-5 h-5 text-green-600 group-hover:text-green-700 
+                                                         transition-colors" />
+                                    </button>
+
+                                    {/* Icono de Eliminar */}
+                                    <button 
+                                        className="inline-flex items-center justify-center w-8 h-8
+                                                 bg-red-50 rounded-lg
+                                                 hover:bg-red-100 
+                                                 transition-all duration-300 group"
+                                        onClick={() => handleDeleteClick(usuario.username)}
+                                    >
+                                        <MdDeleteForever className="w-5 h-5 text-red-600 group-hover:text-red-700 
+                                                                  transition-colors" />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
             {/* Paginación */}
             <div className="flex justify-center mt-4">

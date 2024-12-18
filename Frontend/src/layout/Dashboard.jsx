@@ -2,12 +2,13 @@ import React, { useContext, useState } from 'react';
 import { Link, Navigate, Outlet } from 'react-router-dom';
 import LogoPrincipal from '../assets/LogoQTGC.png'
 import AuthContext from '../context/AuthProvider';
-import { MdDashboard, MdPeople, MdAssignment, MdAutorenew, MdBarChart, MdAttachMoney, MdExpandMore, MdExpandLess } from 'react-icons/md';
+import { MdDashboard, MdPeople, MdAssignment, MdAutorenew, MdBarChart, MdAttachMoney, MdExpandMore, MdExpandLess, MdMenu } from 'react-icons/md';
 
 const Dashboard = () => {
   const {auth} = useContext(AuthContext)
   const [showSubItemsAusentismo, setShowSubItemsAusentismo] = useState(false);
   const [showSubItemsReportes, setShowSubItemsReportes] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const autenticado = localStorage.getItem('token');
 
   const toggleSubItemsAusentismo = () => {
@@ -20,8 +21,29 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
+      {/* Botón de menú móvil */}
+      <button 
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-20 p-2 rounded-md bg-[#0f172a] text-white"
+      >
+        <MdMenu className="text-2xl" />
+      </button>
+
+      {/* Overlay para móvil */}
+      {isSidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-52 bg-[#0f172a] text-white flex flex-col shadow-xl overflow-hidden">
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-40
+        w-64 bg-[#0f172a] text-white flex flex-col shadow-xl 
+        transform transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         {/* Logo Section - Fixed */}
         <div className="p-6 flex items-center gap-3 border-b border-gray-700 shrink-0">
           <img src={LogoPrincipal} alt="Logo" className="w-12 h-12" />
@@ -140,18 +162,18 @@ const Dashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col w-full">
         {/* Header */}
         <header className="bg-[#0f172a] text-white shadow-lg p-4">
           <div className="flex items-center justify-end px-4">
             <div className="flex items-center gap-4">
-              <span className="font-medium">
+              <span className="hidden sm:inline font-medium">
                 Bienvenido, {auth?.nombre}
               </span>
               <Link
                 to="/"
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg 
-                         transition-all duration-300 shadow-md"
+                         transition-all duration-300 shadow-md text-sm sm:text-base"
                 onClick={() => {
                   localStorage.removeItem('token');
                 }}
@@ -163,7 +185,7 @@ const Dashboard = () => {
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 p-8 overflow-y-auto bg-gray-50">
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-gray-50">
           {autenticado ? <Outlet /> : <Navigate to="/" />}
         </main>
       </div>

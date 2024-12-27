@@ -232,30 +232,34 @@ const RevisarAusentismo = () => {
 
     return (
         <>
-            <div>
-                <h1 className='font-black text-4xl text-gray-500'>Revisar Ausentismo</h1>
+            <div className="container mx-auto px-4">
+                <h1 className='font-black text-2xl sm:text-4xl text-gray-500'>Revisar Ausentismo</h1>
                 <hr className='my-4' />
-                <p className='mb-8'>Este módulo te permite visualizar ausentismos.</p>
-            </div>
-            <div className="container mx-auto p-6">
+                <p className='mb-8 text-sm sm:text-base'>Este módulo te permite visualizar ausentismos.</p>
 
-                <div className="flex justify-center mb-8 items-center">
-                    <h1 className='text-gray-700 item uppercase mr-2 font-bold text-sm'>Número de membresía: </h1>
+                <div className="flex flex-col sm:flex-row justify-center mb-8 items-center gap-4">
+                    <h1 className='text-gray-700 uppercase font-bold text-sm'>Número de membresía: </h1>
                     <input
                         type="text"
                         placeholder="Ingrese el número de membresía"
                         value={busqueda}
                         onChange={handleInputChange}
-                        className="border border-gray-400 rounded p-3 w-72 mr-4 shadow-sm"
+                        className="border border-gray-400 rounded p-3 w-full sm:w-72 shadow-sm"
                     />
-                    <button className="bg-customBlue mr-2 hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
-                        onClick={handleBuscar}>
-                        Buscar
-                    </button>
-                    <button className="bg-customBlue hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
-                         onClick={handleNuevaBusqueda}>
-                        Nueva Búsqueda
-                    </button>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <button 
+                            className="bg-customBlue hover:bg-blue-900 text-white px-4 py-2 rounded shadow flex-1 sm:flex-none"
+                            onClick={handleBuscar}
+                        >
+                            Buscar
+                        </button>
+                        <button 
+                            className="bg-customBlue hover:bg-blue-900 text-white px-4 py-2 rounded shadow flex-1 sm:flex-none"
+                            onClick={handleNuevaBusqueda}
+                        >
+                            Nueva Búsqueda
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -307,34 +311,35 @@ const RevisarAusentismo = () => {
                     
             }
 
-
-
             {ausentismo.data && ausentismo.data.FechaAusentismo && (
                 <>
                   
-                    <div className="flex items-center justify-center mb-6">
-                    <label
-                        htmlFor='Salida:'
-                        className='text-gray-700 uppercase font-bold text-sm mr-2'>Liquida desde: </label>
-                        <input
-                            type="text"
-                            className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
-                            placeholder="Fecha de Salida"
-                            value={fechaSalida}
-                            onChange={(e) => setFechaSalida(e.target.value)}
-                        />
-                       
-                        <label
-                        htmlFor='Entrada:'
-                        className='text-gray-700  uppercase font-bold text-sm mr-2'>Comentario: </label>
-                        <input
-                            type="text"
-                            className="border border-gray-300 rounded p-3 mr-2 shadow-sm"
-                            placeholder="Ingresa un comentario"
-                            value={fechaEntrada}
-                            onChange={(e) => setFechaEntrada(e.target.value)}
-                        />
-                     </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-center mb-6 gap-4">
+                        <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-2">
+                            <label
+                                htmlFor='Salida:'
+                                className='text-gray-700 uppercase font-bold text-sm'>Liquida desde: </label>
+                            <input
+                                type="text"
+                                className="border border-gray-300 rounded p-3 w-full sm:w-auto shadow-sm"
+                                placeholder="Fecha de Salida"
+                                value={fechaSalida}
+                                onChange={(e) => setFechaSalida(e.target.value)}
+                            />
+                        </div>
+                        <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-2">
+                            <label
+                                htmlFor='Entrada:'
+                                className='text-gray-700 uppercase font-bold text-sm'>Comentario: </label>
+                            <input
+                                type="text"
+                                className="border border-gray-300 rounded p-3 w-full sm:w-auto shadow-sm"
+                                placeholder="Ingresa un comentario"
+                                value={fechaEntrada}
+                                onChange={(e) => setFechaEntrada(e.target.value)}
+                            />
+                        </div>
+                    </div>
 
                     {Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>}
 
@@ -342,126 +347,133 @@ const RevisarAusentismo = () => {
                          <div className="text-center mb-10">
                              <h1 className="text-2xl text-left font-bold text-customBlue">Movimientos migratorios</h1>
                         </div>
-                        <table className="min-w-full mt-1 border-collapse">
-                            <thead className="bg-customYellow text-slate-400">
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Fecha Salida</th>
-                                    <th className="border border-gray-300 px-4 py-2">Fecha Entrada</th>
-                                    <th className="border border-gray-300 px-4 py-2">Días en Exterior</th>
-                                    <th className="border border-gray-300 px-4 py-2">Días en el País</th>
-                                    <th className="border border-gray-300 px-4 py-2">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {registroMigratorio.length > 0 ? (
-                                    <>
-                                    {registroMigratorio.map((row, index) => (
-                                    <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaSalida}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaEntreda}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.exterior}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.pais}</td>
-                                        
-                                        <td className="border border-gray-300 px-4 py-2 text-center">
-                                            <MdInfo className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2" />
-                                        </td>
-                                    </tr>
-                                    ))}
-                                   </>
-                                ) : (
+                        <div className="overflow-x-auto shadow-md rounded-lg mb-6">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-customYellow text-slate-400">
                                     <tr>
-                                        <td colSpan="5" className="text-center py-4">No hay registros</td>
+                                        <th className="border border-gray-300 px-4 py-2">Fecha Salida</th>
+                                        <th className="border border-gray-300 px-4 py-2">Fecha Entrada</th>
+                                        <th className="border border-gray-300 px-4 py-2">Días en Exterior</th>
+                                        <th className="border border-gray-300 px-4 py-2">Días en el País</th>
+                                        <th className="border border-gray-300 px-4 py-2">Acciones</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {registroMigratorio.length > 0 ? (
+                                        <>
+                                        {registroMigratorio.map((row, index) => (
+                                        <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaSalida}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.fechaEntreda}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.exterior}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.pais}</td>
+                                            
+                                            <td className="border border-gray-300 px-4 py-2 text-center">
+                                                <MdInfo className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2" />
+                                            </td>
+                                        </tr>
+                                        ))}
+                                       </>
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" className="text-center py-4">No hay registros</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                         <div className="mt-1 text-center mb-10">
                              <h1 className="text-2xl text-left font-bold text-customBlue">Cuotas</h1>
                         </div>
-                        <table className=" mt-1 min-w-full border-collapse">
-                            <thead className="bg-customYellow text-slate-400">
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Períodos</th>
-                                    <th className="border border-gray-300 px-4 py-2">Días fuera del país</th>
-                                    <th className="border border-gray-300 px-4 py-2">Días dentro del país</th>
-                                    <th className="border border-gray-300 px-4 py-2">Total a pagar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {registrocuota.length > 0 ? (
-                                    <>
-                                    {registrocuota.map((row, index) => (
-                                    <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.periodo}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.diasFueraPais}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.diasDentroPais}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPagar}</td>
-                                    </tr>
-                                     ))}
-                                    <tr className="font-bold bg-gray-200">
-                                        <td colSpan="3"     className="border border-gray-300 px-4 py-2 text-center">Total</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{registrocuota.reduce((acc, row) => acc + row.totalPagar, 0)}</td>
-                                    </tr>
-                                </>
-                                ) : (
+                        <div className="overflow-x-auto shadow-md rounded-lg mb-6">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-customYellow text-slate-400">
                                     <tr>
-                                        <td colSpan="6" className="text-center py-4">No hay registros</td>
+                                        <th className="border border-gray-300 px-4 py-2">Períodos</th>
+                                        <th className="border border-gray-300 px-4 py-2">Días fuera del país</th>
+                                        <th className="border border-gray-300 px-4 py-2">Días dentro del país</th>
+                                        <th className="border border-gray-300 px-4 py-2">Total a pagar</th>
                                     </tr>
-                                )}
-                            
-                         </tbody>
-                         </table>
+                                </thead>
+                                <tbody>
+                                {registrocuota.length > 0 ? (
+                                        <>
+                                        {registrocuota.map((row, index) => (
+                                        <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.periodo}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.diasFueraPais}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.diasDentroPais}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPagar}</td>
+                                        </tr>
+                                         ))}
+                                        <tr className="font-bold bg-gray-200">
+                                            <td colSpan="3"     className="border border-gray-300 px-4 py-2 text-center">Total</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{registrocuota.reduce((acc, row) => acc + row.totalPagar, 0)}</td>
+                                        </tr>
+                                    </>
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="6" className="text-center py-4">No hay registros</td>
+                                        </tr>
+                                    )}
+                                
+                             </tbody>
+                             </table>
+                        </div>
 
                         <div className="text-center mt-1 mb-10">
                              <h1 className="text-2xl text-left font-bold text-customBlue">Patrimonial</h1>
                         </div>
 
-                        <table className="min-w-full mt-1 border-collapse">
-                            <thead className="bg-customYellow text-slate-400">
-                                <tr>
-                                <th className="border border-gray-300 px-4 py-2">Períodos</th>
-                                    <th className="border border-gray-300 px-4 py-2">Días fuera del país</th>
-                                    <th className="border border-gray-300 px-4 py-2">Días dentro del país</th>
-                                    <th className="border border-gray-300 px-4 py-2">Total a pagar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {registropatrimonial.length > 0 ? (
-                                    <>
-                                    {registropatrimonial.map((row, index) => (
-                                    <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.periodo}</td>
-                                    <   td className="border border-gray-300 px-4 py-2 text-center">{row.diasFueraPais}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.diasDentroPais}</td>
-                                        <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPagar}</td>
-                                    </tr>
-                                        ))}
-                                        <tr className="font-bold bg-gray-200">
-                                            <td colSpan="3" className="border border-gray-300 px-4 py-2 text-center">Total</td>
-                                            <td className="border border-gray-300 px-4 py-2 text-center">{registropatrimonial.reduce((acc, row) => acc + row.totalPagar, 0)}</td>
-                                        </tr>
-                                    </>
-                                ) : (
+                        <div className="overflow-x-auto shadow-md rounded-lg mb-6">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-customYellow text-slate-400">
                                     <tr>
-                                        <td colSpan="5" className="text-center py-4">No hay registros</td>
+                                    <th className="border border-gray-300 px-4 py-2">Períodos</th>
+                                        <th className="border border-gray-300 px-4 py-2">Días fuera del país</th>
+                                        <th className="border border-gray-300 px-4 py-2">Días dentro del país</th>
+                                        <th className="border border-gray-300 px-4 py-2">Total a pagar</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                {registropatrimonial.length > 0 ? (
+                                        <>
+                                        {registropatrimonial.map((row, index) => (
+                                        <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.periodo}</td>
+                                        <   td className="border border-gray-300 px-4 py-2 text-center">{row.diasFueraPais}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.diasDentroPais}</td>
+                                            <td className="border border-gray-300 px-4 py-2 text-center">{row.totalPagar}</td>
+                                        </tr>
+                                            ))}
+                                            <tr className="font-bold bg-gray-200">
+                                                <td colSpan="3" className="border border-gray-300 px-4 py-2 text-center">Total</td>
+                                                <td className="border border-gray-300 px-4 py-2 text-center">{registropatrimonial.reduce((acc, row) => acc + row.totalPagar, 0)}</td>
+                                            </tr>
+                                        </>
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" className="text-center py-4">No hay registros</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                        
                     </div>
 
-                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
+                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-full sm:w-1/2 rounded-lg shadow-lg">
                         <p>TOTAL A PAGAR: {(registrocuota.reduce((acc, row) => acc + row.totalPagar, 0) + registropatrimonial.reduce((acc, row) => acc + row.totalPagar, 0)).toFixed(2)}</p>
                     </div>
 
-                    <div className="text-center mt-6 ">
-                        <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
+                    <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+                        <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg w-full sm:w-auto">
                             Confirmar
                         </button>
-
-                        <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg"  
-                            onClick={generarPDF}>
+                        <button 
+                            className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg w-full sm:w-auto"
+                            onClick={generarPDF}
+                        >
                             Imprimir Reporte
                         </button>
                     </div>

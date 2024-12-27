@@ -21,6 +21,7 @@ const TablaUsuarios = () => {
     const [selectedUserPassword, setSelectedUserPassword] = useState(null);
     const [paginaActual, setPaginaActual] = useState(1);
     const [registrosPorPagina] = useState(10);
+    const [mensaje, setMensaje] = useState({ tipo: null, respuesta: '' });
 
     // Calcular índices para paginación
     const indicePrimerRegistro = (paginaActual - 1) * registrosPorPagina;
@@ -97,19 +98,47 @@ const TablaUsuarios = () => {
     const handleConfirmDelete = async () => {
         try {
             const token = localStorage.getItem('token');
-            const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/eliminar/${usuarioAEliminar}`;
+            const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/${usuarioAEliminar}`;
             const options = {
                 headers: {
+                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 }
             };
-            await axios.delete(url, options);
+            
+            const response = await axios.delete(url, options);
+            setModalConfirmacion(false);
+            setUsuarioAEliminar(null);
+            
+            // Mostrar mensaje de éxito
+            setMensaje({ 
+                tipo: true, 
+                respuesta: "Usuario eliminado exitosamente" 
+            });
+            
+            // Actualizar la tabla
             listarUsuarios();
+            
+            // Limpiar el mensaje después de 3 segundos
+            setTimeout(() => {
+                setMensaje({ tipo: null, respuesta: '' });
+            }, 3000);
+
         } catch (error) {
-            console.log(error);
+            setModalConfirmacion(false);
+            setUsuarioAEliminar(null);
+            
+            // Mostrar mensaje de error
+            setMensaje({ 
+                tipo: false, 
+                respuesta: error.response?.data?.message || "Error al eliminar el usuario" 
+            });
+            
+            // Limpiar el mensaje después de 3 segundos
+            setTimeout(() => {
+                setMensaje({ tipo: null, respuesta: '' });
+            }, 3000);
         }
-        setModalConfirmacion(false);
-        setUsuarioAEliminar(null);
     };
 
     const handleCancelDelete = () => {
@@ -127,6 +156,12 @@ const TablaUsuarios = () => {
                 <h1 className='font-black text-4xl text-customBlue'>Mantenimiento de Usuarios</h1>
                 <hr className='my-4 border-customYellow' />
                 <p className='mb-8 text-customBlue'>Este módulo te permite gestionar los usuarios del sistema.</p>
+                
+                {mensaje.respuesta && (
+                    <Message tipo={mensaje.tipo}>
+                        {mensaje.respuesta}
+                    </Message>
+                )}
             </div>
 
             {/* Botón Nuevo Usuario */}

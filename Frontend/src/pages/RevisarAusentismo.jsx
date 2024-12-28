@@ -4,6 +4,7 @@ import Mensaje from '../components/Alerts/Message';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import LogoPrincipal from '../assets/logoQTGC.png';
 
 const RevisarAusentismo = () => {
     const [ausentismo, setAusentismo] = useState({});
@@ -127,90 +128,98 @@ const RevisarAusentismo = () => {
     // Función para generar el PDF
     const generarPDF = () => {
         const doc = new jsPDF();
-    
+        
+        // Logo
+        doc.addImage(LogoPrincipal, 'PNG', 10, 5, 20, 20);
+        
         // Título principal
         doc.setFontSize(16);
         doc.setFont("helvetica", "bold");
         doc.text('ARAST', 105, 15, { align: 'center' });
         doc.setFontSize(12);
         doc.text('Liquidación de Ausentismo', 105, 22, { align: 'center' });
-        doc.line(10, 55, 200, 55);
-        // Sección de información del socio
+
+        // Información general
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 10);
         doc.text('Liquidada desde Septiembre 2023', 10, 30);
         doc.text(`Fecha Reactivación: `, 10, 40);
-        doc.text('Observación: ', 10, 50);
-       
+        doc.text(`Observación: `, 10, 50);
+
         // Datos del socio
-        if (Object.keys(ausentismo).length !== 0) {
+        if (ausentismo.data) {
             doc.text(`Membresía: ${busqueda}`, 10, 60);
             doc.text(`Socio: ${ausentismo.data.Socio}`, 10, 70);
             doc.text(`Categoría: ${ausentismo.data.Categoria}`, 10, 80);
-            doc.text(`Fecha: ${ausentismo.data.Fecha}`, 10, 90);
-            doc.text(`Estado: ${ausentismo.data.Estado}`, 10, 100);
+            doc.text(`Estado: ${ausentismo.data.Estado}`, 10, 90);
+            
+            // Datos adicionales (columna derecha)
+            doc.text(`Fecha de Nacimiento: ${ausentismo.data.FechaNacimiento}`, 100, 60);
+            doc.text(`Edad: ${ausentismo.data.Edad}`, 100, 70);
+            doc.text(`Estado Anterior: ${ausentismo.data.EstadoAnterior}`, 100, 80);
         }
-    
-        // Datos adicionales del socio
-        doc.text(`Fecha de Nacimiento: ${ausentismo.data.FechaNacimiento}`, 100, 60);
-        doc.text(`Edad: ${ausentismo.data.Edad}`, 100, 70);
-        doc.text(`Estado Anterior: ${ausentismo.data.EstadoAnterior}`, 100, 80);
-        doc.text(`Estado Migratorio: ${ausentismo.data.EstadoMigratorio}`, 100, 90);
-    
+
         doc.line(10, 105, 200, 105);
-        // Sección de Movimiento Migratorio
-        doc.setFont("helvetica", "bold");
-        doc.text('Movimiento:', 10, 110);
-        doc.setFont("helvetica", "normal");
-    
-        if (registroMigratorio.length > 0) {
-            doc.autoTable({
-                startY: 120,
-                head: [['Fecha de Salida', 'Fecha de Entrada', 'Días en el Exterior', 'Días en el País']],
-                body: registroMigratorio.map(row => [
-                    row.fechaSalida, row.fechaEntreda, row.exterior, row.pais
-                ])
-            });
-        }
-    
-        // Sección de Cuotas
-        const lastPos = doc.autoTable.previous.finalY || 140;
-        doc.setFont("helvetica", "bold");
-        doc.text('Cuotas:', 10, lastPos + 10);
-        doc.setFont("helvetica", "normal");
-    
+
+        // Tabla de cuotas
         if (registrocuota.length > 0) {
             doc.autoTable({
-                startY: lastPos + 20,
+                startY: 120,
                 head: [['Períodos', 'Días fuera del país', 'Dias dentro del país', 'Total a pagar']],
                 body: registrocuota.map(row => [
-                    row.periodo, row.diasFueraPais, row.diasDentroPais, row.totalPagar
-                ])
+                    row.periodo, 
+                    row.diasFueraPais, 
+                    row.diasDentroPais, 
+                    row.totalPagar.toFixed(2)
+                ]),
+                headStyles: {
+                    fillColor: [255, 255, 0],
+                    textColor: [0, 0, 0]
+                },
+                styles: {
+                    halign: 'center',
+                    cellPadding: 5,
+                }
             });
         }
-    
-        // Sección de Patrimonial
-        const cuotaPos = doc.autoTable.previous.finalY || 180;
+
+        // Tabla de patrimonial
+        const cuotaPos = doc.autoTable.previous.finalY || 140;
         doc.setFont("helvetica", "bold");
         doc.text('Patrimonial:', 10, cuotaPos + 10);
         doc.setFont("helvetica", "normal");
-    
+
         if (registropatrimonial.length > 0) {
             doc.autoTable({
                 startY: cuotaPos + 20,
                 head: [['Períodos', 'Días fuera del país', 'Dias dentro del país', 'Total a pagar']],
                 body: registropatrimonial.map(row => [
-                    row.periodo, row.diasFueraPais, row.diasDentroPais, row.totalPagar
-                ])
+                    row.periodo, 
+                    row.diasFueraPais, 
+                    row.diasDentroPais, 
+                    row.totalPagar.toFixed(2)
+                ]),
+                headStyles: {
+                    fillColor: [255, 255, 0],
+                    textColor: [0, 0, 0]
+                },
+                styles: {
+                    halign: 'center',
+                    cellPadding: 5,
+                }
             });
         }
-    
-        // Sección de Valor de Reajuste y total
-        const patrimonialPos = doc.autoTable.previous.finalY || 220;
-        doc.text(`Total a Liquidar: ${registropatrimonial.reduce((acc, row) => acc + row.totalPagar, 0)}`, 10, patrimonialPos + 20);
-    
-        // Descargar el PDF
+
+        // Totales
+        const finalY = doc.autoTable.previous.finalY || 220;
+        doc.setFont("helvetica", "bold");
+        const totalFinal = (
+            registrocuota.reduce((acc, row) => acc + row.totalPagar, 0) + 
+            registropatrimonial.reduce((acc, row) => acc + row.totalPagar, 0)
+        ).toFixed(2);
+        doc.text(`Total Final: ${totalFinal}`, 140, finalY + 20);
+
         doc.save(`reporte_ausentismo_${busqueda}.pdf`);
     };
 

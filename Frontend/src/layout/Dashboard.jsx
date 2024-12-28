@@ -114,21 +114,6 @@ const Dashboard = () => {
               {showSubItemsReportes && (
                 <ul className="mt-2 ml-12 space-y-1">
                   <li>
-                    <Link to="#" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
-                      Ausentismo
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="#" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
-                      Reingreso
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="#" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
-                      Suspensión Temporal
-                    </Link>
-                  </li>
-                  <li>
                     <Link to="/dashboard/usuarios/reporte27" className="block py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors">
                       Reporte 27 años
                     </Link>

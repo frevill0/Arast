@@ -72,8 +72,8 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
   if (anio === anioActual) {
     if (mes < 10) {
       valorPredialMensual = valorPredialAnterior / 12; // Cobrar la parte restante del predial del año anterior
-    } else if (mes === mesActual) {
-      valorPredialMensual = valorPredial; // Cobrar todo el valor predial del año actual
+    } else if (mes >= 10) {
+      valorPredialMensual = valorPredial/12; // Cobrar todo el valor predial del año actual
     } else {
       valorPredialMensual = 0; // No se cobra predial en los demás meses del año actual
     }

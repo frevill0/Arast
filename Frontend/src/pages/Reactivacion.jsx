@@ -219,65 +219,58 @@ const Reactivacion = () => {
 
     return (
         <>
-            <div>
-                <h1 className='font-black text-4xl text-gray-500'>Reingreso</h1>
+            <div className="container mx-auto px-4">
+                <h1 className='font-black text-2xl sm:text-4xl text-gray-500'>Reingreso</h1>
                 <hr className='my-4' />
-                <p className='mb-8'>Este módulo te permite hacer el calculo del reingreso de los socios</p>
-            </div>
-            <div className="container mx-auto p-6">
-                <div className="text-center mb-10">
-                    <h1 className="text-4xl font-bold text-customBlue">Registros por período</h1>
-                </div>
+                <p className='mb-8 text-sm sm:text-base'>Este módulo te permite hacer el calculo del reingreso de los socios</p>
 
-                <div className="flex justify-center mb-8 items-center ">
-                    <h1 className='text-gray-700 item uppercase mr-2 font-bold text-sm'>Número de membresía: </h1>
+                <div className="flex flex-col sm:flex-row justify-center mb-8 items-center gap-4">
+                    <h1 className='text-gray-700 uppercase font-bold text-sm'>Número de membresía: </h1>
                     <input
                         type="text"
                         placeholder="Ingrese el número de membresía"
                         value={busqueda}
                         onChange={handleInputChange}
-                        className="border-2 border-gray-400 mr-2 rounded p-2 w-72 shadow-sm"
+                        className="border-2 border-gray-400 rounded p-2 w-full sm:w-72 shadow-sm"
                     />
-
-                    <div className="">
+                    <div className="w-full sm:w-auto">
                         <input
                             type="date"
-                            className='border-2 w-40 p-2 mt-1 mr-2 placeholder-gray-400 rounded-md'
+                            className='border-2 w-full sm:w-40 p-2 mt-1 placeholder-gray-400 rounded-md'
                             placeholder="Ingrese fecha inicio de cobro YYYY-MM-DD"
                             name='fechaInicioCobroInput'
                             value={form.fechaInicioCobroInput}
                             onChange={handleChange}
-
                         />
                     </div>
-
-                    <div className=" px-2">
+                    <div className="w-full sm:w-auto">
                         <select
                             id='tipoCobro'
-                            className='border-2 w-60  p-2 mt-1 placeholder-gray-400 rounded-md mr-2'
+                            className='border-2 w-full sm:w-60 p-2 mt-1 placeholder-gray-400 rounded-md'
                             name='tipoCobro'
                             value={form.tipoCobro}
                             onChange={handleChange}
                         >
-                            <option value='' disabled>
-                                Seleccione el tipo de cobro
-                            </option>
+                            <option value='' disabled>Seleccione el tipo de cobro</option>
                             <option value='Juvenil'>Juvenil</option>
                             <option value='Retirado'>Retirado</option>
                         </select>
                     </div>
-
-                    <button
-                        className="bg-customBlue hover:bg-blue-900 mr-2 text-white px-6 py-2 rounded shadow"
-                        onClick={handleBuscar}>
-                        Buscar
-                    </button>
-                    <button className="bg-customBlue mr hover:bg-blue-900 text-white px-6 py-2 rounded shadow"
-                        onClick={handleNuevaBusqueda}>
-                        Nueva Búsqueda
-                    </button>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <button 
+                            className="bg-customBlue hover:bg-blue-900 text-white px-4 py-2 rounded shadow flex-1 sm:flex-none"
+                            onClick={handleBuscar}
+                        >
+                            Buscar
+                        </button>
+                        <button 
+                            className="bg-customBlue hover:bg-blue-900 text-white px-4 py-2 rounded shadow flex-1 sm:flex-none"
+                            onClick={handleNuevaBusqueda}
+                        >
+                            Nueva Búsqueda
+                        </button>
+                    </div>
                 </div>
-
             </div>
 
             {Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>}
@@ -352,8 +345,8 @@ const Reactivacion = () => {
                             onChange={handleObservacionChange}  
                         />
                     </div>
-                    <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                        <table className="min-w-full border-collapse">
+                    <div className="overflow-x-auto shadow-md rounded-lg">
+                        <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-customYellow text-slate-400">
                                 <tr>
                                     <th className="border border-gray-300 px-4 py-2">Año</th>
@@ -395,21 +388,22 @@ const Reactivacion = () => {
                         </table>
 
                     </div>
-                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
-                        <p>TOTAL DESCUENTO: {(registrosData.amnistia).toFixed(2)}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                        <div className="font-bold bg-gray-200 p-4 rounded-lg shadow-lg text-center">
+                            <p className="text-sm sm:text-lg">TOTAL DESCUENTO: {(registrosData.amnistia).toFixed(2)}</p>
+                        </div>
+                        <div className="font-bold bg-gray-200 p-4 rounded-lg shadow-lg text-center">
+                            <p className="text-sm sm:text-lg">TOTAL RECATEGORIZACIÓN: {(registrosData.recategorizacion).toFixed(2)}</p>
+                        </div>
+                        <div className="font-bold bg-gray-200 p-4 rounded-lg shadow-lg text-center">
+                            <p className="text-sm sm:text-lg">TOTAL FINAL: {(registrosData.totalFinal).toFixed(2)}</p>
+                        </div>
                     </div>
-                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
-                        <p>TOTAL RECATEGORIZACIÓN: {(registrosData.recategorizacion).toFixed(2)}</p>
-                    </div>
-                    <div className="font-bold bg-gray-200 mt-6 text-lg text-center mx-auto p-4 w-1/2 rounded-lg shadow-lg">
-                        <p>TOTAL FINAL: {(registrosData.totalFinal).toFixed(2)}</p>
-                    </div>
-                    <div className="text-center mt-6 ">
-                        <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg">
+                    <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+                        <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg w-full sm:w-auto">
                             Confirmar
                         </button>
-
-                        <button className="bg-customBlue ml-4 hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg" onClick={generarPDF}>
+                        <button className="bg-customBlue hover:bg-green-600 text-white px-6 py-3 rounded shadow-lg w-full sm:w-auto" onClick={generarPDF}>
                             Imprimir Reporte
                         </button>
                     </div>

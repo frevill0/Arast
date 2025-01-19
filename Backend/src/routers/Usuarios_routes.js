@@ -7,6 +7,7 @@ import {
   actualizarUsuario,
   eliminarUsuario,
   obtenerUsuarioPorToken,
+  cambiarPassword
 } from '../controllers/usuarios.js';
 import { verificarToken, esAdministrador } from '../middlewares/authMiddleware.js'
 
@@ -19,5 +20,6 @@ router.get('/usuarios/:username', verificarToken, esAdministrador, obtenerUsuari
 router.get('/usuario/token', verificarToken, obtenerUsuarioPorToken);
 router.put('/usuarios/:username', verificarToken, esAdministrador, actualizarUsuario);
 router.delete('/usuarios/:username', verificarToken, esAdministrador, eliminarUsuario);
+router.put('/usuarios/cambiar-password/:username', verificarToken, esAdministrador, cambiarPassword);
 
 export default router;

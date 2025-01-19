@@ -168,23 +168,24 @@ export const eliminarUsuario = async (req, res) => {
     const { username } = req.params;
   
     try {
-      const usuarioExistente = await prisma.usuarios_Arast_Frevill.findUnique({
-        where: { username }
-      });
+        const usuarioExistente = await prisma.usuarios_Arast_Frevill.findUnique({
+            where: { username }
+        });
   
-      if (!usuarioExistente) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
+        if (!usuarioExistente) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
   
-      await prisma.usuarios_Arast_Frevill.delete({
-        where: { username }
-      });
+        await prisma.usuarios_Arast_Frevill.delete({
+            where: { username }
+        });
   
-      res.status(204).send({msg : "el usuario ha sido eliminado existosamente"}); 
+        return res.status(200).json({ message: "El usuario ha sido eliminado exitosamente" }); 
     } catch (error) {
-      res.status(500).json({ error: error.message });
+        console.error('Error al eliminar usuario:', error);
+        return res.status(500).json({ error: error.message });
     }
-  };
+};
 
   export const obtenerUsuarioPorToken = async (req, res) => {
     try {
@@ -211,4 +212,34 @@ export const eliminarUsuario = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+  
+export const cambiarPassword = async (req, res) => {
+    const { username } = req.params;
+    const { contrasena } = req.body;
+
+    try {
+        const usuarioExistente = await prisma.usuarios_Arast_Frevill.findUnique({
+            where: { username }
+        });
+
+        if (!usuarioExistente) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const saltRounds = 10;
+        const contrasenaEncriptada = await bcrypt.hash(contrasena, saltRounds);
+
+        await prisma.usuarios_Arast_Frevill.update({
+            where: { username },
+            data: {
+                contrasena: contrasenaEncriptada,
+                fechaModificacion: new Date()
+            }
+        });
+
+        res.status(200).json({ msg: "La contraseña ha sido actualizada exitosamente" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
   

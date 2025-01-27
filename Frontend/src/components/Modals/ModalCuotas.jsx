@@ -106,98 +106,137 @@ const ModalCuotas =  ({handleClose}) =>{
       };
     
       return (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-4/5 max-h-[80%] overflow-y-scroll">
-            <h2 className="text-lg font-bold mb-4 text-center">Registro de Categorías</h2>
-            <form onSubmit={handleSubmit}>
-              {cuotas.map((cuota, index) => (
-                <div key={index} className="mb-6 border-b pb-4">
-                  <h3 className="font-semibold mb-2 text-gray-700">{cuota.categoria}</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-gray-700">Valor Cuota Presente</label>
-                      <input
-                        type="number"
-                        name="valorCuotaPresente"
-                        value={cuota.valorCuotaPresente}
-                        onChange={(e) => handleChange(e, index)}
-                        className="border p-2 w-full"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-gray-700">Valor Cuota Ausente</label>
-                      <input
-                        type="number"
-                        name="valorCuotaAusente"
-                        value={cuota.valorCuotaAusente}
-                        onChange={(e) => handleChange(e, index)}
-                        className="border p-2 w-full"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-gray-700">Valor Patrimonial Presente</label>
-                      <input
-                        type="number"
-                        name="valorPatrimonialPresente"
-                        value={cuota.valorPatrimonialPresente}
-                        onChange={(e) => handleChange(e, index)}
-                        className="border p-2 w-full"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-gray-700">Valor Patrimonial Ausente</label>
-                      <input
-                        type="number"
-                        name="valorPatrimonialAusente"
-                        value={cuota.valorPatrimonialAusente}
-                        onChange={(e) => handleChange(e, index)}
-                        className="border p-2 w-full"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-gray-700">Valor Predial</label>
-                      <input
-                        type="number"
-                        name="valorPredial"
-                        value={cuota.valorPredial}
-                        onChange={(e) => handleChange(e, index)}
-                        className="border p-2 w-full"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-gray-700">Año</label>
-                      <input
-                        type="number"
-                        name="anio"
-                        value={cuota.anio}
-                        onChange={(e) => handleChange(e, index)}
-                        className="border p-2 w-full"
-                      />
-                    </div>
-                  </div>
+        <div className="fixed inset-0 bg-customBlue bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[90%] max-w-5xl max-h-[85vh] overflow-y-auto p-8 transform transition-all animate-slideIn mx-4">
+                {/* Encabezado */}
+                <div className="text-center mb-8">
+                    <h2 className="text-3xl font-bold text-customBlue">Registro de Cuotas</h2>
+                    <div className="mt-2 h-1 w-32 bg-customYellow mx-auto rounded-full"></div>
                 </div>
-              ))}
-    
-              <div className="flex justify-center mt-4">
-                <button
-                  type="submit"
-                  className="bg-customBlue text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-                >
-                  Registrar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="ml-4 bg-customBlue text-white px-6 py-2 rounded-lg hover:bg-red-700"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      );
 
+                <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {cuotas.map((cuota, index) => (
+                            <div key={index} className="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                                <h3 className="text-xl font-bold text-customBlue mb-4">{cuota.categoria}</h3>
+                                <div className="space-y-4">
+                                    <div className="group">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Valor Cuota Presente
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="valorCuotaPresente"
+                                            value={cuota.valorCuotaPresente}
+                                            onChange={(e) => handleChange(e, index)}
+                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg
+                                                     focus:ring-2 focus:ring-customYellow focus:border-customYellow 
+                                                     hover:border-customYellow transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="group">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Valor Cuota Ausente
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="valorCuotaAusente"
+                                            value={cuota.valorCuotaAusente}
+                                            onChange={(e) => handleChange(e, index)}
+                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg
+                                                     focus:ring-2 focus:ring-customYellow focus:border-customYellow 
+                                                     hover:border-customYellow transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="group">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Valor Patrimonial Presente
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="valorPatrimonialPresente"
+                                            value={cuota.valorPatrimonialPresente}
+                                            onChange={(e) => handleChange(e, index)}
+                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg
+                                                     focus:ring-2 focus:ring-customYellow focus:border-customYellow 
+                                                     hover:border-customYellow transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="group">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Valor Patrimonial Ausente
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="valorPatrimonialAusente"
+                                            value={cuota.valorPatrimonialAusente}
+                                            onChange={(e) => handleChange(e, index)}
+                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg
+                                                     focus:ring-2 focus:ring-customYellow focus:border-customYellow 
+                                                     hover:border-customYellow transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="group">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Valor Predial
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="valorPredial"
+                                            value={cuota.valorPredial}
+                                            onChange={(e) => handleChange(e, index)}
+                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg
+                                                     focus:ring-2 focus:ring-customYellow focus:border-customYellow 
+                                                     hover:border-customYellow transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="group">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Año
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="anio"
+                                            value={cuota.anio}
+                                            onChange={(e) => handleChange(e, index)}
+                                            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg
+                                                     focus:ring-2 focus:ring-customYellow focus:border-customYellow 
+                                                     hover:border-customYellow transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex justify-center gap-4 mt-8">
+                        <button
+                            type="submit"
+                            className="flex items-center px-6 py-3 bg-customBlue text-white rounded-lg
+                                     hover:bg-customYellow hover:text-customBlue transition-all duration-300 
+                                     transform hover:scale-105 shadow-lg"
+                        >
+                            Registrar
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            className="flex items-center px-6 py-3 bg-gray-500 text-white rounded-lg
+                                     hover:bg-customYellow hover:text-customBlue transition-all duration-300 
+                                     transform hover:scale-105 shadow-lg"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
 }
 
 export default ModalCuotas

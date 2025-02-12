@@ -152,68 +152,69 @@ const Reactivacion = () => {
         const doc = new jsPDF();
         const fechaFormateada = obtenerFechaFormateada();
         const base64Image = await convertImageToBase64(LogoPrincipal)
+        
+        // Logo y encabezado
         doc.addImage(base64Image, 'PNG', 10, 5, 20, 20); 
-        // Título principal
         doc.setFontSize(16);
         doc.setFont("helvetica", "bold");
         doc.text('ARAST', 105, 15, { align: 'center' });
         doc.setFontSize(12);
         doc.text('Reingreso', 105, 22, { align: 'center' });
-        doc.line(10, 55, 200, 55);
-        // Sección de información del socio
+        
+        // Información general
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 10);
-        //doc.text(`Liquidada desde: ${fechaFormateada}`, 10, 40);
-        doc.text(`Observación: ${observacion} `, 10, 50);
-       
+        doc.text(`Observación: ${observacion}`, 10, 30);
+        
         // Datos del socio
         if (Object.keys(reingreso).length !== 0) {
-            doc.text(`Membresía: ${busqueda}`, 10, 60);
-            doc.text(`Socio: ${reingreso.Socio}`, 10, 70);
-            doc.text(`Categoría: ${reingreso.Categoria}`, 10, 80);
-            doc.text(`Fecha final liquidación: ${reingreso.FechaFinalLiquidacion}`, 10, 90);
-            doc.text(`Estado: ${reingreso.Estatus}`, 10, 100);
+            doc.text(`Membresía: ${busqueda}`, 10, 40);
+            doc.text(`Socio: ${reingreso.Socio}`, 10, 45);
+            doc.text(`Categoría: ${reingreso.Categoria}`, 10, 50);
+            doc.text(`Fecha final liquidación: ${reingreso.FechaFinalLiquidacion}`, 10, 55);
+            doc.text(`Estado: ${reingreso.Estatus}`, 10, 60);
+            
+            // Datos adicionales (columna derecha)
+            doc.text(`Fecha de Nacimiento: ${reingreso.FechaNacimiento}`, 100, 40);
+            doc.text(`Estado Anterior: ${form.estadoAnterior}`, 100, 45);
         }
 
-        // Datos adicionales del socio
-        doc.text(`Fecha de Nacimiento: ${reingreso.FechaNacimiento}`, 100, 60);
-        doc.text(`Estado Anterior: ${form.estadoAnterior}`, 100, 80);
+        doc.line(10, 65, 200, 65);
 
-        doc.line(10, 105, 200, 105);
-
-
+        // Tabla de registros
         if (registros.length > 0) {
             doc.autoTable({
-                startY: 120,
+                startY: 70,
                 head: [['Año','Categoria','Total Patrimonial Anual', 'Total Predial Anual', 'Total Cuota Anual', 'Total Anual']],
                 body: registros.map(row => [
-                    row.anio, row.categoriasAnuales, row.totalPatrimonialAnual.toFixed(2), row.totalPredialAnual.toFixed(2), row.totalCuotaAnual, row.totalAnual.toFixed(2)
+                    row.anio, 
+                    row.categoriasAnuales, 
+                    row.totalPatrimonialAnual.toFixed(2), 
+                    row.totalPredialAnual.toFixed(2), 
+                    row.totalCuotaAnual, 
+                    row.totalAnual.toFixed(2)
                 ]),
                 headStyles: {
                     fillColor: [255, 255, 0],
                     textColor: [0, 0, 0]
-                },  // Cambia el color de fondo del encabezado a amarillo
+                },
                 styles: {
-                    halign: 'center', // Centrar texto en la tabla
-                    cellPadding: 5,
+                    halign: 'center',
+                    cellPadding: 3,
+                    fontSize: 8
                 }
             });
         }
 
+        // Totales
+        const finalY = doc.autoTable.previous.finalY + 5;
+        doc.setFont("helvetica", "bold");
+        doc.text(`Total Anual Final: ${(registrosData.total).toFixed(2)}`, 140, finalY);
+        doc.text(`Total Descuento: ${(registrosData.amnistia).toFixed(2)}`, 140, finalY + 5);
+        doc.text(`Total Recategorización: ${(registrosData.recategorizacion).toFixed(2)}`, 140, finalY + 10);
+        doc.text(`Total Final: ${(registrosData.totalFinal).toFixed(2)}`, 90, finalY + 20);
 
-
-
-        // Sección de Valor de Reajuste y total
-        const patrimonialPos = doc.autoTable.previous.finalY || 210;
-        doc.setFont("helvetica", "bold")
-        doc.text(`Total Anual Final: ${(registrosData.total).toFixed(2)}`, 140, patrimonialPos + 20);
-        doc.text(`Total Descuento: ${(registrosData.amnistia).toFixed(2)}`, 140, patrimonialPos + 25);
-        doc.text(`Total Recategorización: ${(registrosData.recategorizacion).toFixed(2)}`, 140, patrimonialPos + 30);
-        doc.text(`Total Final: ${(registrosData.totalFinal).toFixed(2)}`, 90, patrimonialPos + 40);
-        
-
-        // Descargar el PDF
         doc.save(`reporte_reingreso_${busqueda}.pdf`);
     };
 

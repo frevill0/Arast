@@ -38,7 +38,7 @@ function calcularValorMensual(mes, anio, valorCuotaPresente, valorPatrimonialPre
       if (mes === 0) { // Si es enero del año actual
         valorPatrimonial = valorPatrimonialAnterior / 12; // Cobrar la parte restante del patrimonial del año anterior
       } else if (mes === mesActual) { // Si es el mes actual (excepto enero)
-        valorPatrimonial = valorPatrimonialPresente; // Cobrar todo el valor patrimonial del año actual
+        valorPatrimonial = valorPatrimonialPresente/12; // Cobrar todo el valor patrimonial del año actual
       } else {
         valorPatrimonial = 0; // No se cobra patrimonial en los demás meses del año actual
       }
